@@ -101,11 +101,6 @@
 	</div>
 </div>
 
-<!-- MUSIC -->
-<audio id="bgMusic" loop preload="auto">
-  <source src="./music.mp3" type="audio/mpeg">
-</audio>
-
 <!-- MUTE BUTTON -->
 <div id="muteBtn" style="position:fixed;bottom:20px;right:20px;width:50px;height:50px;cursor:pointer;z-index:9999;">
   <svg viewBox="0 0 24 24" width="50" height="50" fill="#fff">
@@ -181,25 +176,44 @@
   };
 
   // OPTIONAL: Show "Tap to unmute" hint
-  function showUnmuteHint() {
-    let hint = document.getElementById('unmuteHint');
-    if (!hint) {
-      hint = document.createElement('div');
-      hint.id = 'unmuteHint';
-      hint.textContent = 'Tap anywhere to start music';
-      hint.style.cssText = `
-        position:fixed;bottom:140px;left:50%;transform:translateX(-50%);
-        padding:10px 16px;background:rgba(96,212,250,0.95);color:#000;
-        font-family:monospace;font-size:14px;border-radius:8px;
-        z-index:10000;opacity:0;transition:opacity 0.4s;
-      `;
-      document.body.appendChild(hint);
-    }
-    hint.style.opacity = '1';
-    setTimeout(() => hint.style.opacity = '0', 3000);
-  }
-</script>
 
+<script>
+// === DRILL BEAT PLAYLIST ===
+const playlist = [
+  "./music1.mp3",   // your first beat
+  "./music2.mp3"    // your second beat
+];
+
+let currentTrack = 0;
+const music = new Audio();
+music.volume = 0.3;
+music.preload = "auto";
+music.src = playlist[currentTrack];
+
+// Auto-play next track when one ends
+music.addEventListener("ended", () => {
+  currentTrack = (currentTrack + 1) % playlist.length; // loop through both
+  music.src = playlist[currentTrack];
+  music.play().catch(() => {});
+});
+
+// === MUTE BUTTON SUPPORT ===
+muteBtn.onclick = () => {
+  muted = !muted;
+  music.muted = muted;
+  muteBtn.innerHTML = muted
+    ? `<svg viewBox="0 0 24 24" width="50" height="50" fill="#aaa"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>`
+    : `<svg viewBox="0 0 24 24" width="50" height="50" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>`;
+};
+
+// === START ON FIRST TAP ===
+function startGameMusic() {
+  music.play().catch(() => {});
+}
+
+document.addEventListener("touchstart", startGameMusic, { once: true });
+document.addEventListener("click", startGameMusic, { once: true });
+</script>
   // ========================================
   // REGISTER SERVICE WORKER — FULL PWA
   // ========================================
