@@ -94,7 +94,53 @@ const allShadowVertices = [];
 const allShadowPolys = [];
 
 
+// ============================================================================
+// SOUND + MUSIC SYSTEM
+// ============================================================================
 
+// Playlist of your beats
+const playlist = [
+  "./music1.mp3",
+  "./music2.mp3"
+];
+
+let currentTrack = 0;
+
+// Create the audio object
+const music = new Audio();
+music.volume = 0.3;
+music.preload = "auto";
+music.src = playlist[currentTrack];
+
+let muted = false;
+
+// Get mute button (make sure your HTML has id="muteBtn")
+const muteBtn = document.getElementById("muteBtn");
+
+// Auto-play next track when one ends
+music.addEventListener("ended", () => {
+  currentTrack = (currentTrack + 1) % playlist.length;
+  music.src = playlist[currentTrack];
+  music.play().catch(() => {});
+});
+
+// MUTE BUTTON SUPPORT
+muteBtn.onclick = () => {
+  muted = !muted;
+  music.muted = muted;
+
+  muteBtn.innerHTML = muted
+    ? `<svg viewBox="0 0 24 24" width="50" height="50" fill="#aaa"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>`
+    : `<svg viewBox="0 0 24 24" width="50" height="50" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>`;
+};
+
+// FIRST TAP UNLOCKS AUDIO
+function startGameMusic() {
+  music.play().catch(() => {});
+}
+
+document.addEventListener("touchstart", startGameMusic, { once: true });
+document.addEventListener("click", startGameMusic, { once: true });
 
 // state.js
 // ============================================================================
