@@ -284,7 +284,7 @@
 /* ===== Install Popup Animation ===== */
 #autoInstallBox {
     opacity: 0;
-    transform: translate(-50%, -20px);
+    transform: translate(-50%, 20px);
     transition: all 0.6s ease;
 }
 
@@ -295,26 +295,26 @@
 }
 
 @keyframes bounceIn {
-    0% { transform: translate(-50%, -40px); }
-    60% { transform: translate(-50%, 5px); }
+    0% { transform: translate(-50%, 40px); }
+    60% { transform: translate(-50%, -5px); }
     100% { transform: translate(-50%, 0); }
 }
 </style>
-
 
 <!-- ===== AUTO INSTALL POPUP ===== -->
 <div id="autoInstallBox" style="
     display:none;
     position: fixed;
-    top: 20px;
+    bottom: 20px;
     left: 50%;
+    transform: translateX(-50%);
     background: #111;
     color: #fff;
     padding: 15px 20px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    z-index: 99999;
-    text-align:center;
+    z-index: 999999;
+    text-align: center;
     font-size: 16px;
 ">
     <div style="margin-bottom: 10px;">
@@ -333,7 +333,6 @@
         Install Now
     </button>
 </div>
-
 
 <script>
 /* ===== Install Prompt Logic ===== */
@@ -361,7 +360,7 @@ function showPopup() {
 
         popupShown = true;
 
-        // Re-show every 10 seconds
+        // Re-show every 10 seconds until installed
         setTimeout(() => {
             if (deferredPrompt) showPopup();
         }, 10000);
@@ -390,7 +389,11 @@ function hidePopup() {
         box.style.display = "none";
     }, 600);
 }
-	</script>
+</script>
+
+
+
+
 
 	
 	<script>
