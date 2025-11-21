@@ -498,21 +498,19 @@ function hidePopup() {
 <!-- Open in Browser Prompt -->
 <!-- ========================= -->
 <div id="openBrowserBox">
-  <button id="openBrowserBtn">🌐 Open in Browser to install</button>
+  <button id="openBrowserBtn">🌐 Open in Browser</button>
 </div>
 
 <style>
-  /* Container styling: bottom-left, above other buttons */
   #openBrowserBox {
     position: fixed;
-    bottom: 20px;       /* adjust vertical position */
-    left: 20px;         /* adjust horizontal position */
-    z-index: 9999;      /* above most elements */
-    display: none;      /* hidden by default */
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: none;
     pointer-events: auto;
   }
 
-  /* Button styling */
   #openBrowserBtn {
     background: #ff9800;
     color: #fff;
@@ -526,7 +524,6 @@ function hidePopup() {
     opacity: 0;
   }
 
-  /* Show animation */
   #openBrowserBox.show #openBrowserBtn {
     opacity: 1;
     transform: scale(1.1);
@@ -540,31 +537,59 @@ function hidePopup() {
 </style>
 
 <script>
-  (function() {
-    // Only show once per user session
-    if (sessionStorage.getItem("openBrowserClicked")) return;
+(function() {
+  // Prevent showing multiple times per session
+  if (sessionStorage.getItem("openBrowserClicked")) return;
 
-    const box = document.getElementById("openBrowserBox");
-    const btn = document.getElementById("openBrowserBtn");
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
 
-    // Show after short delay
-    setTimeout(() => {
-      box.style.display = "block";
-      requestAnimationFrame(() => {
-        box.classList.add("show");
-      });
-    }, 2000); // adjust delay as needed
+  // Smart detection: common social media in-app browsers
+  const socialAppPatterns = [
+    /FBAN|FBAV/i,          // Facebook app
+    /Instagram/i,           // Instagram
+    /Twitter/i,             // Twitter
+    /Snapchat/i,            // Snapchat
+    /LinkedIn/i,            // LinkedIn
+    /Reddit/i,              // Reddit
+    /TikTok/i,              // TikTok
+    /WhatsApp/i,            // WhatsApp
+    /Messenger/i,           // Messenger
+    /Pinterest/i            // Pinterest
+  ];
 
-    btn.addEventListener("click", () => {
-      // Open your game page in the browser
-      window.open(window.location.href, "_blank");
+  // Also detect known in-app browser patterns (iOS & Android)
+  const inAppBrowserPatterns = [
+    /CriOS/i,               // Chrome on iOS
+    /FxiOS/i,               // Firefox on iOS
+    /GSA/i                  // Google Search app
+  ];
 
-      // Hide and never show again
-      box.classList.remove("show");
-      setTimeout(() => box.style.display = "none", 300);
-      sessionStorage.setItem("openBrowserClicked", "true");
-    });
-  })();
+  // Check if user is in social media or in-app browser
+  const isSocialApp = socialAppPatterns.some(rx => rx.test(ua));
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Twitter|Snapchat|LinkedIn|Reddit|TikTok|Messenger|WhatsApp|Pinterest/i.test(ua)
+                        && !/Chrome|Safari|Firefox|Edge/i.test(ua);
+
+  if (!isSocialApp && !isInAppBrowser) return; // Exit if not social media browser
+
+  const box = document.getElementById("openBrowserBox");
+  const btn = document.getElementById("openBrowserBtn");
+
+  // Show button after a short delay
+  setTimeout(() => {
+    box.style.display = "block";
+    requestAnimationFrame(() => box.classList.add("show"));
+  }, 2000);
+
+  // Open page in default browser
+  btn.addEventListener("click", () => {
+    window.open(window.location.href, "_blank");
+
+    // Hide and mark as clicked
+    box.classList.remove("show");
+    setTimeout(() => box.style.display = "none", 300);
+    sessionStorage.setItem("openBrowserClicked", "true");
+  });
+})();
 	</script>
 
 
