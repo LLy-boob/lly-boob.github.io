@@ -323,7 +323,31 @@
 })();
 	</script>
 
+<script>
+// =========================
+// Touch Input Booster (Safe)
+// =========================
 
+// This prevents the browser from interfering with your swipe
+// but does NOT break scroll on other pages or other elements.
+// Only the canvas is protected.
+
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.querySelector("canvas");
+    if (!canvas) return;
+
+    const opts = { passive: false };
+
+    ["touchstart", "touchmove", "touchend"].forEach(ev => {
+        canvas.addEventListener(ev, e => {
+            // Only stop browser behavior IF the user touched the canvas
+            e.preventDefault();
+        }, opts);
+    });
+
+    canvas.style.touchAction = "none"; // ultra-safe, only affects canvas
+});
+	</script>
 
 <style>
 /* ===== Install Popup Animation ===== */
