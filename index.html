@@ -496,20 +496,20 @@ function hidePopup() {
 
 
 <!-- ========================= -->
-<!-- Open in Browser Prompt -->
+<!-- Install / Open in Browser Prompt -->
 <!-- ========================= -->
 <div id="openBrowserBox">
-  <button id="openBrowserBtn">🌐 Install the game</button>
+  <button id="openBrowserBtn">🌐Install Game</button>
 </div>
 
 <style>
   /* Container styling: bottom-left, above other buttons */
   #openBrowserBox {
     position: fixed;
-    bottom: 20px;       /* adjust vertical position */
-    left: 20px;         /* adjust horizontal position */
-    z-index: 9999;      /* above most elements */
-    display: none;      /* hidden by default */
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: none;
     pointer-events: auto;
   }
 
@@ -541,32 +541,44 @@ function hidePopup() {
 </style>
 
 <script>
-  (function() {
-    // Only show once per user session
-    if (sessionStorage.getItem("openBrowserClicked")) return;
+(function() {
+  const box = document.getElementById("openBrowserBox");
+  const btn = document.getElementById("openBrowserBtn");
 
-    const box = document.getElementById("openBrowserBox");
-    const btn = document.getElementById("openBrowserBtn");
+  // Only show once per session
+  if (sessionStorage.getItem("installClicked")) return;
 
-    // Show after short delay
-    setTimeout(() => {
-      box.style.display = "block";
-      requestAnimationFrame(() => {
-        box.classList.add("show");
-      });
-    }, 2000); // adjust delay as needed
+  // Detect in-app browsers
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const inAppBrowser = /Instagram|FBAV|FBAN|Twitter|TikTok/i.test(ua);
 
-    btn.addEventListener("click", () => {
-      // Open your game page in the browser
+  // Change text if in-app browser
+  if (inAppBrowser) {
+    btn.textContent = "Open in Browser to Install";
+  }
+
+  // Show after a short delay
+  setTimeout(() => {
+    box.style.display = "block";
+    requestAnimationFrame(() => box.classList.add("show"));
+  }, 2000);
+
+  btn.addEventListener("click", () => {
+    if (inAppBrowser) {
+      // Tell user to manually open in browser
+      alert("Please open this page in your browser (Chrome/Edge/Firefox) to install the game.");
+    } else {
+      // Normal browser: open new tab (can trigger PWA install)
       window.open(window.location.href, "_blank");
+    }
 
-      // Hide and never show again
-      box.classList.remove("show");
-      setTimeout(() => box.style.display = "none", 300);
-      sessionStorage.setItem("openBrowserClicked", "true");
-    });
-  })();
-	</script>
+    // Hide and mark as clicked
+    box.classList.remove("show");
+    setTimeout(() => box.style.display = "none", 300);
+    sessionStorage.setItem("installClicked", "true");
+  });
+})();
+</script>
 
 	
 	<script>
