@@ -495,7 +495,78 @@ function hidePopup() {
 
 
 
+<!-- ========================= -->
+<!-- Open in Browser Prompt -->
+<!-- ========================= -->
+<div id="openBrowserBox">
+  <button id="openBrowserBtn">🌐 Open in Browser</button>
+</div>
 
+<style>
+  /* Container styling: bottom-left, above other buttons */
+  #openBrowserBox {
+    position: fixed;
+    bottom: 20px;       /* adjust vertical position */
+    left: 20px;         /* adjust horizontal position */
+    z-index: 9999;      /* above most elements */
+    display: none;      /* hidden by default */
+    pointer-events: auto;
+  }
+
+  /* Button styling */
+  #openBrowserBtn {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, opacity 0.3s ease;
+    opacity: 0;
+  }
+
+  /* Show animation */
+  #openBrowserBox.show #openBrowserBtn {
+    opacity: 1;
+    transform: scale(1.1);
+    animation: bounce 1s infinite alternate;
+  }
+
+  @keyframes bounce {
+    0% { transform: scale(1.1); }
+    100% { transform: scale(1.2); }
+  }
+</style>
+
+<script>
+  (function() {
+    // Only show once per user session
+    if (sessionStorage.getItem("openBrowserClicked")) return;
+
+    const box = document.getElementById("openBrowserBox");
+    const btn = document.getElementById("openBrowserBtn");
+
+    // Show after short delay
+    setTimeout(() => {
+      box.style.display = "block";
+      requestAnimationFrame(() => {
+        box.classList.add("show");
+      });
+    }, 2000); // adjust delay as needed
+
+    btn.addEventListener("click", () => {
+      // Open your game page in the browser
+      window.open(window.location.href, "_blank");
+
+      // Hide and never show again
+      box.classList.remove("show");
+      setTimeout(() => box.style.display = "none", 300);
+      sessionStorage.setItem("openBrowserClicked", "true");
+    });
+  })();
+	</script>
 
 	
 	<script>
