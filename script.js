@@ -2321,4 +2321,35 @@ function loadShareButton() {
 }
 
 
-			
+
+
+// ============================================================================
+//  UNIVERSAL OPTIMIZED GAME LOOP (SAFE TO USE WITH ANY GAME LOGIC)
+// ============================================================================
+let lastTime = performance.now();
+let accumulator = 0;
+const fixedStep = 1000 / 60;
+
+function startGameLoop() {
+    requestAnimationFrame(loop);
+}
+
+function loop(now) {
+    let delta = now - lastTime;
+    lastTime = now;
+
+    if (delta > 100) delta = 100;
+
+    accumulator += delta;
+
+    while (accumulator >= fixedStep) {
+        update(fixedStep / 16.67);
+        accumulator -= fixedStep;
+    }
+
+    render();
+    requestAnimationFrame(loop);
+}
+
+// 🚀 START THE LOOP
+startGameLoop();
