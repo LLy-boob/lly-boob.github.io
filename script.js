@@ -2391,7 +2391,4 @@ if (typeof window.startBlockBlasterGame === 'function') {
     setTimeout(waitUntilEverythingIsReallyReady, 150);
 })();
 
-// BLOCK ADS AGAIN WHEN NEW GAME STARTS (SAFE FALLBACK)
-document.addEventListener('touchstart', blockAdsAgainWhenGameStarts, { once: true });
-document.addEventListener('click', blockAdsAgainWhenGameStarts, { once: true });
-		
+
