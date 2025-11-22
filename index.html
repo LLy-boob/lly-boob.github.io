@@ -782,70 +782,63 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 </script>
 
 
-	
-
 <!-- ============================================= -->
-<!--   SAFE + FAST AD LOADER (ONLY AFTER PLAY)    -->
+<!--   FINAL SAFE + FAST AD LOADER (NOVEMBER 2025) -->
 <!-- ============================================= -->
 <script>
-// This function loads all your ads safely after the player starts the game
+// This loads ALL your ads only AFTER the player taps Play → no more freezing!
 function loadAdsSafely() {
-    // Prevent loading twice
     if (window.adsAlreadyLoaded) return;
     window.adsAlreadyLoaded = true;
 
-    // 1. Monetag
+    // 1. Monetag main script
     const monetag = document.createElement('script');
     monetag.src = 'https://js.monetag.com/ef7c500bcbab5c68feaab4175d9cfc13.js';
     monetag.async = true;
     document.head.appendChild(monetag);
 
-    // 2. Push Banner (nap5k)
+    // 2. Push Banner – zone 10203402
     const push = document.createElement('script');
     push.src = 'https://nap5k.com/tag.min.js';
     push.dataset.zone = '10203402';
     push.async = true;
     document.body.appendChild(push);
 
-    // 3. Vignette / Fullscreen (groleegni)
+    // 3. Vignette (automatic full-screen) – zone 10203415
     const vignette = document.createElement('script');
     vignette.src = 'https://groleegni.net/vignette.min.js';
     vignette.dataset.zone = '10203415';
     vignette.async = true;
     document.body.appendChild(vignette);
 
-    console.log('Ads loaded safely after game start');
-
-
-
-	// ←←← ADD THIS FOR YOUR NEW INTERSTITIAL ZONE
+    // 4. Interstitial (manual – for Game Over “Watch Ad & Continue”) – zone 10220242
     const interstitial = document.createElement('script');
-    interstitial.async = true;
+    interstitial.src = 'https://gizokraijaw.net/vignette.min.js';
     interstitial.dataset.zone = '10220242';
-    interstitial.src = 'https://gizokraijaw.net/vignette.min.js';  // same file works for interstitial too
+    interstitial.async = true;
     document.body.appendChild(interstitial);
+
+    console.log('All ads (including interstitial 10220242) loaded safely');
 }
 
-// Hook into your existing "first interaction" system (you already have this!)
+// Unlock music + load ads only after first tap/click
 function startGameAndAds() {
     if (window.gameStartedForAds) return;
     window.gameStartedForAds = true;
 
-    // Your existing music unlock (keep this)
+    // Unlock music (your existing code)
     const music = document.getElementById('bgMusic');
-    if (music) {
-        music.play().catch(() => {});
-    }
+    if (music) music.play().catch(() => {});
 
-    // NOW load ads only after player tapped
-    setTimeout(loadAdsSafely, 3000); // 3-second delay = perfect balance
+    // Load all ads 3 seconds after start (perfect balance)
+    setTimeout(loadAdsSafely, 3000);
 }
 
-// Listen for first tap/click (you already have this — just reuse!)
+// First interaction → start everything
 document.addEventListener('touchstart', startGameAndAds, { once: true });
 document.addEventListener('click', startGameAndAds, { once: true });
 
-// Optional: if player opens from menu later, still load ads
+// Fallback: if player clicks menu buttons later
 window.addEventListener('load', () => {
     setTimeout(() => {
         if (!window.gameStartedForAds) {
@@ -854,7 +847,8 @@ window.addEventListener('load', () => {
         }
     }, 1000);
 });
-	</script>
+	</script>	
+
 
 <!-- Monetag main JS -->
 <script src="https://js.monetag.com/ef7c500bcbab5c68feaab4175d9cfc13.js"></script>
