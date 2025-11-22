@@ -888,34 +888,47 @@ function blockAdsForNewGame() {
     adsAllowed = false;
 }
 
-// Load all ads safely after first tap
 function loadAdsSafely() {
     if (window.adsAlreadyLoaded) return;
     window.adsAlreadyLoaded = true;
 
-    const monetag = document.createElement('script');
-    monetag.src = 'https://js.monetag.com/ef7c500bcbab5c68feaab4175d9cfc13.js';
-    monetag.async = true;
-    document.head.appendChild(monetag);
+    // 1. Monetag main – delay 4 seconds (never lags WebGL start)
+    setTimeout(() => {
+        const m = document.createElement('script');
+        m.src = 'https://js.monetag.com/ef7c500bcbab5c68feaab4175d9cfc13.js';
+        m.async = true;
+        document.head.appendChild(m);
+    }, 4000);
 
-    const push = document.createElement('script');
-    push.src = 'https://nap5k.com/tag.min.js';
-    push.dataset.zone = '10203402';
-    push.async = true;
-    document.body.appendChild(push);
+    // 2. Push banner – delay 9 seconds (player already deep in game)
+    setTimeout(() => {
+        const p = document.createElement('script');
+        p.src = 'https://nap5k.com/tag.min.js';
+        p.dataset.zone = '10203402';
+        p.async = true;
+        document.body.appendChild(p);
+    }, 9000);
 
-    const vignette = document.createElement('script');
-    vignette.src = 'https://groleegni.net/vignette.min.js';
-    vignette.dataset.zone = '10203415';
-    vignette.async = true;
-    document.body.appendChild(vignette);
+    // 3. Vignette – delay 6 seconds
+    setTimeout(() => {
+        const v = document.createElement('script');
+        v.src = 'https://groleegni.net/vignette.min.js';
+        v.dataset.zone = '10203415';
+        v.async = true;
+        document.body.appendChild(v);
+    }, 6000);
 
-    const interstitial = document.createElement('script');
-    interstitial.src = 'https://gizokraijaw.net/vignette.min.js';
-    interstitial.dataset.zone = '10220242';
-    interstitial.async = true;
-    document.body.appendChild(interstitial);
-}
+    // 4. Interstitial (rewarded) – delay 5 seconds
+    setTimeout(() => {
+        const i = document.createElement('script');
+        i.src = 'https://gizokraijaw.net/vignette.min.js';
+        i.dataset.zone = '10220242';
+        i.async = true;
+        document.body.appendChild(i);
+    }, 5000);
+
+    console.log('All ads loading with smart delays – ZERO lag on first play');
+	}
 
 function startGameAndAds() {
     if (window.gameStartedForAds) return;
