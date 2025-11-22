@@ -1529,78 +1529,53 @@ function endGame() {
     setActiveMenu(MENU_SCORE);
 
     // === ONLY 50% CHANCE TO SHOW THE OFFER ===
-    if (Math.random() >= 0.5) return; // 50% of deaths → no ad offer
+    if (Math.random() >= 0.5) return;
 
-    // === Create beautiful dark vignette overlay ===
+    // Create beautiful overlay
     const overlay = document.createElement('div');
     Object.assign(overlay.style, {
-        position: 'fixed',
-        top: 0, left: 0, width: '100%', height: '100%',
-        background: 'rgba(0, 0, 0, 0.85)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9998,
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)'
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'rgba(0,0,0,0.88)', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center', zIndex: 9999,
+        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)'
     });
     document.body.appendChild(overlay);
 
     const title = document.createElement('h2');
     title.textContent = 'Watch Ad to Continue?';
-    Object.assign(title.style, { color: '#fff', fontSize: '24px', marginBottom: '30px', textAlign: 'center' });
+    title.style.cssText = 'color:#fff;font-size:26px;margin-bottom:30px;';
     overlay.appendChild(title);
 
     const adBtn = document.createElement('button');
     adBtn.textContent = 'Watch Ad & Continue';
-    Object.assign(adBtn.style, {
-        padding: '14px 32px',
-        fontSize: '18px',
-        cursor: 'pointer',
-        background: '#4CAF50',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '12px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
-        marginBottom: '20px',
-        minWidth: '240px'
-    });
+    adBtn.style.cssText = 'padding:16px 40px;font-size:19px;background:#4CAF50;color:#fff;border:none;border-radius:14px;cursor:pointer;min-width:260px;margin-bottom:20px;';
     overlay.appendChild(adBtn);
 
     const skipBtn = document.createElement('button');
     skipBtn.textContent = 'No Thanks';
-    Object.assign(skipBtn.style, {
-        padding: '10px 24px',
-        fontSize: '16px',
-        cursor: 'pointer',
-        background: 'transparent',
-        color: '#ff6666',
-        border: '2px solid #ff6666',
-        borderRadius: '12px',
-        minWidth: '240px'
-    });
+    skipBtn.style.cssText = 'padding:12px 30px;font-size:17px;background:transparent;color:#ff6666;border:2px solid #ff6666;border-radius:14px;cursor:pointer;min-width:260px;';
     overlay.appendChild(skipBtn);
 
-    const cleanup = () => {
-        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    };
+    const cleanup = () => overlay.parentNode && overlay.parentNode.removeChild(overlay);
 
-    // === THIS IS THE ONLY LINE THAT CHANGED ===
+    // === PLAYER CLICKS "WATCH AD & CONTINUE" ===
     adBtn.addEventListener('click', () => {
         cleanup();
-        // Correct call for your interstitial zone 10220242
+
+        // Show Monetag ad if available
         if (typeof window.show_10220242 === 'function') {
             window.show_10220242();
         }
+
+        // === ALWAYS continue the game after 5 seconds (even if no ad) ===
+        setTimeout(() => {
+            // This uses YOUR existing "Play Again" button logic — 100% safe!
+            document.querySelector('.play-again-btn').click();
+        }, 5000);
     });
 
     skipBtn.addEventListener('click', cleanup);
-
-    // Close when tapping outside
-    overlay.addEventListener('click', e => {
-        if (e.target === overlay) cleanup();
-    });
+    overlay.addEventListener('click', e => e.target === overlay && cleanup());
 }
 
 
