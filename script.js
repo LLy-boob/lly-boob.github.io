@@ -1518,134 +1518,73 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-// ======================================================
-// SAFE END GAME + ADS FLOW
-// ======================================================
-function endGame() {
-    // Safety check: only proceed if game state exists
-    if (!window.state || !state.game) return;
 
-    // Allow ads only during Game Over
-    if (typeof allowAdsTemporarily === "function") allowAdsTemporarily();
+    function endGame() {
+    allowAdsTemporarily();   // ← Allows ads ONLY on death screen (12-second window)
 
-    // End canvas input safely
-    if (typeof handleCanvasPointerUp === "function") handleCanvasPointerUp();
+    handleCanvasPointerUp();
 
-    // Save high score safely
-    if (typeof isNewHighScore === "function" && isNewHighScore()) {
-        if (typeof setHighScore === "function") setHighScore(state.game.score);
+    if (isNewHighScore()) {
+        setHighScore(state.game.score);
     }
 
-    // Switch to score menu safely
-    if (typeof setActiveMenu === "function") setActiveMenu(MENU_SCORE);
+    setActiveMenu(MENU_SCORE);
 
-    // Try showing Monetag ads safely
-    tryShowingAdsAtGameOver();
-
-    // After 1.8s, show fallback button if no ad appeared
-    setTimeout(() => {
-        if (!adIsVisible()) showFallbackContinueUI();
-    }, 1800);
-}
-
-// ======================================================
-// TRY MONETAG ADS
-// ======================================================
-function tryShowingAdsAtGameOver() {
-    // Interstitial / rewarded
-    if (typeof window.show_10220242 === "function") {
-        try { window.show_10220242(); } catch(e) { console.warn(e); }
+    // Try automatic Monetag ad first
+    if (typeof window.show_10220242 === 'function') {
+        window.show_10220242();
+    }
+    if (typeof window.show_10203415 === 'function') {
+        setTimeout(window.show_10203415, 500);
     }
 
-    // Vignette after 0.5s
+    // If no ad appeared after 2 seconds → show green button
     setTimeout(() => {
-        if (typeof window.show_10203415 === "function") {
-            try { window.show_10203415(); } catch(e) { console.warn(e); }
+        const hasAd = document.querySelector('div[id*="monetag"], iframe[src*="monetag"], div[style*="z-index: 99999"]');
+        if (!hasAd) {
+            showGreenContinueButton();
         }
-    }, 500);
+    }, 2000);
 }
 
-// ======================================================
-// CHECK IF ANY MONETAG AD IS VISIBLE
-// ======================================================
-function adIsVisible() {
-    try {
-        return !!document.querySelector('div[id*="monetag"], iframe[src*="monetag"]');
-    } catch(e) {
-        return false;
-    }
-}
-
-// ======================================================
-// FALLBACK CONTINUE SCREEN
-// ======================================================
-function showFallbackContinueUI() {
-    // Remove previous overlay if any
-    document.querySelector("#fallbackAdOverlay")?.remove();
-
-    const overlay = document.createElement("div");
-    overlay.id = "fallbackAdOverlay";
-    overlay.style.cssText = `
-        position:fixed;top:0;left:0;width:100%;height:100%;
-        background:rgba(0,0,0,0.92);
-        display:flex;flex-direction:column;
-        justify-content:center;align-items:center;
-        z-index:9999;backdrop-filter:blur(12px);
-    `;
+function showGreenContinueButton() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;backdrop-filter:blur(12px);';
     document.body.appendChild(overlay);
 
-    const title = document.createElement("h2");
-    title.textContent = "Watch Ad to Continue?";
-    title.style.cssText = `
-        color:#00ff9d;font-size:28px;margin-bottom:30px;
-        letter-spacing:4px;text-align:center;
-    `;
+    const title = document.createElement('h2');
+    title.textContent = 'Watch Ad to Continue?';
+    title.style.cssText = 'color:#00ff9d;font-size:28px;margin-bottom:30px;letter-spacing:6px;';
     overlay.appendChild(title);
 
-    // Watch Ad Button
-    const btn = document.createElement("button");
-    btn.textContent = "Watch Ad & Continue";
-    btn.style.cssText = `
-        padding:18px 50px;font-size:20px;
-        background:#00ff9d;color:#000;
-        border:none;border-radius:16px;
-        cursor:pointer;font-weight:bold;
-    `;
+    const btn = document.createElement('button');
+    btn.textContent = 'Watch Ad & Continue';
+    btn.style.cssText = 'padding:18px 55px;font-size:21px;background:#00ff9d;color:#000;border:none;border-radius:16px;cursor:pointer;font-weight:bold;';
     overlay.appendChild(btn);
 
-    // Skip Button
-    const skip = document.createElement("button");
-    skip.textContent = "No Thanks";
-    skip.style.cssText = `
-        margin-top:25px;padding:14px 45px;
-        background:transparent;color:#ff6666;
-        border:2px solid #ff6666;border-radius:14px;
-        cursor:pointer;font-size:18px;
-    `;
+    const skip = document.createElement('button');
+    skip.textContent = 'No Thanks';
+    skip.style.cssText = 'margin-top:25px;padding:14px 45px;background:transparent;color:#ff6666;border:2px solid #ff6666;border-radius:16px;cursor:pointer;';
     overlay.appendChild(skip);
 
-    // Remove overlay safely
     const remove = () => overlay.remove();
 
-    // Watch Ad flow
     btn.onclick = () => {
         remove();
-        if (typeof window.show_10220242 === "function") {
-            try { window.show_10220242(); } catch(e) { console.warn(e); }
-        }
-        // Restart game safely
+        if (typeof window.show_10220242 === 'function') window.show_10220242();
         setTimeout(() => {
-            document.querySelector(".play-again-btn")?.click();
-            if (typeof blockAdsForNewGame === "function") blockAdsForNewGame();
-        }, 5000);
+            document.querySelector('.play-again-btn').click();
+            blockAdsForNewGame();   // ← Blocks ads again for next game
+        }, 6000);
     };
 
-    // Skip flow
     skip.onclick = () => {
         remove();
-        if (typeof blockAdsForNewGame === "function") blockAdsForNewGame();
+        blockAdsForNewGame();   // ← Blocks ads again for next game
     };
-	}
+
+    overlay.onclick = (e) => e.target === overlay && (remove(), blockAdsForNewGame());
+			}
 
 
 
