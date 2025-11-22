@@ -1519,7 +1519,7 @@ function resumeGame() {
 }
 
 function endGame() {
-    unlockAdsForDeathScreen();   // ← THIS IS THE KEY LINE – allows ads ONLY now
+    allowAdsOnDeathScreen();   // ← ONLY HERE ads are allowed
 
     handleCanvasPointerUp();
 
@@ -1529,21 +1529,16 @@ function endGame() {
 
     setActiveMenu(MENU_SCORE);
 
-    let adFilled = false;
-
-    // Try automatic Monetag ad first
+    // Try automatic Monetag ad
     if (typeof window.show_10220242 === 'function') {
         window.show_10220242();
-        adFilled = true;
-    }
-    if (!adFilled && typeof window.show_10203415 === 'function') {
-        setTimeout(window.show_10203415, 500);
-        adFilled = true;
+    } else if (typeof window.show_10203415 === 'function') {
+        setTimeout(window.show_10203415, 600);
     }
 
-    // If no ad appeared after 2 seconds → show green button
+    // If no ad after 2 seconds → show green button
     setTimeout(() => {
-        const hasAd = document.querySelector('div[id*="monetag"], iframe[src*="monetag"], div[style*="2147483647"]');
+        const hasAd = document.querySelector('div[id*="monetag"], iframe, div[style*="z-index: 9999"]');
         if (!hasAd) {
             showGreenContinueButton();
         }
@@ -1575,11 +1570,16 @@ function showGreenContinueButton() {
     btn.onclick = () => {
         remove();
         if (typeof window.show_10220242 === 'function') window.show_10220242();
-        setTimeout(() => document.querySelector('.play-again-btn').click(), 6000);
+        setTimeout(() => {
+            document.querySelector('.play-again-btn').click();
+            blockAdsAgainWhenGameStarts();   // ← block ads again when new game starts
+        }, 6000);
     };
-    skip.onclick = remove;
-    overlay.onclick = (e) => e.target === overlay && remove();
-			}
+    skip.onclick = () => {
+        remove();
+        blockAdsAgainWhenGameStarts();   // ← block ads again
+    };
+}
 
 
 ////////////////////////
