@@ -1435,10 +1435,22 @@ handleClick($('.play-casual-btn'), () => {
 handleClick($('.resume-btn'), () => resumeGame());
 handleClick($('.menu-btn--pause'), () => setActiveMenu(MENU_MAIN));
 
-// Score Menu
+// Score Menu – PLAY AGAIN BUTTON (also shows ad)
 handleClick($('.play-again-btn'), () => {
-	setActiveMenu(null);
-	resetGame();
+    allowAdsTemporarily();   // ← Allow ad
+
+    if (typeof window.show_10220242 === 'function') {
+        window.show_10220242();
+    }
+    if (typeof window.show_10203415 === 'function') {
+        setTimeout(window.show_10203415, 500);
+    }
+
+    setTimeout(() => {
+        setActiveMenu(null);
+        resetGame();
+        blockAdsForNewGame();   // ← Block ads during next play
+    }, 5000);
 });
 
 handleClick($('.menu-btn--score'), () => setActiveMenu(MENU_MAIN));
@@ -1520,8 +1532,10 @@ function resumeGame() {
 
 
     
-function endGame() {
-    allowAdsTemporarily();   // ← Allows ads ONLY on death screen (12-second window)
+
+
+    function endGame() {
+    allowAdsTemporarily();   // ← Allows ads for death screen + Play Again click
 
     handleCanvasPointerUp();
 
@@ -1531,7 +1545,7 @@ function endGame() {
 
     setActiveMenu(MENU_SCORE);
 
-    // Try automatic Monetag ad first
+    // 1. Try automatic Monetag ad immediately on death
     if (typeof window.show_10220242 === 'function') {
         window.show_10220242();
     }
@@ -1539,7 +1553,7 @@ function endGame() {
         setTimeout(window.show_10203415, 500);
     }
 
-    // If no ad appeared after 2 seconds → show green button
+    // 2. If no ad appeared after 2 seconds → show green button
     setTimeout(() => {
         const hasAd = document.querySelector('div[id*="monetag"], iframe[src*="monetag"], div[style*="z-index: 99999"]');
         if (!hasAd) {
@@ -1572,16 +1586,18 @@ function showGreenContinueButton() {
 
     btn.onclick = () => {
         remove();
+        // Try ad again when they click the green button
         if (typeof window.show_10220242 === 'function') window.show_10220242();
         setTimeout(() => {
-            document.querySelector('.play-again-btn').click();
-            blockAdsForNewGame();   // ← Blocks ads again for next game
+            setActiveMenu(null);
+            resetGame();
+            blockAdsForNewGame();   // ← Block ads during next play
         }, 6000);
     };
 
     skip.onclick = () => {
         remove();
-        blockAdsForNewGame();   // ← Blocks ads again for next game
+        blockAdsForNewGame();   // ← Block ads during next play
     };
 
     overlay.onclick = (e) => e.target === overlay && (remove(), blockAdsForNewGame());
