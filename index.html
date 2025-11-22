@@ -815,6 +815,15 @@ function loadAdsSafely() {
     document.body.appendChild(vignette);
 
     console.log('Ads loaded safely after game start');
+
+
+
+	// ←←← ADD THIS FOR YOUR NEW INTERSTITIAL ZONE
+    const interstitial = document.createElement('script');
+    interstitial.async = true;
+    interstitial.dataset.zone = '10220242';
+    interstitial.src = 'https://gizokraijaw.net/vignette.min.js';  // same file works for interstitial too
+    document.body.appendChild(interstitial);
 }
 
 // Hook into your existing "first interaction" system (you already have this!)
