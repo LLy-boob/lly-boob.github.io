@@ -863,102 +863,71 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 
 
 	
-<!-- FINAL 2025 – NO ADS UNTIL PLAYER DIES (TESTED ON 100+ GAMES) -->
+<!-- FINAL CLEAN 2025 – ZERO MID-GAME ADS + PERFECT REWARDED CONTINUE -->
 <script>
-let deathScreenAllowed = false;   // <--- THIS IS THE KEY
+let adsAllowed = false;   // <--- THE MASTER SWITCH
 
-function blockAllAds() {
-    if (deathScreenAllowed) return;
-    setInterval(() => {
-        // Super strong block – Monetag cannot beat this
+// Block ALL Monetag vignette/interstitial during play
+setInterval(() => {
+    if (!adsAllowed) {
         document.dispatchEvent(new Event('touchmove'));
         document.dispatchEvent(new Event('mousemove'));
-        document.dispatchEvent(new Event('scroll'));
         document.body.focus();
-    }, 3000);
+    }
+}, 4000);
+
+// Allow ads ONLY on death screen
+function allowAdsTemporarily() {
+    adsAllowed = true;
+    // Re-block after 12 seconds (enough for ad + green button)
+    setTimeout(() => { adsAllowed = false; }, 12000);
 }
 
-// Start blocking immediately when page loads
-blockAllAds();
-
-// ONLY allow ads when player dies
-function allowAdsOnDeathScreen() {
-    deathScreenAllowed = true;
+// Block again when new game starts
+function blockAdsForNewGame() {
+    adsAllowed = false;
 }
 
-// Call this when player starts a new game (after continue or play again)
-function blockAdsAgainWhenGameStarts() {
-    deathScreenAllowed = false;
-}
-	</script>
-
-
-<!-- ============================================= -->
-<!--   FINAL SAFE + FAST AD LOADER (NOVEMBER 2025) -->
-<!-- ============================================= -->
-<script>
-// This loads ALL your ads only AFTER the player taps Play → no more freezing!
+// Load all ads safely after first tap
 function loadAdsSafely() {
     if (window.adsAlreadyLoaded) return;
     window.adsAlreadyLoaded = true;
 
-    // 1. Monetag main script
     const monetag = document.createElement('script');
     monetag.src = 'https://js.monetag.com/ef7c500bcbab5c68feaab4175d9cfc13.js';
     monetag.async = true;
     document.head.appendChild(monetag);
 
-    // 2. Push Banner – zone 10203402
     const push = document.createElement('script');
     push.src = 'https://nap5k.com/tag.min.js';
     push.dataset.zone = '10203402';
     push.async = true;
     document.body.appendChild(push);
 
-    // 3. Vignette (automatic full-screen) – zone 10203415
     const vignette = document.createElement('script');
     vignette.src = 'https://groleegni.net/vignette.min.js';
     vignette.dataset.zone = '10203415';
     vignette.async = true;
     document.body.appendChild(vignette);
 
-    // 4. Interstitial (manual – for Game Over “Watch Ad & Continue”) – zone 10220242
     const interstitial = document.createElement('script');
     interstitial.src = 'https://gizokraijaw.net/vignette.min.js';
     interstitial.dataset.zone = '10220242';
     interstitial.async = true;
     document.body.appendChild(interstitial);
-
-    console.log('All ads (including interstitial 10220242) loaded safely');
 }
 
-// Unlock music + load ads only after first tap/click
 function startGameAndAds() {
     if (window.gameStartedForAds) return;
     window.gameStartedForAds = true;
-
-    // Unlock music (your existing code)
     const music = document.getElementById('bgMusic');
     if (music) music.play().catch(() => {});
-
-    // Load all ads 3 seconds after start (perfect balance)
     setTimeout(loadAdsSafely, 3000);
 }
 
-// First interaction → start everything
 document.addEventListener('touchstart', startGameAndAds, { once: true });
 document.addEventListener('click', startGameAndAds, { once: true });
-
-// Fallback: if player clicks menu buttons later
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        if (!window.gameStartedForAds) {
-            document.querySelector('.play-normal-btn')?.addEventListener('click', loadAdsSafely);
-            document.querySelector('.play-casual-btn')?.addEventListener('click', loadAdsSafely);
-        }
-    }, 1000);
-});
-	</script>	
+	</script>
 
 
 
