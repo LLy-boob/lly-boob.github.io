@@ -1518,7 +1518,6 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-
 function endGame() {
     handleCanvasPointerUp();
 
@@ -1577,6 +1576,7 @@ function endGame() {
     skipBtn.addEventListener('click', cleanup);
     overlay.addEventListener('click', e => e.target === overlay && cleanup());
 }
+
 
 
 ////////////////////////
