@@ -1518,7 +1518,6 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-
 function endGame() {
     unlockAdsForDeathScreen();   // ← THIS IS THE KEY LINE – allows ads ONLY now
 
@@ -1580,7 +1579,8 @@ function showGreenContinueButton() {
     };
     skip.onclick = remove;
     overlay.onclick = (e) => e.target === overlay && remove();
-}
+			}
+
 
 ////////////////////////
 // KEYBOARD SHORTCUTS //
@@ -2390,3 +2390,8 @@ if (typeof window.startBlockBlasterGame === 'function') {
     // Not ready yet → check again in 150ms
     setTimeout(waitUntilEverythingIsReallyReady, 150);
 })();
+
+// BLOCK ADS AGAIN WHEN NEW GAME STARTS (SAFE FALLBACK)
+document.addEventListener('touchstart', blockAdsAgainWhenGameStarts, { once: true });
+document.addEventListener('click', blockAdsAgainWhenGameStarts, { once: true });
+		
