@@ -1518,52 +1518,76 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-<!-- END GAME LOGIC (ADS + FALLBACK) -->
-
 // ======================================================
-// GAME OVER MAIN LOGIC
+// SAFE END GAME + ADS FLOW
 // ======================================================
 function endGame() {
-    allowAdsTemporarily(); 
-    handleCanvasPointerUp();
+    // Safety check: only proceed if game state exists
+    if (!window.state || !state.game) return;
 
-    if (isNewHighScore()) setHighScore(state.game.score);
+    // Allow ads only during Game Over
+    if (typeof allowAdsTemporarily === "function") allowAdsTemporarily();
 
-    setActiveMenu(MENU_SCORE);
+    // End canvas input safely
+    if (typeof handleCanvasPointerUp === "function") handleCanvasPointerUp();
 
-    // Try to show monetag ads
+    // Save high score safely
+    if (typeof isNewHighScore === "function" && isNewHighScore()) {
+        if (typeof setHighScore === "function") setHighScore(state.game.score);
+    }
+
+    // Switch to score menu safely
+    if (typeof setActiveMenu === "function") setActiveMenu(MENU_SCORE);
+
+    // Try showing Monetag ads safely
     tryShowingAdsAtGameOver();
 
-    // Check if an ad appeared
+    // After 1.8s, show fallback button if no ad appeared
     setTimeout(() => {
-        if (!adIsVisible()) {
-            showFallbackContinueUI();
-        }
+        if (!adIsVisible()) showFallbackContinueUI();
     }, 1800);
 }
 
 // ======================================================
-// TRY AD FUNCTIONS
+// TRY MONETAG ADS
 // ======================================================
 function tryShowingAdsAtGameOver() {
-    if (typeof window.show_10220242 === "function") window.show_10220242();
+    // Interstitial / rewarded
+    if (typeof window.show_10220242 === "function") {
+        try { window.show_10220242(); } catch(e) { console.warn(e); }
+    }
+
+    // Vignette after 0.5s
     setTimeout(() => {
-        if (typeof window.show_10203415 === "function") window.show_10203415();
+        if (typeof window.show_10203415 === "function") {
+            try { window.show_10203415(); } catch(e) { console.warn(e); }
+        }
     }, 500);
 }
 
+// ======================================================
+// CHECK IF ANY MONETAG AD IS VISIBLE
+// ======================================================
 function adIsVisible() {
-    return document.querySelector('div[id*="monetag"], iframe[src*="monetag"]');
+    try {
+        return !!document.querySelector('div[id*="monetag"], iframe[src*="monetag"]');
+    } catch(e) {
+        return false;
+    }
 }
 
 // ======================================================
-// FALLBACK SCREEN
+// FALLBACK CONTINUE SCREEN
 // ======================================================
 function showFallbackContinueUI() {
+    // Remove previous overlay if any
+    document.querySelector("#fallbackAdOverlay")?.remove();
+
     const overlay = document.createElement("div");
+    overlay.id = "fallbackAdOverlay";
     overlay.style.cssText = `
         position:fixed;top:0;left:0;width:100%;height:100%;
-        background:rgba(0,0,0,0.9);
+        background:rgba(0,0,0,0.92);
         display:flex;flex-direction:column;
         justify-content:center;align-items:center;
         z-index:9999;backdrop-filter:blur(12px);
@@ -1578,6 +1602,7 @@ function showFallbackContinueUI() {
     `;
     overlay.appendChild(title);
 
+    // Watch Ad Button
     const btn = document.createElement("button");
     btn.textContent = "Watch Ad & Continue";
     btn.style.cssText = `
@@ -1588,6 +1613,7 @@ function showFallbackContinueUI() {
     `;
     overlay.appendChild(btn);
 
+    // Skip Button
     const skip = document.createElement("button");
     skip.textContent = "No Thanks";
     skip.style.cssText = `
@@ -1598,23 +1624,28 @@ function showFallbackContinueUI() {
     `;
     overlay.appendChild(skip);
 
+    // Remove overlay safely
     const remove = () => overlay.remove();
 
+    // Watch Ad flow
     btn.onclick = () => {
         remove();
-        if (typeof window.show_10220242 === "function") window.show_10220242();
-
+        if (typeof window.show_10220242 === "function") {
+            try { window.show_10220242(); } catch(e) { console.warn(e); }
+        }
+        // Restart game safely
         setTimeout(() => {
             document.querySelector(".play-again-btn")?.click();
-            blockAdsForNewGame();
+            if (typeof blockAdsForNewGame === "function") blockAdsForNewGame();
         }, 5000);
     };
 
+    // Skip flow
     skip.onclick = () => {
         remove();
-        blockAdsForNewGame();
+        if (typeof blockAdsForNewGame === "function") blockAdsForNewGame();
     };
-}
+	}
 
 
 
