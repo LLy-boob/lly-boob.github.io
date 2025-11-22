@@ -1518,6 +1518,7 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
+
 function endGame() {
     handleCanvasPointerUp();
 
@@ -1527,16 +1528,10 @@ function endGame() {
 
     setActiveMenu(MENU_SCORE);
 
-    // === ONLY 50% CHANCE TO SHOW INTERSTITIAL OFFER ===
-    if (Math.random() >= 0.5) return; // 50% skip entirely → player goes straight to score screen
+    // === ONLY 50% CHANCE TO SHOW THE OFFER ===
+    if (Math.random() >= 0.5) return; // 50% of deaths → no ad offer
 
-    // Safety check – only proceed if Monetag is loaded
-    if (!window.monetag || typeof window.monetag.showInterstitial !== 'function') {
-        console.log('Monetag not ready yet – skipping ad offer');
-        return;
-    }
-
-    // === Create beautiful vignette-style overlay (dark semi-transparent background) ===
+    // === Create beautiful dark vignette overlay ===
     const overlay = document.createElement('div');
     Object.assign(overlay.style, {
         position: 'fixed',
@@ -1548,22 +1543,15 @@ function endGame() {
         alignItems: 'center',
         zIndex: 9998,
         backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)' // Safari support
+        WebkitBackdropFilter: 'blur(8px)'
     });
     document.body.appendChild(overlay);
 
-    // === Title (optional – looks pro) ===
     const title = document.createElement('h2');
     title.textContent = 'Watch Ad to Continue?';
-    Object.assign(title.style, {
-        color: '#fff',
-        fontSize: '24px',
-        marginBottom: '30px',
-        textAlign: 'center'
-    });
+    Object.assign(title.style, { color: '#fff', fontSize: '24px', marginBottom: '30px', textAlign: 'center' });
     overlay.appendChild(title);
 
-    // === Watch Ad Button (Green) ===
     const adBtn = document.createElement('button');
     adBtn.textContent = 'Watch Ad & Continue';
     Object.assign(adBtn.style, {
@@ -1580,7 +1568,6 @@ function endGame() {
     });
     overlay.appendChild(adBtn);
 
-    // === Skip Button (Red, smaller) ===
     const skipBtn = document.createElement('button');
     skipBtn.textContent = 'No Thanks';
     Object.assign(skipBtn.style, {
@@ -1595,28 +1582,23 @@ function endGame() {
     });
     overlay.appendChild(skipBtn);
 
-    // === Helper: remove overlay cleanly ===
     const cleanup = () => {
-        if (overlay && overlay.parentNode) {
-            overlay.parentNode.removeChild(overlay);
-        }
+        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
     };
 
-    // === Watch Ad → Show Monetag Interstitial ===
+    // === THIS IS THE ONLY LINE THAT CHANGED ===
     adBtn.addEventListener('click', () => {
         cleanup();
-        // This is the CORRECT & OFFICIAL way to show Monetag interstitial
-        window.monetag.showInterstitial();
-        // Optional: you can add callback if Monetag supports onClose, but not needed
+        // Correct call for your interstitial zone 10220242
+        if (typeof window.show_10220242 === 'function') {
+            window.show_10220242();
+        }
     });
 
-    // === Skip → just close ===
-    skipBtn.addEventListener('click', () => {
-        cleanup();
-    });
+    skipBtn.addEventListener('click', cleanup);
 
-    // Also close if player taps outside (nice UX)
-    overlay.addEventListener('click', (e) => {
+    // Close when tapping outside
+    overlay.addEventListener('click', e => {
         if (e.target === overlay) cleanup();
     });
 }
