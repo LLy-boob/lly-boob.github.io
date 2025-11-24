@@ -856,125 +856,123 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 </script>
 
 
+
+    
+
 <script>
 /* ===================== AD STATE ===================== */
 let interstitialReady = false;
-let interstitialScript = null;
-let bannerLoaded = false;
 let interstitialRetries = 0;
-const maxRetries = 3;
-let isPreloading = false; // Prevent concurrent preload
+const maxRetries = 5;
+let isPreloading = false;
 
 /* ===================== PRELOAD INTERSTITIAL ===================== */
 function preloadInterstitial() {
     if (interstitialReady || interstitialRetries >= maxRetries || isPreloading) return;
 
+    isPreloading = true;
     interstitialRetries++;
     console.log(`Preloading interstitial, attempt ${interstitialRetries}`);
-    isPreloading = true;
 
-    if (!interstitialScript) {
-        interstitialScript = document.createElement("script");
-        interstitialScript.dataset.zone = "10203402"; // Interstitial zone
-        interstitialScript.src = "https://nap5k.com/tag.min.js";
-        interstitialScript.async = true;
+    // Always create a fresh script element - NEVER reuse or null it
+    const script = document.createElement("script");
+    script.dataset.zone = "10203402";
+    script.src = "https://nap5k.com/tag.min.js";
+    script.async = true;
 
-        interstitialScript.onload = () => {
-            interstitialReady = true;
-            interstitialRetries = 0;
-            isPreloading = false;
-            console.log("Interstitial preloaded and ready for instant display");
-        };
-
-        interstitialScript.onerror = () => {
-            interstitialReady = false;
-            interstitialScript = null;
-            console.log("Interstitial preload failed, retrying in 2s...");
-            isPreloading = false;
-            setTimeout(preloadInterstitial, 2000);
-        };
-
-        document.body.appendChild(interstitialScript);
-    } else {
+    script.onload = () => {
+        interstitialReady = true;
+        interstitialRetries = 0;
         isPreloading = false;
-    }
+        console.log("Interstitial preloaded and ready");
+    };
+
+    script.onerror = () => {
+        isPreloading = false;
+        console.log("Preload failed, retrying in 3s...");
+        setTimeout(preloadInterstitial, 3000);
+    };
+
+    document.body.appendChild(script);
 }
 
 /* ===================== LOAD BANNER ===================== */
 function loadBanner() {
-    if (bannerLoaded) return;
-
-    const bannerScript = document.createElement("script");
-    bannerScript.dataset.zone = "10203415";
-    bannerScript.src = "https://groleegni.net/vignette.min.js";
-    bannerScript.async = true;
-
-    bannerScript.onload = () => {
-        bannerLoaded = true;
-        console.log("Banner loaded successfully");
-    };
-
-    bannerScript.onerror = () => console.log("Banner failed to load");
-
-    document.body.appendChild(bannerScript);
+    if (window.bannerLoaded) return;
+    const s = document.createElement("script");
+    s.dataset.zone = "10203415";
+    s.src = "https://groleegni.net/vignette.min.js";
+    s.async = true;
+    s.onload = () => window.bannerLoaded = true;
+    document.body.appendChild(s);
 }
 
-/* ===================== INIT ADS AFTER FIRST USER INTERACTION ===================== */
+/* ===================== INIT ADS ON FIRST TOUCH/CLICK ===================== */
 function initAds() {
     preloadInterstitial();
     loadBanner();
 }
-
 document.addEventListener("click", initAds, { once: true });
 document.addEventListener("touchstart", initAds, { once: true });
 
-/* ===================== SHOW INTERSTITIAL AT GAME OVER ===================== */
+/* ===================== SHOW INTERSTITIAL ===================== */
 function showInterstitialAtGameOver() {
     if (interstitialReady && typeof window.showTag === "function") {
         try {
-            window.showTag();
-            console.log("Interstitial displayed at game over");
+            window.showTag();  // This shows the full-screen ad
+            console.log("Interstitial shown on game over");
+
+            // DO NOT delete or null anything here!
+            // Just reset ready state after a delay (ad network handles cleanup)
+            setTimeout(() => {
+                interstitialReady = false;
+                preloadInterstitial(); // start preloading next one
+            }, 3000);
+
         } catch (e) {
-            console.log("Interstitial display failed:", e);
-        } finally {
-            interstitialReady = false;
-            interstitialScript = null;
+            console.error("Failed to show interstitial:", e);
             preloadInterstitial();
         }
     } else {
-        console.log("Interstitial not ready, continuing game safely");
+        console.log("Interstitial not ready yet");
+        // still try to preload for next time
         preloadInterstitial();
     }
 }
 
-/* ===================== END GAME ===================== */
+/* ===================== END GAME - THIS MUST BE CALLED FROM YOUR GAME ===================== */
 function endGame() {
-    try {
-        // Stop the game safely
-        if (typeof gameRunning !== "undefined") gameRunning = false;
+    console.log("endGame() called - stopping game...");
 
-        // Clear any game timers if defined
-        if (typeof gameInterval !== "undefined") clearInterval(gameInterval);
-
-        // Show score menu if function exists
-        if (typeof setActiveMenu === "function" && typeof MENU_SCORE !== "undefined") {
-            setActiveMenu(MENU_SCORE);
-        }
-
-        // Run interstitial without blocking
-        setTimeout(showInterstitialAtGameOver, 100); // small delay to ensure game stops
-
-        console.log("Game ended successfully.");
-    } catch (e) {
-        console.log("Error ending game:", e);
+    // Stop your actual game loop (adjust variable names to match your real game)
+    if (typeof gameRunning !== "undefined") gameRunning = false;
+    if (typeof gameInterval !== "undefined") clearInterval(gameInterval);
+    if (typeof cancelAnimationFrame !== "undefined" && typeof gameLoopId !== "undefined") {
+        cancelAnimationFrame(gameLoopId);
     }
+
+    // Optional: hide game canvas
+    const canvas = document.getElementById("gameCanvas");
+    if (canvas) canvas.style.display = "none";
+
+    // Show score menu (make sure this function is fast and exists)
+    if (typeof setActiveMenu === "function" && typeof MENU_SCORE !== "undefined") {
+        setActiveMenu(MENU_SCORE);
+    }
+
+    // Show ad only AFTER menu is visible (800–1200ms works best)
+    setTimeout(showInterstitialAtGameOver, 1000);
+
+    console.log("Game fully ended + ad triggered");
 }
 
-/* ===================== SAFE CONTINUOUS PRELOAD ===================== */
+/* ===================== KEEP TRYING TO PRELOAD ===================== */
 setInterval(() => {
-    if (!interstitialReady && !isPreloading) preloadInterstitial();
-}, 5000);
-	</script>
+    if (!interstitialReady && !isPreloading) {
+        preloadInterstitial();
+    }
+}, 8000);
+</script>
 
 
 	<!-- GAME SCRIPT -->
