@@ -856,69 +856,90 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 </script>
 
 
-	
-
-<!-- FINAL 2025 — INTERSTITIAL ONLY + NO IN-GAME POPUPS -->
+	<!-- FINAL 2025 — INTERSTITIAL + BANNER (SAFE, NO IN-GAME POPUPS) -->
 <script>
-let adsAllowed = false;
-let interstitialLoaded = false;
+let adsAllowed = false;         // Only true during Game Over moment
+let interstitialLoaded = false; // Load interstitial script only one time
+let bannerLoaded = false;       // Load banner/vignette only once
 
 /* ============================================================
-   BLOCK ALL AUTO ADS DURING GAMEPLAY
-   ============================================================ */
-new MutationObserver((mutations) => {
-    if (adsAllowed) return;  // allow only at game over
-    for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-            if (node.nodeType !== 1) continue;
-            const html = (node.outerHTML || "").toLowerCase();
-            if (
-                html.includes("monetag") || 
-                html.includes("vignette") ||
-                html.includes("vintage") ||
-                html.includes("iframe") || 
-                html.includes("tag.min.js")
-            ) {
-                node.remove();
-            }
-        }
-    }
-}).observe(document.documentElement, { childList: true, subtree: true });
-
-/* ============================================================
-   LOAD THE REAL INTERSTITIAL ZONE (YOUR CODE)
+   LOAD THE INTERSTITIAL SCRIPT SAFELY (WILL NOT BLOCK BANNERS)
    ============================================================ */
 function loadInterstitial() {
     if (interstitialLoaded) return;
     interstitialLoaded = true;
 
-    const script = document.createElement("script");
-    script.dataset.zone = "10203402";   // your real interstitial zone
-    script.src = "https://nap5k.com/tag.min.js";
-    script.async = true;
-
-    document.body.appendChild(script);
+    try {
+        const s = document.createElement("script");
+        s.dataset.zone = "10203402";      // Your REAL interstitial zone
+        s.src = "https://nap5k.com/tag.min.js";
+        s.async = true;
+        document.body.appendChild(s);
+    } catch (e) {
+        console.log("Interstitial load error:", e);
+    }
 }
 
 /* ============================================================
-   LOAD INTERSTITIAL ONLY AFTER GAME START
+   LOAD THE BANNER / VIGNETTE SCRIPT SAFELY
    ============================================================ */
-document.addEventListener("click", loadInterstitial, { once: true });
-document.addEventListener("touchstart", loadInterstitial, { once: true });
+function loadBanner() {
+    if (bannerLoaded) return;
+    bannerLoaded = true;
+
+    try {
+        const s = document.createElement("script");
+        s.dataset.zone = "10203415";             // Your banner/vignette zone
+        s.src = "https://groleegni.net/vignette.min.js"; // Banner script
+        s.async = true;
+        document.body.appendChild(s);
+    } catch (e) {
+        console.log("Banner load error:", e);
+    }
+}
 
 /* ============================================================
-   PERMISSION — ALLOW ADS ONLY DURING GAME OVER
+   LOAD SCRIPTS AFTER USER INTERACTION TO REDUCE LAG
+   ============================================================ */
+document.addEventListener("click", () => {
+    loadInterstitial();
+    loadBanner();
+}, { once: true });
+
+document.addEventListener("touchstart", () => {
+    loadInterstitial();
+    loadBanner();
+}, { once: true });
+
+/* ============================================================
+   ALLOW INTERSTITIAL ONLY AT GAME OVER
    ============================================================ */
 function allowAdsTemporarily() {
     adsAllowed = true;
-    setTimeout(() => adsAllowed = false, 8000);
+    setTimeout(() => adsAllowed = false, 6000);  // allow ad for 6s
 }
 
 function blockAdsForNewGame() {
     adsAllowed = false;
 }
-	</script>
 
+/* ============================================================
+   SHOW INTERSTITIAL AT GAME OVER
+   ============================================================ */
+function showInterstitialAtGameOver() {
+    if (!adsAllowed) return;
+
+    try {
+        if (window.showTag) {
+            window.showTag();  // Monetag interstitial
+        }
+    } catch (e) {
+        console.log("Interstitial error:", e);
+    }
+
+    adsAllowed = false; // lock again
+}
+	</script>
 
 
 	<!-- GAME SCRIPT -->
