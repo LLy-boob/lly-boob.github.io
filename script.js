@@ -1517,13 +1517,14 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-let allowInterstitial = false;   // keep this in game.js
+let allowInterstitial = false;  // Your gate (optional now, but keep for safety)
 
 function endGame() {
-    allowInterstitial = true;              // unlock ONLY when player really dies
-    setActiveMenu(MENU_SCORE);             // your original perfect line
-    window.showInterstitialIfReady?.();    // ← just one tiny safe call
-	}
+    allowInterstitial = true;              // Unlock (respects Monetag's rules)
+    setActiveMenu(MENU_SCORE);             // Show score instantly
+    // No more manual showInterstitialIfReady() — In-App mode auto-triggers here!
+    // Optional: If you want a tiny delay for smoother feel, add setTimeout(setActiveMenu(MENU_SCORE), 0);
+}
     
     
 
