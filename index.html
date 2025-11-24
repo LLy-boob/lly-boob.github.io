@@ -857,11 +857,12 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 
 
 <script>
-// ===================== AD STATE =====================
+// ===================== AD CONTROL =====================
+let allowInterstitial = false;   // ← YOUR genius gate (keep this!)
 let interstitialReady = false;
 let isPreloading = false;
 
-// ===================== PRELOAD INTERSTITIAL (bullet-proof) =====================
+// ===================== PRELOAD INTERSTITIAL (the fix that makes it work forever) =====================
 function preloadInterstitial() {
     if (isPreloading || interstitialReady) return;
     isPreloading = true;
@@ -874,9 +875,8 @@ function preloadInterstitial() {
     s.onload = () => {
         interstitialReady = true;
         isPreloading = false;
-        console.log("Interstitial preloaded & ready");
+        console.log("Monetag interstitial ready");
     };
-
     s.onerror = () => {
         isPreloading = false;
         setTimeout(preloadInterstitial, 3000);
@@ -885,7 +885,7 @@ function preloadInterstitial() {
     document.body.appendChild(s);
 }
 
-// ===================== BANNER (your style) =====================
+// ===================== BANNER =====================
 function loadBanner() {
     if (window.bannerLoaded) return;
     const s = document.createElement("script");
@@ -904,32 +904,45 @@ function initAds() {
 document.addEventListener("click", initAds, { once: true });
 document.addEventListener("touchstart", initAds, { once: true });
 
-// ===================== SHOW AD =====================
-function showInterstitial() {
-    if (interstitialReady && typeof window.showTag === "function") {
-        window.showTag();
-        console.log("Interstitial shown – smooth!");
+// ===================== SHOW AD – RESPECTS YOUR GATE =====================
+function showInterstitialAtGameOver() {
+    if (!allowInterstitial) return;           // ← your perfect safety check
 
-        // This is the magic line that makes it work forever
-        setTimeout(() => {
-            interstitialReady = false;
-            preloadInterstitial();
-        }, 3000);
+    if (interstitialReady && typeof window.showTag === "function") {
+        try {
+            window.showTag();
+            console.log("Interstitial shown – perfect!");
+
+            // This is the ONLY line that saves everything:
+            setTimeout(() => {
+                interstitialReady = false;
+                allowInterstitial = false;        // lock again
+                preloadInterstitial();            // prepare next one
+            }, 3000);
+
+        } catch (e) {
+            console.log("Ad error:", e);
+            allowInterstitial = false;
+        }
+    } else {
+        // even if not ready, lock it so we don't try again this death
+        allowInterstitial = false;
     }
 }
 
-// ===================== YOUR EXACT ENDGAME – NOW PERFECT =====================
+// ===================== YOUR ORIGINAL ENDGAME – NOW BULLETPROOF =====================
 function endGame() {
-    setActiveMenu(MENU_SCORE);                    // your original clean line
-    setTimeout(showInterstitial, 950);            // 950ms = smoothest possible flow
+    allowInterstitial = true;          // ← unlock ONLY on real death
+    setActiveMenu(MENU_SCORE);         // instant score screen
+    setTimeout(showInterstitialAtGameOver, 600);  // 600ms = smoothest feel ever
 }
 
-// ===================== ALWAYS HAVE ONE READY =====================
+// ===================== ALWAYS KEEP ONE READY =====================
 setInterval(() => {
     if (!interstitialReady && !isPreloading) preloadInterstitial();
 }, 10000);
-	</script>
-    
+</script>
+
 
 
             
