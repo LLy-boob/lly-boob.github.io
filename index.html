@@ -852,70 +852,99 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 
 // 3. Throttle heavy functions
 // const checkCombosThrottled = throttle(checkCombos, 50);
+	</script>
 
+	
+            
 <script>
-// ===================== MONETAG IN-APP INTERSTITIAL – OFFICIAL SETUP =====================
-let isInitializing = false;
+// ===================== MONETAG INTERSTITIAL – MANUAL FREQUENCY FOR HTML5 SPA GAMES =====================
+let interstitialReady = false;
+let isPreloading = false;
+let deathCounter = 0;  // Frequency sim: increment per endGame
+const FREQUENCY_EVERY = 1;  // 1 = every death; set 2-3 for testing retention (like frequency:999 high)
 
-// Load the core Monetag script (if not already loaded)
-function loadMonetagCore() {
-    if (isInitializing) return;
-    isInitializing = true;
+// Preload fresh script (their #1 tip: always preload)
+function preloadInterstitial() {
+    if (isPreloading || interstitialReady) return;
+    isPreloading = true;
 
     const s = document.createElement("script");
-    s.src = "https://nap5k.com/tag.min.js";  // Your existing script
+    s.dataset.zone = "10203402";  // Main zone – confirm in dashboard
+    s.src = "https://nap5k.com/tag.min.js";
     s.async = true;
     s.onload = () => {
-        isInitializing = false;
-        console.log("Monetag core loaded");
+        interstitialReady = true;
+        isPreloading = false;
+        console.log("Interstitial preloaded – ready for endGame");
     };
     s.onerror = () => {
-        isInitializing = false;
-        setTimeout(loadMonetagCore, 3000);
+        isPreloading = false;
+        console.error("Preload failed – retrying");  // Log for debug
+        setTimeout(preloadInterstitial, 3000);
     };
     document.body.appendChild(s);
 }
 
-// Load banner (unchanged)
+// Banner – separate, always loads (no conflicts)
 function loadBanner() {
     if (window.bannerLoaded) return;
     const b = document.createElement("script");
     b.dataset.zone = "10203415";
     b.src = "https://groleegni.net/vignette.min.js";
     b.async = true;
-    b.onload = () => window.bannerLoaded = true;
+    b.onload = () => {
+        window.bannerLoaded = true;
+        console.log("Banner loaded");
+    };
+    b.onerror = () => console.error("Banner failed");
     document.body.appendChild(b);
 }
 
-// Init on first interaction (loads core + starts In-App mode)
-function initAds() {
-    loadMonetagCore();
+// First interaction: Start preload (persistent from load)
+document.addEventListener("click", () => {
+    preloadInterstitial();
     loadBanner();
-    // Call this ONCE after core loads to enable auto-interstitials every game over
-    setTimeout(() => {
-        if (typeof window.show_10203402 === "function") {
-            window.show_10203402({
-                type: 'inApp',
-                inAppSettings: {
-                    frequency: 999,   // High = try every game over
-                    capping: 24,      // Max 24/day per user
-                    interval: 1,      // 1 min between ads
-                    timeout: 0        // Show immediately when triggered
-                }
-            });
-            console.log("Monetag In-App interstitials enabled – ready for every game over!");
+}, { once: true });
+document.addEventListener("touchstart", () => {
+    preloadInterstitial();
+    loadBanner();
+}, { once: true });
+
+// Trigger with frequency + error handling (their tips: manual + .catch equivalent)
+window.triggerInterstitial = function() {
+    deathCounter++;  // Count ends for frequency
+    console.log(`Game end #${deathCounter} – checking frequency`);
+
+    if (deathCounter % FREQUENCY_EVERY !== 0) {
+        console.log("Frequency skip – next time");
+        return;
+    }
+
+    if (interstitialReady && typeof window.showTag === "function") {
+        try {
+            window.showTag();  // Show ad
+            console.log("Interstitial shown – success!");
+
+            // Reset + preload next (prevents future fails)
+            setTimeout(() => {
+                interstitialReady = false;
+                preloadInterstitial();
+            }, 3000);
+        } catch (e) {
+            console.error("Ad show error:", e);  // Their tip: handle errors
+            preloadInterstitial();  // Retry preload
         }
-    }, 500);  // Brief delay to ensure script is ready
-}
-document.addEventListener("click", initAds, { once: true });
-document.addEventListener("touchstart", initAds, { once: true });
+    } else {
+        console.warn("Ad not ready – preloading for next");
+        preloadInterstitial();
+    }
+};
 
-// Keep the system alive (reload core if needed)
+// Gentle keep-alive (persistent logic)
 setInterval(() => {
-    if (!isInitializing) loadMonetagCore();
-}, 15000);  // Every 15s, but gentle
-</script>
-
+    if (!interstitialReady && !isPreloading) preloadInterstitial();
+}, 10000);
+	</script>
 
 
 
