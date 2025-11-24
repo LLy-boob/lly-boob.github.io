@@ -888,6 +888,7 @@ function preloadInterstitial() {
 
         interstitialScript.onerror = () => {
             interstitialReady = false;
+            interstitialScript = null;
             console.log("Interstitial preload failed, retrying in 2s...");
             isPreloading = false;
             setTimeout(preloadInterstitial, 2000);
@@ -929,37 +930,50 @@ document.addEventListener("touchstart", initAds, { once: true });
 
 /* ===================== SHOW INTERSTITIAL AT GAME OVER ===================== */
 function showInterstitialAtGameOver() {
-    try {
-        if (interstitialReady && window.showTag) {
+    if (interstitialReady && typeof window.showTag === "function") {
+        try {
             window.showTag();
             console.log("Interstitial displayed at game over");
+        } catch (e) {
+            console.log("Interstitial display failed:", e);
+        } finally {
             interstitialReady = false;
             interstitialScript = null;
-            preloadInterstitial(); // prepare for next round
-        } else {
-            console.log("Interstitial not ready, game continues safely");
-            preloadInterstitial(); // always try preload in background
+            preloadInterstitial();
         }
-    } catch (e) {
-        console.log("Interstitial failed, game continues safely:", e);
-        interstitialReady = false;
-        interstitialScript = null;
+    } else {
+        console.log("Interstitial not ready, continuing game safely");
         preloadInterstitial();
     }
 }
 
 /* ===================== END GAME ===================== */
 function endGame() {
-    setActiveMenu(MENU_SCORE);       // original game logic
-    showInterstitialAtGameOver();    // show interstitial safely
+    try {
+        // Stop the game safely
+        if (typeof gameRunning !== "undefined") gameRunning = false;
+
+        // Clear any game timers if defined
+        if (typeof gameInterval !== "undefined") clearInterval(gameInterval);
+
+        // Show score menu if function exists
+        if (typeof setActiveMenu === "function" && typeof MENU_SCORE !== "undefined") {
+            setActiveMenu(MENU_SCORE);
+        }
+
+        // Run interstitial without blocking
+        setTimeout(showInterstitialAtGameOver, 100); // small delay to ensure game stops
+
+        console.log("Game ended successfully.");
+    } catch (e) {
+        console.log("Error ending game:", e);
+    }
 }
 
 /* ===================== SAFE CONTINUOUS PRELOAD ===================== */
 setInterval(() => {
-    if (!interstitialReady && !isPreloading) {
-        preloadInterstitial();
-    }
-}, 5000); // every 5 seconds
+    if (!interstitialReady && !isPreloading) preloadInterstitial();
+}, 5000);
 	</script>
 
 
