@@ -1517,18 +1517,22 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-let allowInterstitial = false;  // Your safety gate
+let allowInterstitial = false;
 
-function endGame() {  // Works for play/casual modes
+function endGame() {
     allowInterstitial = true;
-    setActiveMenu(MENU_SCORE);  // Instant score (natural pause)
+    console.log("endGame called – showing score + unlocking ad");
+    setActiveMenu(MENU_SCORE);
 
     setTimeout(() => {
         if (allowInterstitial) {
-            window.triggerInterstitial();  // Frequency-checked show
+            console.log("Triggering interstitial from endGame");
+            window.triggerInterstitial?.();
             allowInterstitial = false;
+        } else {
+            console.log("Ad blocked by gate");
         }
-    }, 800);  // Delay avoids disruption (their tip)
+    }, 800);
 }
     
     
