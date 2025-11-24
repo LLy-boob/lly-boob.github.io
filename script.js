@@ -1518,78 +1518,24 @@ function resumeGame() {
 }
 
 function endGame() {
-    allowAdsTemporarily();   // ← keep your blocker logic
-
-    handleCanvasPointerUp();
-
-    if (isNewHighScore()) {
-        setHighScore(state.game.score);
-    }
+    allowAdsTemporarily();   // allow ads now
 
     setActiveMenu(MENU_SCORE);
 
-    // Show the beautiful green button (50% or 100% chance – your choice)
-    // Remove the 50% line if you want it every time
-    if (Math.random() >= 0.5) return;   // ← delete this line if you want 100%
-
-    showRewardedInterstitial();
+    // Show Monetag interstitial now
+    showInterstitialAtGameOver();
 }
+function showInterstitialAtGameOver() {
+    try {
+        // Monetag interstitial API — works automatically
+        window.showTag && window.showTag();
+    } catch (e) {
+        console.log("Interstitial failed:", e);
+    }
 
-function showRewardedInterstitial() {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;backdrop-filter:blur(12px);';
-    document.body.appendChild(overlay);
-
-    const title = document.createElement('h2');
-    title.textContent = 'Watch Ad to Continue';
-    title.style.cssText = 'color:#00ff9d;font-size:28px;margin-bottom:30px;letter-spacing:6px;';
-    overlay.appendChild(title);
-
-    const btn = document.createElement('button');
-    btn.textContent = 'Watch Ad & Continue';
-    btn.style.cssText = 'padding:18px 55px;font-size:21px;background:#00ff9d;color:#000;border:none;border-radius:16px;cursor:pointer;font-weight:bold;';
-    overlay.appendChild(btn);
-
-    const skip = document.createElement('button');
-    skip.textContent = 'No Thanks';
-    skip.style.cssText = 'margin-top:25px;padding:14px 45px;background:transparent;color:#ff6666;border:2px solid #ff6666;border-radius:16px;cursor:pointer;';
-    overlay.appendChild(skip);
-
-    const remove = () => overlay.remove();
-
-    btn.onclick = () => {
-        remove();
-        btn.disabled = true;
-        btn.textContent = 'Loading...';
-
-        // THIS IS THE OFFICIAL MONETAG REWARDED METHOD
-        if (typeof window.show_10220242 === 'function') {
-            window.show_10220242().then(() => {
-                // SUCCESS – player watched full ad
-                console.log('Ad completed – granting continue');
-                continueGameAfterAd();
-            }).catch(() => {
-                // FAILED – player skipped or no fill
-                console.log('Ad skipped or failed – no reward');
-                // Optional: show "Ad failed" message for 2 sec
-                setTimeout(() => continueGameAfterAd(), 2000); // or don't continue
-            });
-        } else {
-            // Fallback if script not loaded
-            setTimeout(continueGameAfterAd, 3000);
-        }
-    };
-
-    skip.onclick = () => {
-        remove();
-        blockAdsForNewGame();
-    };
+    blockAdsForNewGame(); 
 }
-
-function continueGameAfterAd() {
-    document.querySelector('.play-again-btn').click();  // or your restart function
-    blockAdsForNewGame();
-			}
+    
     
 
 
