@@ -857,110 +857,103 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 	
             
 <script>
-// ===================== MONETAG INTERSTITIAL – DEBUG MODE FOR EVERY ENDGAME =====================
+// ===================== MONETAG INTERSTITIAL – WEB/SPA OPTIMIZED (EVERY ENDGAME, NO "ONLY ONCE") =====================
 let interstitialReady = false;
 let isPreloading = false;
 let deathCounter = 0;
-const FREQUENCY_EVERY = 1;  // Force every death for testing
+const FREQUENCY_EVERY = 1;  // 1 = every death (sim high frequency); 2-3 for casual mode retention
 
-console.log("Ad script loaded – starting preload checks");
+console.log("🔧 Monetag web interstitial active – manual logic for SPA");
 
 function preloadInterstitial() {
-    if (isPreloading || interstitialReady) {
-        console.log("Preload skipped – already running or ready");
-        return;
-    }
+    if (isPreloading || interstitialReady) return;
     isPreloading = true;
-    console.log("Starting interstitial preload...");
+    console.log("🚀 Preloading fresh interstitial...");
 
     const s = document.createElement("script");
-    s.dataset.zone = "10203402";
+    s.dataset.zone = "10203402";  // Main zone (AI tip)
     s.src = "https://nap5k.com/tag.min.js";
     s.async = true;
     s.onload = () => {
         interstitialReady = true;
         isPreloading = false;
-        console.log("✅ Interstitial preloaded – showTag ready!");
+        console.log("✅ Preload done – ready for endGame");
     };
     s.onerror = () => {
-        interstitialReady = false;
         isPreloading = false;
-        console.error("❌ Preload failed – retrying in 2s");
-        setTimeout(preloadInterstitial, 2000);  // Faster retry
+        console.error("❌ Preload fail – retry 2s");
+        setTimeout(preloadInterstitial, 2000);
     };
     document.body.appendChild(s);
 }
 
-function loadBanner() {
+function loadBanner() {  // Keeps pushes/banners alive
     if (window.bannerLoaded) return;
-    console.log("Loading banner...");
     const b = document.createElement("script");
     b.dataset.zone = "10203415";
     b.src = "https://groleegni.net/vignette.min.js";
     b.async = true;
-    b.onload = () => {
-        window.bannerLoaded = true;
-        console.log("✅ Banner loaded");
-    };
-    b.onerror = () => console.error("❌ Banner failed");
+    b.onload = () => window.bannerLoaded = true;
     document.body.appendChild(b);
 }
 
-// First interaction
-document.addEventListener("click", () => {
-    console.log("First click detected – init ads");
-    preloadInterstitial();
-    loadBanner();
-}, { once: true });
-document.addEventListener("touchstart", () => {
-    console.log("First touch detected – init ads");
-    preloadInterstitial();
-    loadBanner();
-}, { once: true });
+// First interaction (persistent init)
+['click', 'touchstart'].forEach(e => {
+    document.addEventListener(e, () => {
+        console.log(`👆 Init on ${e}`);
+        preloadInterstitial();
+        loadBanner();
+    }, { once: true });
+});
 
-// Enhanced trigger with full debug
+// Trigger: Frequency sim + full handling (manual logic, per AI/docs)
 window.triggerInterstitial = function() {
     deathCounter++;
-    console.log(`🔥 Game end #\( {deathCounter} – allowInterstitial: \){window.allowInterstitial ? 'true' : 'false'}`);
+    console.log(`💀 End #\( {deathCounter} – Gate open? \){window.allowInterstitial}`);
 
-    if (deathCounter % FREQUENCY_EVERY !== 0) {
-        console.log("⏭️ Frequency skip – ad blocked");
+    if (deathCounter % FREQUENCY_EVERY !== 0 || !window.allowInterstitial) {
+        console.log("⏭️ Skip (frequency/gate)");
+        window.allowInterstitial = false;
         return;
     }
 
     if (!interstitialReady) {
-        console.warn("⚠️ Not ready – forcing preload");
+        console.warn("⚠️ Not ready – preload now");
         preloadInterstitial();
+        window.allowInterstitial = false;
         return;
     }
 
-    if (typeof window.showTag !== "function") {
-        console.error("❌ showTag missing – reloading script");
+    // Manual show with .catch (AI/docs fix for fails)
+    if (typeof window.showTag === "function") {
+        window.showTag()
+            .then(() => {
+                console.log("🎉 Ad shown & done!");
+                setTimeout(() => {
+                    interstitialReady = false;  // Reset for next (fixes "only once")
+                    preloadInterstitial();
+                }, 3000);
+            })
+            .catch((e) => {
+                console.error("💥 Ad fail (no feed/timeout):", e);
+                interstitialReady = false;
+                preloadInterstitial();  // Retry (AI tip)
+            });
+    } else {
+        console.error("❌ showTag missing – fresh preload");
         interstitialReady = false;
         preloadInterstitial();
-        return;
     }
 
-    try {
-        window.showTag();
-        console.log("🎉 Interstitial shown – success! Preloading next...");
-        setTimeout(() => {
-            interstitialReady = false;
-            preloadInterstitial();
-        }, 3000);
-    } catch (e) {
-        console.error("💥 Ad show error:", e);
-        interstitialReady = false;
-        preloadInterstitial();
-    }
+    window.allowInterstitial = false;  // Lock
 };
 
-// Keep preloading + log status every 10s
+// Keep-alive + status (persistent, per AI)
 setInterval(() => {
-    console.log(`Status: Ready=\( {interstitialReady}, Preloading= \){isPreloading}, Deaths=${deathCounter}`);
     if (!interstitialReady && !isPreloading) preloadInterstitial();
+    console.log(`📊 Ready: \( {interstitialReady} | Deaths: \){deathCounter}`);
 }, 10000);
-</script>
+		</script>
 
 
 
