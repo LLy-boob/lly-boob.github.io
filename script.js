@@ -1519,22 +1519,18 @@ function resumeGame() {
 
 let allowInterstitial = false;
 
-function endGame() {
+function endGame() {  // Works for play/casual modes
     allowInterstitial = true;
-    console.log("endGame called – showing score + unlocking ad");
-    setActiveMenu(MENU_SCORE);
+    console.log("🎮 endGame – score + unlock");
+    setActiveMenu(MENU_SCORE);  // Natural pause (AI tip)
 
-    setTimeout(() => {
+    setTimeout(() => {  // 800ms = smooth, no disruption (research rec)
         if (allowInterstitial) {
-            console.log("Triggering interstitial from endGame");
-            window.triggerInterstitial?.();
-            allowInterstitial = false;
-        } else {
-            console.log("Ad blocked by gate");
+            console.log("📡 Trigger ad");
+            window.triggerInterstitial();
         }
     }, 800);
 }
-    
     
 
 
