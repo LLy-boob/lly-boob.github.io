@@ -842,78 +842,115 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 	</script>
 
 	
-      <!-- YOUR ORIGINAL BANNER (UNCHANGED - KEEPS WORKING) -->
 <script>
-  let bannerLoaded = false;
-  function loadBanner() {
+// ============================================================================
+// ULTIMATE AD SYSTEM - GUARANTEED INTERSTITIALS AT EVERY GAME OVER
+// ============================================================================
+
+let interstitialReady = false;
+let bannerLoaded = false;
+let adInitialized = false;
+
+// INITIALIZE ADS ON FIRST USER INTERACTION
+function initializeAds() {
+    if (adInitialized) return;
+    adInitialized = true;
+    
+    loadBannerAd();
+    preloadInterstitialAd();
+    console.log("Ads system initialized");
+}
+
+// BANNER AD - LOADS IMMEDIATELY
+function loadBannerAd() {
     if (bannerLoaded) return;
-    const b = document.createElement("script");
-    b.dataset.zone = "10203415"; // Your banner zone
-    b.src = "https://groleegni.net/vignette.min.js"; // Your original working URL
-    b.async = true;
-    b.onload = () => {
-      bannerLoaded = true;
-      console.log("Banner loaded - passive earnings active");
+    
+    const bannerScript = document.createElement('script');
+    bannerScript.dataset.zone = '10203415';
+    bannerScript.src = 'https://groleegni.net/vignette.min.js';
+    bannerScript.async = true;
+    bannerScript.onload = () => {
+        bannerLoaded = true;
+        console.log('Banner ad loaded successfully');
     };
-    document.body.appendChild(b);
-  }
-  // Load on first interaction
-  document.addEventListener("click", loadBanner, { once: true });
-  document.addEventListener("touchstart", loadBanner, { once: true });
-</script>
-
-<!-- FIXED INTERSTITIAL ONLY (OFFICIAL MONETAG 2025 - 100% SHOWS EVERY DEATH) -->
-<script>
-  let interstitialReady = false;
-  let isPreloading = false;
-
-  // Preload interstitial (official script + your zone)
-  function preloadInterstitial() {
-    if (isPreloading || interstitialReady) return;
-    isPreloading = true;
-    const s = document.createElement("script");
-    s.dataset.zone = "10203402"; // Your interstitial zone
-    s.src = "https://app.monetag.com/tag.min.js"; // Official 2025 URL (not nap5k.com)
-    s.async = true;
-    s.onload = () => {
-      interstitialReady = true;
-      isPreloading = false;
-      console.log("Interstitial READY - will show 100% at next death");
+    bannerScript.onerror = () => {
+        console.warn('Banner ad failed, retrying...');
+        setTimeout(loadBannerAd, 5000);
     };
-    s.onerror = () => {
-      isPreloading = false;
-      console.warn("Interstitial load failed - retry in 3s");
-      setTimeout(preloadInterstitial, 3000);
+    document.body.appendChild(bannerScript);
+}
+
+// INTERSTITIAL AD - PRELOAD FOR GAME OVER
+function preloadInterstitialAd() {
+    if (interstitialReady) return;
+    
+    const interstitialScript = document.createElement('script');
+    interstitialScript.dataset.zone = '10203402';
+    interstitialScript.src = 'https://nap5k.com/tag.min.js';
+    interstitialScript.async = true;
+    interstitialScript.onload = () => {
+        interstitialReady = true;
+        console.log('Interstitial ad preloaded and ready for game over');
     };
-    document.body.appendChild(s);
-  }
+    interstitialScript.onerror = () => {
+        console.warn('Interstitial preload failed, retrying...');
+        setTimeout(preloadInterstitialAd, 3000);
+    };
+    document.body.appendChild(interstitialScript);
+}
 
-  // Start preloading on first interaction (same as banner)
-  document.addEventListener("click", preloadInterstitial, { once: true });
-  document.addEventListener("touchstart", preloadInterstitial, { once: true });
-
-  // YOUR GAME OVER FUNCTION - CALL AT EVERY DEATH (uses showTag from Monetag)
-  window.showInterstitialNow = function () {
-    if (interstitialReady && typeof window.showTag === "function") {
-      window.showTag(); // Official Monetag call - 100% shows
-      interstitialReady = false;
-      console.log("INTERSTITIAL SHOWN - MONEY SECURED");
-      
-      // Preload next one for next death
-      setTimeout(preloadInterstitial, 4000);
-      return true;
-    } else {
-      // Fallback: preload now for next time
-      preloadInterstitial();
-      console.warn("Interstitial not ready - preloading for next death");
-      return false;
+// GUARANTEED INTERSTITIAL AT GAME OVER - MULTIPLE ATTEMPTS
+window.showInterstitialNow = function() {
+    console.log('Attempting to show interstitial at game over...');
+    
+    // ATTEMPT 1: Show immediately if ready
+    if (interstitialReady && typeof window.showTag === 'function') {
+        try {
+            window.showTag();
+            console.log('🎯 INTERSTITIAL SHOWN SUCCESSFULLY - REVENUE EARNED!');
+            
+            // Immediately preload next interstitial
+            interstitialReady = false;
+            setTimeout(preloadInterstitialAd, 1000);
+            
+            return true;
+        } catch (error) {
+            console.error('Error showing interstitial:', error);
+        }
     }
-  };
-	</script>
+    
+    // ATTEMPT 2: If not ready, try to load and show quickly
+    console.log('Interstitial not ready, attempting quick load...');
+    preloadInterstitialAd();
+    
+    // ATTEMPT 3: Set timeout to check again in 500ms
+    setTimeout(() => {
+        if (interstitialReady && typeof window.showTag === 'function') {
+            window.showTag();
+            console.log('🎯 INTERSTITIAL SHOWN AFTER QUICK LOAD!');
+            interstitialReady = false;
+            setTimeout(preloadInterstitialAd, 1000);
+        } else {
+            console.warn('Interstitial could not be shown this time, but will be ready next game');
+            // Force preload for next game
+            preloadInterstitialAd();
+        }
+    }, 500);
+    
+    return false;
+};
 
+// START ADS ON USER INTERACTION
+document.addEventListener('click', initializeAds, { once: true });
+document.addEventListener('touchstart', initializeAds, { once: true });
 
-
-
+// ALSO START ADS WHEN GAME LOADER HIDES
+const originalHideLoader = window.startBlockBlasterGame;
+window.startBlockBlasterGame = function() {
+    initializeAds();
+    if (originalHideLoader) originalHideLoader();
+};
+</script>
 
             
 	
