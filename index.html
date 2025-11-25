@@ -855,45 +855,46 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 	</script>
 
 	
-            
-<script>
-// ===================== BLOCK BLASTER — FINAL MONETAG INTERSTITIAL (EVERY DEATH) =====================
+      <script>
 let interstitialReady = false;
 let isPreloading = false;
 
-// Preload a fresh interstitial script (this is the magic that makes it work forever)
+// Preload interstitial ad script for the next game over
 function preloadInterstitial() {
     if (isPreloading || interstitialReady) return;
     isPreloading = true;
-
     const s = document.createElement("script");
-    s.dataset.zone = "10203402";                  // YOUR INTERSTITIAL ZONE
+    s.dataset.zone = "10203402"; // Your interstitial zone ID
     s.src = "https://nap5k.com/tag.min.js";
     s.async = true;
     s.onload = () => {
         interstitialReady = true;
         isPreloading = false;
-        console.log("Interstitial ready (will show on next death)");
+        console.log("Interstitial is ready.");
     };
     s.onerror = () => {
         isPreloading = false;
+        console.warn("Failed to preload interstitial, retrying in 3 seconds.");
         setTimeout(preloadInterstitial, 3000);
     };
     document.body.appendChild(s);
 }
 
-// Banner + push ads (completely independent)
+// Load banner ad, independent from interstitial
 function loadBanner() {
     if (window.bannerLoaded) return;
     const b = document.createElement("script");
-    b.dataset.zone = "10203415";                  // YOUR BANNER ZONE
+    b.dataset.zone = "10203415"; // Your banner zone ID
     b.src = "https://groleegni.net/vignette.min.js";
     b.async = true;
-    b.onload = () => window.bannerLoaded = true;
+    b.onload = () => {
+        window.bannerLoaded = true;
+        console.log("Banner loaded.");
+    };
     document.body.appendChild(b);
 }
 
-// First touch/click → start everything (only once per session)
+// Start loading interstitial and banner once user interacts
 document.addEventListener("click", () => {
     preloadInterstitial();
     loadBanner();
@@ -903,28 +904,30 @@ document.addEventListener("touchstart", () => {
     loadBanner();
 }, { once: true });
 
-// This function is called from your game.js endGame()
-window.showInterstitialNow = function() {
+// Called from your game end logic to show interstitial after game over
+window.showInterstitialNow = function () {
     if (interstitialReady && typeof window.showTag === "function") {
-        window.showTag();                         // Full-screen ad
+        window.showTag();
         console.log("Interstitial shown!");
 
-        // Start preloading the NEXT one so it's ready for the next death
+        // Immediately mark not ready so next preload starts fast
+        interstitialReady = false;
+
+        // Reload interstitial for the next occurrence after a short delay
         setTimeout(() => {
-            interstitialReady = false;
             preloadInterstitial();
-        }, 3000);
+        }, 4000); // Increased delay to handle fast gameplay
+
+        return true; // Indicate interstitial was shown
     } else {
-        // If not ready yet, try again for the next death
+        // If not ready, start preload so it'll be ready next time
         preloadInterstitial();
+        console.warn("Interstitial not ready, will try next time.");
+        return false; // Indicate no ad shown
     }
 };
+	</script>      
 
-// Always keep one preloaded in the background
-setInterval(() => {
-    if (!interstitialReady && !isPreloading) preloadInterstitial();
-}, 12000);
-	</script>
 
 
 
