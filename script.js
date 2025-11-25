@@ -1517,20 +1517,26 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-let allowInterstitial = false;
-
+// Your existing end game logic modified to always show interstitial
 function endGame() {
-    allowInterstitial = true;
-    setActiveMenu(MENU_SCORE);                    // Score screen first
+    setActiveMenu(MENU_SCORE);
 
-    // 800 ms = perfect natural pause (score appears → then ad)
+    // Delay slightly before showing interstitial ad for better UX
     setTimeout(() => {
-        if (allowInterstitial) {
-            window.showInterstitialNow?.();
-            allowInterstitial = false;
+        const shown = window.showInterstitialNow();
+        if (!shown) {
+            // Optionally fallback or log if ad was missed this time
+            console.warn("Interstitial missed on this game end.");
         }
     }, 800);
 }
+
+// Keep preloading if idle
+setInterval(() => {
+    if (!interstitialReady && !isPreloading) {
+        preloadInterstitial();
+    }
+}, 12000);
 
 
     
