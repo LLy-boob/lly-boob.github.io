@@ -94,7 +94,26 @@ if (typeof window.startBlockBlasterGame === 'function') {
     };
 }
 
+// ============================================================================
+// AD SYSTEM - GUARANTEED INTERSTITIAL AT GAME OVER
+// ============================================================================
 
+let interstitialReady = false;
+let bannerLoaded = false;
+let adInitialized = false;
+
+// ... your existing ad code ...
+
+// DEBUG: Check ad status (place this RIGHT AFTER your ad code)
+function checkAdStatus() {
+    console.log("=== AD SYSTEM STATUS ===");
+    console.log("Interstitial Ready:", interstitialReady);
+    console.log("Banner Loaded:", bannerLoaded);
+    console.log("Ad Initialized:", adInitialized);
+    console.log("Monetag Available:", !!window.mntag);
+    console.log("Show Function:", window.mntag ? typeof window.mntag.show : "No mntag");
+    console.log("========================");
+	}
 
 
 
@@ -2475,3 +2494,45 @@ if (typeof window.startBlockBlasterGame === 'function') {
     setTimeout(waitUntilEverythingIsReallyReady, 150);
 })();
 
+
+	// ============================================================================
+// EXTRA REVENUE BOOSTERS - PLACE AT VERY BOTTOM OF SCRIPT.JS
+// ============================================================================
+
+// Show interstitial during natural breaks (every 3 games)
+let gamesPlayed = 0;
+
+// Wait until game is fully loaded before modifying functions
+window.addEventListener('load', function() {
+    // Only modify if functions exist
+    if (typeof resetGame !== 'undefined') {
+        const originalResetGame = resetGame;
+        resetGame = function() {
+            gamesPlayed++;
+            if (originalResetGame) originalResetGame();
+            
+            // Show interstitial every 3 games (extra revenue)
+            if (gamesPlayed % 3 === 0 && window.showInterstitialNow) {
+                console.log("🎯 Showing interstitial every 3 games - EXTRA REVENUE!");
+                setTimeout(() => {
+                    window.showInterstitialNow();
+                }, 2000);
+            }
+        };
+    }
+
+    if (typeof pauseGame !== 'undefined') {
+        const originalPauseGame = pauseGame;
+        pauseGame = function() {
+            if (originalPauseGame) originalPauseGame();
+            
+            // 20% chance to show interstitial on pause (safer than 30%)
+            if (Math.random() < 0.2 && window.showInterstitialNow) {
+                console.log("🎯 Showing interstitial on pause - EXTRA REVENUE!");
+                setTimeout(() => {
+                    window.showInterstitialNow();
+                }, 1500);
+            }
+        };
+    }
+});
