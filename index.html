@@ -661,7 +661,7 @@ function hidePopup() {
 })();
 	</script>
 
-<body>
+
   <!-- All your existing HTML (canvas, hud, menus, mute button, etc.) stays 100% the same -->
   <canvas id="c"></canvas>
   <div class="hud">…</div>
@@ -843,78 +843,7 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 	</script>
 
 	
-      <script>
-let interstitialReady = false;
-let isPreloading = false;
-
-// Preload interstitial ad script for the next game over
-function preloadInterstitial() {
-    if (isPreloading || interstitialReady) return;
-    isPreloading = true;
-    const s = document.createElement("script");
-    s.dataset.zone = "10203402"; // Your interstitial zone ID
-    s.src = "https://nap5k.com/tag.min.js";
-    s.async = true;
-    s.onload = () => {
-        interstitialReady = true;
-        isPreloading = false;
-        console.log("Interstitial is ready.");
-    };
-    s.onerror = () => {
-        isPreloading = false;
-        console.warn("Failed to preload interstitial, retrying in 3 seconds.");
-        setTimeout(preloadInterstitial, 3000);
-    };
-    document.body.appendChild(s);
-}
-
-// Load banner ad, independent from interstitial
-function loadBanner() {
-    if (window.bannerLoaded) return;
-    const b = document.createElement("script");
-    b.dataset.zone = "10203415"; // Your banner zone ID
-    b.src = "https://groleegni.net/vignette.min.js";
-    b.async = true;
-    b.onload = () => {
-        window.bannerLoaded = true;
-        console.log("Banner loaded.");
-    };
-    document.body.appendChild(b);
-}
-
-// Start loading interstitial and banner once user interacts
-document.addEventListener("click", () => {
-    preloadInterstitial();
-    loadBanner();
-}, { once: true });
-document.addEventListener("touchstart", () => {
-    preloadInterstitial();
-    loadBanner();
-}, { once: true });
-
-// Called from your game end logic to show interstitial after game over
-window.showInterstitialNow = function () {
-    if (interstitialReady && typeof window.showTag === "function") {
-        window.showTag();
-        console.log("Interstitial shown!");
-
-        // Immediately mark not ready so next preload starts fast
-        interstitialReady = false;
-
-        // Reload interstitial for the next occurrence after a short delay
-        setTimeout(() => {
-            preloadInterstitial();
-        }, 4000); // Increased delay to handle fast gameplay
-
-        return true; // Indicate interstitial was shown
-    } else {
-        // If not ready, start preload so it'll be ready next time
-        preloadInterstitial();
-        console.warn("Interstitial not ready, will try next time.");
-        return false; // Indicate no ad shown
-    }
-};
-	</script>      
+      
 
 	  
 
