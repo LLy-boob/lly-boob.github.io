@@ -1,3 +1,103 @@
+// ============================================================================
+// AD SYSTEM - GUARANTEED INTERSTITIAL AT GAME OVER
+// ============================================================================
+
+let interstitialReady = false;
+let bannerLoaded = false;
+let adInitialized = false;
+
+function initializeAds() {
+    if (adInitialized) return;
+    adInitialized = true;
+
+    loadBannerAd();
+    preloadInterstitialAd();
+    console.log("🎯 Ads system initialized");
+}
+
+function loadBannerAd() {
+    if (bannerLoaded) return;
+
+    const script = document.createElement("script");
+    script.dataset.zone = "10203415";
+    script.src = "https://groleegni.net/vignette.min.js";
+    script.async = true;
+
+    script.onload = () => {
+        bannerLoaded = true;
+        console.log("Banner loaded successfully");
+    };
+
+    script.onerror = () => {
+        console.warn("Banner failed, retrying...");
+        setTimeout(loadBannerAd, 4000);
+    };
+
+    document.body.appendChild(script);
+}
+
+function preloadInterstitialAd() {
+    if (interstitialReady) return;
+
+    const script = document.createElement("script");
+    script.dataset.zone = "10203402";
+    script.src = "https://nap5k.com/tag.min.js";
+    script.async = true;
+
+    script.onload = () => {
+        interstitialReady = true;
+        console.log("🎯 Interstitial preloaded and READY for game over");
+    };
+
+    script.onerror = () => {
+        console.warn("Interstitial preload failed, retrying...");
+        setTimeout(preloadInterstitialAd, 3000);
+    };
+
+    document.body.appendChild(script);
+}
+
+// GUARANTEED INTERSTITIAL DISPLAY
+window.showInterstitialNow = function () {
+    console.log("🎮 Game Over - Attempting to show interstitial...");
+
+    // CORRECT Monetag function
+    if (interstitialReady && window.mntag && typeof window.mntag.show === "function") {
+        try {
+            window.mntag.show();
+            console.log("💰 INTERSTITIAL SHOWN SUCCESSFULLY - REVENUE EARNED!");
+            
+            // Reset and preload next interstitial
+            interstitialReady = false;
+            setTimeout(preloadInterstitialAd, 1000);
+            return true;
+        } catch (error) {
+            console.error("Error showing interstitial:", error);
+        }
+    }
+
+    console.warn("Interstitial not ready, preloading for next game...");
+    preloadInterstitialAd();
+    return false;
+};
+
+// Initialize ads on first user interaction
+document.addEventListener("click", initializeAds, { once: true });
+document.addEventListener("touchstart", initializeAds, { once: true });
+
+// Also initialize when game starts
+if (typeof window.startBlockBlasterGame === 'function') {
+    const originalStart = window.startBlockBlasterGame;
+    window.startBlockBlasterGame = function() {
+        initializeAds();
+        originalStart();
+    };
+}
+
+
+
+
+
 // globalConfig.js
 // ============================================================================
 // ============================================================================
@@ -1517,20 +1617,15 @@ function resumeGame() {
 	isPaused() && setActiveMenu(null);
 }
 
-// ============================================================================
-// GUARANTEED INTERSTITIAL AT EVERY GAME OVER - MAXIMIZE REVENUE
-// ============================================================================
-
 function endGame() {
-    console.log("🔄 Game Over - Preparing to show interstitial ad...");
+    console.log("🔄 Game Over - Showing score menu and interstitial...");
     
-    // First show game over menu
+    // Show game over menu first
     setActiveMenu(MENU_SCORE);
     
     // Update score display
     const finalScoreNode = $('.final-score-lbl');
     const highScoreNode = $('.high-score-lbl');
-    const highScore = getHighScore();
     
     if (finalScoreNode) finalScoreNode.textContent = formatNumber(state.game.score);
     if (highScoreNode) {
@@ -1538,38 +1633,33 @@ function endGame() {
             highScoreNode.textContent = 'New High Score!';
             setHighScore(state.game.score);
         } else {
-            highScoreNode.textContent = `High Score: ${formatNumber(highScore)}`;
+            highScoreNode.textContent = `High Score: ${formatNumber(getHighScore())}`;
+        }
+    }
+
+    // GUARANTEED INTERSTITIAL - Multiple attempts to ensure it shows
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    function attemptInterstitial() {
+        attempts++;
+        console.log(`🎯 Interstitial attempt ${attempts}/${maxAttempts}`);
+        
+        if (window.showInterstitialNow && window.showInterstitialNow()) {
+            console.log("✅ Interstitial shown successfully!");
+            return;
+        }
+        
+        if (attempts < maxAttempts) {
+            setTimeout(attemptInterstitial, 1000);
+        } else {
+            console.warn("❌ All interstitial attempts failed, but preloaded for next game");
         }
     }
     
-    // GUARANTEED INTERSTITIAL SHOW - MULTIPLE ATTEMPTS
-    let interstitialShown = false;
-    
-    // Attempt 1: Show immediately
-    if (window.showInterstitialNow) {
-        interstitialShown = window.showInterstitialNow();
-    }
-    
-    // Attempt 2: If first attempt failed, try again after 1 second
-    if (!interstitialShown) {
-        setTimeout(() => {
-            console.log("🔄 Retrying interstitial display...");
-            if (window.showInterstitialNow) {
-                window.showInterstitialNow();
-            }
-        }, 1000);
-    }
-    
-    // Attempt 3: Final attempt after 3 seconds (in case of slow loading)
-    setTimeout(() => {
-        if (!interstitialShown && window.showInterstitialNow) {
-            console.log("🔄 Final attempt to show interstitial...");
-            window.showInterstitialNow();
-        }
-    }, 3000);
-    
-    console.log("💰 Ad revenue system activated for this game over");
-		}
+    // Start first attempt after a short delay for better UX
+    setTimeout(attemptInterstitial, 500);
+}
 
     
 
@@ -2385,80 +2475,3 @@ if (typeof window.startBlockBlasterGame === 'function') {
     setTimeout(waitUntilEverythingIsReallyReady, 150);
 })();
 
-let interstitialReady = false;
-let bannerLoaded = false;
-let adInitialized = false;
-
-function initializeAds() {
-    if (adInitialized) return;
-    adInitialized = true;
-
-    loadBannerAd();
-    preloadInterstitialAd();
-    console.log("Ads system initialized");
-}
-
-// BANNER
-function loadBannerAd() {
-    if (bannerLoaded) return;
-
-    const script = document.createElement("script");
-    script.dataset.zone = "10203415";
-    script.src = "https://groleegni.net/vignette.min.js";
-    script.async = true;
-
-    script.onload = () => {
-        bannerLoaded = true;
-        console.log("Banner loaded");
-    };
-
-    script.onerror = () => {
-        setTimeout(loadBannerAd, 4000);
-    };
-
-    document.body.appendChild(script);
-}
-
-// INTERSTITIAL
-function preloadInterstitialAd() {
-    if (interstitialReady) return;
-
-    const script = document.createElement("script");
-    script.dataset.zone = "10203402";
-    script.src = "https://nap5k.com/tag.min.js";
-    script.async = true;
-
-    script.onload = () => {
-        interstitialReady = true;
-        console.log("Interstitial preloaded");
-    };
-
-    script.onerror = () => {
-        setTimeout(preloadInterstitialAd, 3000);
-    };
-
-    document.body.appendChild(script);
-}
-
-window.showInterstitialNow = function () {
-    console.log("Trying to show interstitial…");
-
-    // REAL monetag function here ⬇️⬇️⬇️
-    if (interstitialReady && window.mntag && typeof window.mntag.show === "function") {
-        window.mntag.show();
-        console.log("🎯 Interstitial shown!");
-
-        interstitialReady = false;
-        setTimeout(preloadInterstitialAd, 1000);
-        return true;
-    }
-
-    console.warn("Interstitial not ready");
-
-    preloadInterstitialAd();
-    return false;
-};
-
-// START ON USER ACTION
-document.addEventListener("click", initializeAds, { once: true });
-document.addEventListener("touchstart", initializeAds, { once: true });
