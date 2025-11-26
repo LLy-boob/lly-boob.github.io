@@ -2364,9 +2364,10 @@ if (typeof window.startBlockBlasterGame === 'function') {
 
 
 	// ============================================================================
-// RELIABLE INTERSTITIAL AD SYSTEM (20-SECOND COOLDOWN) - BEST PRACTICE
+// RELIABLE INTERSTITIAL AD SYSTEM (20-SECOND COOLDOWN + GAME LOCK) - v8
 // ============================================================================
 
+// 0️⃣ GLOBAL FLAGS & CONSTANTS
 let adsInitialized = false;
 let interstitialReady = false;
 let interstitialAttempts = 0;
@@ -2376,23 +2377,30 @@ const MAX_ATTEMPTS = 3;
 let lastAdShownTime = 0;
 const AD_COOLDOWN = 20000; // 20 seconds
 
+// Game lock: prevents ads during active gameplay
+let gameActive = false;
+
+// ==========================
 // 1️⃣ INITIALIZE ADS AFTER FIRST USER INTERACTION
+// ==========================
 function initializeAds() {
     if (adsInitialized) return;
     adsInitialized = true;
     console.log("🎯 Ads system initialized after user interaction");
-    
+
     loadBannerAd();
     preloadInterstitialAd(); // First preload
 }
 
-// 2️⃣ PRELOAD INTERSTITIAL DURING GAMEPLAY
+// ==========================
+// 2️⃣ PRELOAD INTERSTITIAL
+// ==========================
 function preloadInterstitialAd() {
     if (interstitialReady) return;
-    
+
     console.log("🔄 Preloading interstitial...");
     const script = document.createElement("script");
-    script.dataset.zone = "10203402";  // Your interstitial zone
+    script.dataset.zone = "10203402"; // Interstitial zone
     script.src = "https://nap5k.com/tag.min.js";
     script.async = true;
 
@@ -2410,10 +2418,18 @@ function preloadInterstitialAd() {
     document.body.appendChild(script);
 }
 
-// 3️⃣ SHOW INTERSTITIAL (RESPECT COOLDOWN + RETRIES)
+// ==========================
+// 3️⃣ SHOW INTERSTITIAL (COOLDOWN + GAME LOCK + RETRIES)
+// ==========================
 function showInterstitialWithRetry() {
 
-    // COOLDOWN CHECK FIRST
+    // BLOCK DURING ACTIVE GAME
+    if (gameActive) {
+        console.log("⛔ Interstitial blocked — game in progress");
+        return false;
+    }
+
+    // COOLDOWN CHECK
     if (Date.now() - lastAdShownTime < AD_COOLDOWN) {
         console.log("⛔ Ad skipped (20-second cooldown active)");
         return false;
@@ -2430,7 +2446,7 @@ function showInterstitialWithRetry() {
             // SET COOLDOWN TIME
             lastAdShownTime = Date.now();
 
-            // PREP NEXT AD
+            // PRELOAD NEXT AD
             interstitialReady = false;
             setTimeout(preloadInterstitialAd, 1000);
 
@@ -2452,7 +2468,9 @@ function showInterstitialWithRetry() {
     return false;
 }
 
-// 4️⃣ CALL THIS AT GAME OVER
+// ==========================
+// 4️⃣ GAME OVER CALL
+// ==========================
 window.showInterstitialAtGameOver = function() {
     console.log("🎮 Game Over — preparing interstitial...");
     interstitialAttempts = 0;
@@ -2461,7 +2479,23 @@ window.showInterstitialAtGameOver = function() {
     setTimeout(showInterstitialWithRetry, 800);
 };
 
-// BANNER AD (unchanged)
+// ==========================
+// 5️⃣ GAME START / END FLAGS
+// ==========================
+function startGame() {
+    gameActive = true;
+    console.log("🕹️ Game started — interstitials blocked");
+}
+
+function endGame() {
+    gameActive = false;
+    console.log("🏁 Game ended — interstitial can now show");
+    if (window.showInterstitialAtGameOver) window.showInterstitialAtGameOver();
+}
+
+// ==========================
+// 6️⃣ BANNER AD (UNCHANGED)
+// ==========================
 function loadBannerAd() {
     const script = document.createElement("script");
     script.dataset.zone = "10203415";
@@ -2470,13 +2504,15 @@ function loadBannerAd() {
     document.body.appendChild(script);
 }
 
-// START ADS AFTER FIRST USER INTERACTION
+// ==========================
+// 7️⃣ START ADS AFTER FIRST USER INTERACTION
+// ==========================
 document.addEventListener("click", initializeAds, { once: true });
 document.addEventListener("touchstart", initializeAds, { once: true });
 
-// Backup auto-init
+// Backup auto-init after 5s
 setTimeout(() => {
     if (!adsInitialized) initializeAds();
 }, 5000);
 
-console.log("🎯 Interstitial system (20-sec cooldown) loaded successfully!");
+console.log("🎯 Interstitial system (20-sec cooldown + game lock) v8 loaded successfully!");
