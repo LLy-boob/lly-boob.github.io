@@ -842,7 +842,57 @@ accelerateTiles(".tile"); // replace ".tile" with your tile class
 // const checkCombosThrottled = throttle(checkCombos, 50);
 	</script>
 
-	
+	<!-- ================================ -->
+<!--   SAFE AD + OPTIMIZER ENGINE     -->
+<!-- ================================ -->
+<div id="ad-container" style="width:320px; height:50px; margin:auto; text-align:center; visibility:hidden;">
+  <!-- Ad will load here -->
+</div>
+
+<script>
+(function() {
+  if (window.adOptimizerLoaded) return;
+  window.adOptimizerLoaded = true;
+
+  const adContainer = document.getElementById('ad-container');
+  if (!adContainer) return;
+
+  // Flicker/Glitch Absorber Engine
+  const optimizer = {
+    buffer: document.createDocumentFragment(), // Temporary offscreen buffer
+    ready: false,
+    showAd: function(iframe) {
+      // Append to buffer first
+      this.buffer.appendChild(iframe);
+      // Minimal delay to ensure game rendering is stable
+      setTimeout(() => {
+        adContainer.appendChild(this.buffer);
+        adContainer.style.visibility = 'visible';
+        this.ready = true;
+      }, 200); // 200ms delay is enough to absorb frame glitches
+    }
+  };
+
+  // Create ad iframe
+  const iframe = document.createElement('iframe');
+  iframe.src = 'https://example.com/your-ad.html'; // Replace with your ad URL
+  iframe.width = '320';
+  iframe.height = '50';
+  iframe.style.border = '0';
+  iframe.style.overflow = 'hidden';
+  iframe.loading = 'lazy';
+  iframe.allow = 'autoplay; fullscreen';
+
+  // Load ad asynchronously after game init
+  window.addEventListener('load', () => {
+    setTimeout(() => optimizer.showAd(iframe), 1000); // Delay 1s after game load
+  });
+
+})();
+</script>
+<!-- ================================ -->
+<!--   SAFE AD + OPTIMIZER ENGINE END -->
+<!-- ================================ -->
       
 
 	  
