@@ -2385,4 +2385,80 @@ if (typeof window.startBlockBlasterGame === 'function') {
     setTimeout(waitUntilEverythingIsReallyReady, 150);
 })();
 
+let interstitialReady = false;
+let bannerLoaded = false;
+let adInitialized = false;
 
+function initializeAds() {
+    if (adInitialized) return;
+    adInitialized = true;
+
+    loadBannerAd();
+    preloadInterstitialAd();
+    console.log("Ads system initialized");
+}
+
+// BANNER
+function loadBannerAd() {
+    if (bannerLoaded) return;
+
+    const script = document.createElement("script");
+    script.dataset.zone = "10203415";
+    script.src = "https://groleegni.net/vignette.min.js";
+    script.async = true;
+
+    script.onload = () => {
+        bannerLoaded = true;
+        console.log("Banner loaded");
+    };
+
+    script.onerror = () => {
+        setTimeout(loadBannerAd, 4000);
+    };
+
+    document.body.appendChild(script);
+}
+
+// INTERSTITIAL
+function preloadInterstitialAd() {
+    if (interstitialReady) return;
+
+    const script = document.createElement("script");
+    script.dataset.zone = "10203402";
+    script.src = "https://nap5k.com/tag.min.js";
+    script.async = true;
+
+    script.onload = () => {
+        interstitialReady = true;
+        console.log("Interstitial preloaded");
+    };
+
+    script.onerror = () => {
+        setTimeout(preloadInterstitialAd, 3000);
+    };
+
+    document.body.appendChild(script);
+}
+
+window.showInterstitialNow = function () {
+    console.log("Trying to show interstitial…");
+
+    // REAL monetag function here ⬇️⬇️⬇️
+    if (interstitialReady && window.mntag && typeof window.mntag.show === "function") {
+        window.mntag.show();
+        console.log("🎯 Interstitial shown!");
+
+        interstitialReady = false;
+        setTimeout(preloadInterstitialAd, 1000);
+        return true;
+    }
+
+    console.warn("Interstitial not ready");
+
+    preloadInterstitialAd();
+    return false;
+};
+
+// START ON USER ACTION
+document.addEventListener("click", initializeAds, { once: true });
+document.addEventListener("touchstart", initializeAds, { once: true });
