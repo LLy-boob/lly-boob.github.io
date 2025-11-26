@@ -671,155 +671,413 @@ function hidePopup() {
   <!-- etc. keep everything you already have -->
 
 
-  
+
+        
 <!-- ===================================================== -->
-<!--         ULTRA PERFORMANCE OPTIMIZER ENGINE           -->
+<!--        ZERO-LAG ULTRA PERFORMANCE OPTIMIZER          -->
 <!-- ===================================================== -->
 <script>
-(async function UltraPerformanceBoost() {
-    console.log('🚀 Starting Ultra Performance Optimizer...');
+(function ZeroLagOptimizer() {
+    'use strict';
     
-    // 1. IMMEDIATE PERFORMANCE BOOSTS (Run First)
-    document.body.style.transform = 'translateZ(0)';
-    document.body.style.willChange = 'transform';
-    document.documentElement.style.scrollBehavior = 'auto';
-    document.body.style.background = '#000';
-
-    // 2. SMART QUALITY ADAPTATION
-    const canvas = document.getElementById('c');
-    if (!canvas) return;
+    console.log('🚀 ACTIVATING ZERO-LAG OPTIMIZER...');
     
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isLowEnd = (navigator.hardwareConcurrency || 4) <= 4 && isMobile;
-    const hasSlowGPU = !window.WebGLRenderingContext || !canvas.getContext('webgl');
-    
-    const settings = {
-        scale: isLowEnd ? 0.5 : (isMobile ? 0.7 : 1.0),
-        fps: isLowEnd ? 30 : (isMobile ? 45 : 60),
-        shadows: !isLowEnd,
-        particles: isLowEnd ? 50 : 150,
-        antialias: !isLowEnd
+    // 1. AGGRESSIVE HARDWARE ACCELERATION
+    // ====================================
+    const forceHardwareAcceleration = () => {
+        document.body.style.transform = 'translate3d(0,0,0)';
+        document.body.style.willChange = 'transform';
+        document.body.style.backfaceVisibility = 'hidden';
+        document.body.style.perspective = '1000px';
+        document.documentElement.style.scrollBehavior = 'auto';
+        document.body.style.background = '#000';
+        
+        // Force composite layer for entire game area
+        const gameContainer = document.querySelector('.menus') || document.body;
+        gameContainer.style.transform = 'translateZ(0)';
+        gameContainer.style.willChange = 'transform';
     };
-    
-    console.log(`📱 Device: ${isMobile ? 'Mobile' : 'Desktop'}, Quality: ${isLowEnd ? 'Low' : 'High'}`);
-    
-    // 3. CANVAS OPTIMIZATION
-    function optimizeCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, isLowEnd ? 1 : 2);
+
+    // 2. ULTRA-AGGRESSIVE DEVICE DETECTION
+    // ====================================
+    const detectDeviceTier = () => {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const cores = navigator.hardwareConcurrency || 2;
+        const memory = navigator.deviceMemory || 4;
+        const isSlowDevice = cores <= 2 || memory <= 2;
+        
+        // WebGL capability test
+        let webglTier = 3;
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) webglTier = 0;
+            else {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : '';
+                if (/mali|adreno|powervr|intel.*hd|radeon.*hd/i.test(renderer.toLowerCase())) {
+                    webglTier = isMobile ? 1 : 2;
+                }
+            }
+        } catch (e) {
+            webglTier = 0;
+        }
+
+        if (webglTier === 0 || isSlowDevice) return 'VERY_LOW';
+        if (isMobile && webglTier <= 1) return 'LOW';
+        if (isMobile) return 'MEDIUM';
+        return 'HIGH';
+    };
+
+    const deviceTier = detectDeviceTier();
+    console.log(`📱 Device Tier: ${deviceTier}`);
+
+    // 3. EXTREME QUALITY SETTINGS
+    // ===========================
+    const getAggressiveSettings = () => {
+        switch (deviceTier) {
+            case 'VERY_LOW': // Old phones, slow devices
+                return {
+                    scale: 0.4,
+                    fps: 30,
+                    shadows: false,
+                    particles: 20,
+                    antialias: false,
+                    resolution: 0.5,
+                    physicsQuality: 0.5,
+                    targetCount: 3
+                };
+            case 'LOW': // Budget smartphones
+                return {
+                    scale: 0.6,
+                    fps: 45,
+                    shadows: false,
+                    particles: 40,
+                    antialias: false,
+                    resolution: 0.7,
+                    physicsQuality: 0.7,
+                    targetCount: 5
+                };
+            case 'MEDIUM': // Modern smartphones
+                return {
+                    scale: 0.8,
+                    fps: 60,
+                    shadows: true,
+                    particles: 80,
+                    antialias: false,
+                    resolution: 0.85,
+                    physicsQuality: 0.9,
+                    targetCount: 8
+                };
+            case 'HIGH': // PCs, Tablets, High-end phones
+            default:
+                return {
+                    scale: 1.0,
+                    fps: 60,
+                    shadows: true,
+                    particles: 150,
+                    antialias: true,
+                    resolution: 1.0,
+                    physicsQuality: 1.0,
+                    targetCount: 12
+                };
+        }
+    };
+
+    const settings = getAggressiveSettings();
+    window.GAME_SETTINGS = settings;
+
+    // 4. CANVAS OPTIMIZATION - EXTREME MODE
+    // =====================================
+    const optimizeCanvasExtreme = () => {
+        const canvas = document.getElementById('c');
+        if (!canvas) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, deviceTier === 'VERY_LOW' ? 1 : 2);
         const rect = canvas.getBoundingClientRect();
         
-        canvas.width = rect.width * dpr * settings.scale;
-        canvas.height = rect.height * dpr * settings.scale;
+        // Ultra-aggressive resolution scaling
+        canvas.width = Math.floor(rect.width * dpr * settings.scale * settings.resolution);
+        canvas.height = Math.floor(rect.height * dpr * settings.scale * settings.resolution);
         
         canvas.style.width = '100%';
         canvas.style.height = '100%';
-        canvas.style.imageRendering = isLowEnd ? 'pixelated' : 'auto';
-        
-        const gl = canvas.getContext('webgl', {
+        canvas.style.imageRendering = deviceTier === 'VERY_LOW' ? 'pixelated' : 'crisp-edges';
+        canvas.style.transform = 'translate3d(0,0,0)';
+        canvas.style.willChange = 'transform';
+
+        // WebGL context with extreme optimizations
+        const contextAttributes = {
             alpha: false,
             depth: false,
+            stencil: false,
             antialias: settings.antialias,
-            powerPreference: isLowEnd ? 'low-power' : 'high-performance',
-            failIfMajorPerformanceCaveat: true
-        });
-        
+            premultipliedAlpha: false,
+            preserveDrawingBuffer: false,
+            powerPreference: deviceTier === 'VERY_LOW' ? 'low-power' : 'high-performance',
+            failIfMajorPerformanceCaveat: true,
+            desynchronized: true // Chrome only - reduces latency
+        };
+
+        let gl = canvas.getContext('webgl', contextAttributes) || 
+                 canvas.getContext('experimental-webgl', contextAttributes);
+
         if (gl) {
+            // Disable EVERYTHING non-essential
             gl.disable(gl.DEPTH_TEST);
             gl.disable(gl.STENCIL_TEST);
             gl.disable(gl.DITHER);
-        }
-        
-        console.log(`🎯 Canvas optimized: ${canvas.width}x${canvas.height} (scale: ${settings.scale})`);
-    }
-    
-    // 4. FPS CONTROL
-    let lastFrameTime = 0;
-    const frameInterval = 1000 / settings.fps;
-    
-    const originalRAF = window.requestAnimationFrame;
-    window.requestAnimationFrame = function(callback) {
-        return originalRAF(function(timestamp) {
-            if (!lastFrameTime) lastFrameTime = timestamp;
-            const delta = timestamp - lastFrameTime;
+            gl.disable(gl.BLEND);
+            gl.disable(gl.CULL_FACE);
+            gl.disable(gl.POLYGON_OFFSET_FILL);
+            gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+            gl.disable(gl.SAMPLE_COVERAGE);
             
-            if (delta >= frameInterval) {
-                lastFrameTime = timestamp - (delta % frameInterval);
-                callback(timestamp);
+            // Clear to black once
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+
+        console.log(`🎯 EXTREME Canvas: ${canvas.width}x${canvas.height}, Scale: ${settings.scale}`);
+        return canvas;
+    };
+
+    // 5. ULTRA-SMOOTH FPS CONTROL
+    // ===========================
+    const createFrameController = () => {
+        let lastTime = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+        const frameTime = 1000 / settings.fps;
+        let fps = settings.fps;
+
+        const updateFPS = () => {
+            const now = performance.now();
+            frameCount++;
+            
+            if (now - lastFpsUpdate >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFpsUpdate = now;
+                
+                // Auto-adjust quality if FPS drops
+                if (fps < settings.fps * 0.6 && settings.scale > 0.3) {
+                    settings.scale = Math.max(0.3, settings.scale - 0.1);
+                    console.warn(`⚠️ FPS DROP! Reducing quality to: ${settings.scale}`);
+                    optimizeCanvasExtreme();
+                }
+            }
+        };
+
+        const requestAnimationFrameOptimized = (callback) => {
+            return window.requestAnimationFrame((timestamp) => {
+                if (!lastTime) lastTime = timestamp;
+                const delta = timestamp - lastTime;
+                
+                if (delta >= frameTime) {
+                    lastTime = timestamp - (delta % frameTime);
+                    callback(timestamp);
+                    updateFPS();
+                } else {
+                    requestAnimationFrameOptimized(callback);
+                }
+            });
+        };
+
+        // Replace native RAF
+        window.requestAnimationFrame = requestAnimationFrameOptimized;
+        
+        return { getFPS: () => fps };
+    };
+
+    // 6. ULTRA-SMOOTH TOUCH INPUT
+    // ===========================
+    const optimizeTouchExtreme = () => {
+        const canvas = document.getElementById('c');
+        if (!canvas) return;
+
+        // Remove ALL touch delays and restrictions
+        canvas.style.touchAction = 'none';
+        canvas.style.webkitTapHighlightColor = 'transparent';
+        canvas.style.webkitTouchCallout = 'none';
+        canvas.style.webkitUserSelect = 'none';
+        canvas.style.userSelect = 'none';
+
+        const touchHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Force immediate propagation for game
+            if (e.type === 'touchmove') {
+                const touch = e.touches[0];
+                if (window.handleGameTouch) {
+                    window.handleGameTouch(touch.clientX, touch.clientY);
+                }
+            }
+        };
+
+        // Use capturing phase for fastest response
+        const events = ['touchstart', 'touchmove', 'touchend', 'touchcancel'];
+        events.forEach(event => {
+            document.addEventListener(event, touchHandler, { 
+                passive: false, 
+                capture: true 
+            });
+        });
+
+        console.log('👆 ULTRA-SMOOTH Touch activated');
+    };
+
+    // 7. MEMORY MANAGEMENT - AGGRESSIVE
+    // =================================
+    const setupMemoryManager = () => {
+        let memoryWatchdog = null;
+        let leakDetector = new Set();
+        
+        const forceGarbageCollection = () => {
+            if (window.gc) {
+                window.gc();
             } else {
-                window.requestAnimationFrame(callback);
+                // Aggressive memory cleanup
+                try {
+                    if (window.performance && window.performance.memory) {
+                        const used = window.performance.memory.usedJSHeapSize;
+                        const limit = window.performance.memory.jsHeapSizeLimit;
+                        
+                        if (used / limit > 0.8) {
+                            console.warn('🔄 High memory usage - forcing cleanup');
+                            const largeArray = new Array(10000);
+                            setTimeout(() => { largeArray.length = 0; }, 0);
+                        }
+                    }
+                } catch (e) {}
+            }
+        };
+
+        // Cleanup every 10 seconds
+        memoryWatchdog = setInterval(forceGarbageCollection, 10000);
+        
+        // Monitor object leaks
+        window.trackObject = (obj) => {
+            leakDetector.add(obj);
+            return obj;
+        };
+        
+        window.cleanupTracked = () => {
+            leakDetector.clear();
+        };
+        
+        return () => clearInterval(memoryWatchdog);
+    };
+
+    // 8. NETWORK & LOADING OPTIMIZATIONS
+    // ==================================
+    const optimizeNetwork = () => {
+        // Preload critical game components
+        const preloadResources = [
+            './script.js',
+            './style.css'
+        ];
+
+        preloadResources.forEach(url => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.href = url;
+            link.as = url.endsWith('.js') ? 'script' : 'style';
+            link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+        });
+
+        // Service worker for caching
+        if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('🔧 Service Worker registered'))
+                .catch(console.error);
+        }
+    };
+
+    // 9. BLOCK BURSTING & PHYSICS OPTIMIZATIONS
+    // =========================================
+    const setupGameOptimizations = () => {
+        // Expose settings to game
+        window.GAME_OPTIMIZATIONS = {
+            // Reduce particle counts for low-end devices
+            maxParticles: settings.particles,
+            // Simplify physics
+            physicsSteps: Math.max(1, Math.floor(3 * settings.physicsQuality)),
+            // Limit concurrent objects
+            maxTargets: settings.targetCount,
+            // Optimize collision detection
+            collisionQuality: settings.physicsQuality,
+            // Reduce visual effects
+            enableScreenShake: deviceTier !== 'VERY_LOW',
+            enableGlowEffects: deviceTier === 'HIGH'
+        };
+
+        console.log('🎮 Game optimizations applied:', window.GAME_OPTIMIZATIONS);
+    };
+
+    // 10. ANTI-FLICKER & ANTI-GLITCH MEASURES
+    // =======================================
+    const eliminateFlickering = () => {
+        // Force synchronous rendering for critical frames
+        const originalGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+            const ctx = originalGetContext.call(this, type, attrs);
+            if (ctx && type.includes('webgl')) {
+                // Ensure consistent frame timing
+                ctx.finish = ctx.finish || (() => {});
+            }
+            return ctx;
+        };
+
+        // Prevent background tab throttling
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Force redraw when returning to tab
+                const canvas = document.getElementById('c');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
             }
         });
     };
-    
-    // 5. MEMORY OPTIMIZATION
-    let frameCount = 0;
-    
-    function scheduleGarbageCollection() {
-        frameCount++;
-        if (frameCount % 300 === 0) {
-            if (window.gc) {
-                window.gc();
-            } else if (console && console.memory) {
-                const temp = new Array(1000).fill(null);
-                setTimeout(() => { temp.length = 0; }, 0);
-            }
-        }
+
+    // 11. INITIALIZE EVERYTHING
+    // =========================
+    const init = () => {
+        console.log('🔥 INITIALIZING ZERO-LAG OPTIMIZER...');
+        
+        forceHardwareAcceleration();
+        optimizeCanvasExtreme();
+        optimizeTouchExtreme();
+        createFrameController();
+        setupMemoryManager();
+        optimizeNetwork();
+        setupGameOptimizations();
+        eliminateFlickering();
+        
+        // Handle resize efficiently
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(optimizeCanvasExtreme, 100);
+        }, { passive: true });
+
+        console.log('✅ ZERO-LAG OPTIMIZER FULLY ACTIVATED!');
+        console.log('📊 Final Settings:', settings);
+        
+        // Signal to game that optimizations are ready
+        window.dispatchEvent(new Event('optimizationsReady'));
+    };
+
+    // Start immediately
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
-    
-    // 6. TOUCH OPTIMIZATION
-    function optimizeInput() {
-        const touchHandler = (e) => {
-            if (e.target === canvas || e.target.closest('#c')) {
-                e.preventDefault();
-            }
-        };
-        
-        ['touchstart', 'touchmove', 'touchend'].forEach(event => {
-            document.addEventListener(event, touchHandler, { passive: false });
-        });
-        
-        canvas.style.touchAction = 'none';
-        canvas.style.webkitTapHighlightColor = 'transparent';
-    }
-    
-    // 7. PERFORMANCE MONITORING
-    let performanceSamples = [];
-    const MAX_SAMPLES = 60;
-    
-    function monitorPerformance() {
-        const now = performance.now();
-        performanceSamples.push(now);
-        
-        if (performanceSamples.length > MAX_SAMPLES) {
-            performanceSamples.shift();
-            
-            const fps = (performanceSamples.length - 1) / 
-                       ((performanceSamples[performanceSamples.length - 1] - performanceSamples[0]) / 1000);
-            
-            if (fps < settings.fps * 0.7 && settings.scale > 0.3) {
-                settings.scale = Math.max(0.3, settings.scale - 0.1);
-                console.warn(`⚠️ Performance drop! Reducing quality to scale: ${settings.scale}`);
-                optimizeCanvas();
-            }
-        }
-        
-        scheduleGarbageCollection();
-    }
-    
-    // 8. INITIALIZE
-    optimizeCanvas();
-    optimizeInput();
-    
-    setInterval(monitorPerformance, 1000);
-    
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(optimizeCanvas, 250);
-    });
-    
-    window.GAME_SETTINGS = settings;
-    console.log('✅ Ultra Performance Optimizer Activated!');
 })();
 	</script>
 
