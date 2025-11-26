@@ -2364,115 +2364,6 @@ if (typeof window.startBlockBlasterGame === 'function') {
 
 
 	// ============================================================================
-// RELIABLE INTERSTITIAL AD SYSTEM (20-SECOND COOLDOWN + GAME LOCK) - v8
-// ============================================================================
-
-// 0️⃣ GLOBAL FLAGS & CONSTANTS
-let adsInitialized = false;
-let interstitialReady = false;
-let interstitialAttempts = 0;
-const MAX_ATTEMPTS = 3;
-
-// 20-second cooldown between interstitials
-let lastAdShownTime = 0;
-const AD_COOLDOWN = 20000; // 20 seconds
-
-// Game lock: prevents ads during active gameplay
-let gameActive = false;
-
-// ==========================
-// 1️⃣ INITIALIZE ADS AFTER FIRST USER INTERACTION
-// ==========================
-function initializeAds() {
-    if (adsInitialized) return;
-    adsInitialized = true;
-    console.log("🎯 Ads system initialized after user interaction");
-
-    loadBannerAd();
-    preloadInterstitialAd(); // First preload
-}
-
-// ==========================
-// 2️⃣ PRELOAD INTERSTITIAL
-// ==========================
-function preloadInterstitialAd() {
-    if (interstitialReady) return;
-
-    console.log("🔄 Preloading interstitial...");
-    const script = document.createElement("script");
-    script.dataset.zone = "10203402"; // Interstitial zone
-    script.src = "https://nap5k.com/tag.min.js";
-    script.async = true;
-
-    script.onload = () => {
-        interstitialReady = true;
-        interstitialAttempts = 0;
-        console.log("✅ Interstitial PRELOADED and READY");
-    };
-
-    script.onerror = () => {
-        console.warn("❌ Interstitial preload failed — retrying...");
-        setTimeout(preloadInterstitialAd, 2000);
-    };
-
-    document.body.appendChild(script);
-}
-
-    // ============================================================================
-// RELIABLE INTERSTITIAL AD SYSTEM (20-SECOND COOLDOWN + SKIP FIRST GAME)
-// ============================================================================
-
-let adsInitialized = false;
-let interstitialReady = false;
-let interstitialAttempts = 0;
-const MAX_ATTEMPTS = 3;
-
-// 20-second cooldown between interstitials
-let lastAdShownTime = 0;
-const AD_COOLDOWN = 20000; // 20 seconds
-
-// Skip interstitial on first game for better UX
-let firstGamePlayed = false;
-
-// ==========================
-// 1️⃣ INITIALIZE ADS AFTER FIRST USER INTERACTION
-// ==========================
-function initializeAds() {
-    if (adsInitialized) return;
-    adsInitialized = true;
-    console.log("🎯 Ads system initialized after user interaction");
-    
-    loadBannerAd();
-    preloadInterstitialAd(); // First preload
-}
-
-// ==========================
-// 2️⃣ PRELOAD INTERSTITIAL
-// ==========================
-function preloadInterstitialAd() {
-    if (interstitialReady) return;
-
-    console.log("🔄 Preloading interstitial...");
-    const script = document.createElement("script");
-    script.dataset.zone = "10203402";  // Your interstitial zone
-    script.src = "https://nap5k.com/tag.min.js";
-    script.async = true;
-
-    script.onload = () => {
-        interstitialReady = true;
-        interstitialAttempts = 0;
-        console.log("✅ Interstitial PRELOADED and READY");
-    };
-
-    script.onerror = () => {
-        console.warn("❌ Interstitial preload failed — retrying...");
-        setTimeout(preloadInterstitialAd, 2000);
-    };
-
-    document.body.appendChild(script);
-}
-
-// ============================================================================
 // RELIABLE INTERSTITIAL AD SYSTEM (20-SECOND COOLDOWN + GAME LOCK)
 // ============================================================================
 
@@ -2580,3 +2471,5 @@ document.addEventListener("touchstart", initializeAds, { once: true });
 setTimeout(() => { if (!adsInitialized) initializeAds(); }, 5000);
 
 console.log("🎯 Interstitial system loaded (20s cooldown + game lock)");
+
+        
