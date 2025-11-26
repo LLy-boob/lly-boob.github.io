@@ -672,128 +672,156 @@ function hidePopup() {
 
 
 
-  <!-- ===================================================== -->
-<!--            CLEAN PERFORMANCE OPTIMIZER               -->
+1<!-- ===================================================== -->
+<!--         ULTRA PERFORMANCE OPTIMIZER ENGINE           -->
 <!-- ===================================================== -->
 <script>
-(function() {
-    'use strict';
+(async function UltraPerformanceBoost() {
+    console.log('🚀 Starting Ultra Performance Optimizer...');
     
-    console.log('🎯 Loading Clean Performance Optimizer...');
+    // 1. IMMEDIATE PERFORMANCE BOOSTS (Run First)
+    document.body.style.transform = 'translateZ(0)';
+    document.body.style.willChange = 'transform';
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.background = '#000';
+
+    // 2. SMART QUALITY ADAPTATION
+    const canvas = document.getElementById('c');
+    if (!canvas) return;
     
-    // Wait for page to load
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initOptimizer);
-    } else {
-        setTimeout(initOptimizer, 100);
-    }
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowEnd = (navigator.hardwareConcurrency || 4) <= 4 && isMobile;
+    const hasSlowGPU = !window.WebGLRenderingContext || !canvas.getContext('webgl');
     
-    function initOptimizer() {
-        const canvas = document.getElementById('c');
-        if (!canvas) {
-            console.log('⏳ Waiting for canvas...');
-            setTimeout(initOptimizer, 500);
-            return;
+    const settings = {
+        scale: isLowEnd ? 0.5 : (isMobile ? 0.7 : 1.0),
+        fps: isLowEnd ? 30 : (isMobile ? 45 : 60),
+        shadows: !isLowEnd,
+        particles: isLowEnd ? 50 : 150,
+        antialias: !isLowEnd
+    };
+    
+    console.log(`📱 Device: ${isMobile ? 'Mobile' : 'Desktop'}, Quality: ${isLowEnd ? 'Low' : 'High'}`);
+    
+    // 3. CANVAS OPTIMIZATION
+    function optimizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, isLowEnd ? 1 : 2);
+        const rect = canvas.getBoundingClientRect();
+        
+        canvas.width = rect.width * dpr * settings.scale;
+        canvas.height = rect.height * dpr * settings.scale;
+        
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.imageRendering = isLowEnd ? 'pixelated' : 'auto';
+        
+        const gl = canvas.getContext('webgl', {
+            alpha: false,
+            depth: false,
+            antialias: settings.antialias,
+            powerPreference: isLowEnd ? 'low-power' : 'high-performance',
+            failIfMajorPerformanceCaveat: true
+        });
+        
+        if (gl) {
+            gl.disable(gl.DEPTH_TEST);
+            gl.disable(gl.STENCIL_TEST);
+            gl.disable(gl.DITHER);
         }
         
-        console.log('✅ Canvas found, starting optimizations...');
-        
-        // 1. SIMPLE DEVICE DETECTION
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isLowEnd = (navigator.hardwareConcurrency || 4) <= 4;
-        
-        // 2. BASIC QUALITY SETTINGS
-        const settings = {
-            scale: isLowEnd ? 0.7 : (isMobile ? 0.8 : 1.0),
-            fps: isLowEnd ? 45 : 60
+        console.log(`🎯 Canvas optimized: ${canvas.width}x${canvas.height} (scale: ${settings.scale})`);
+    }
+    
+    // 4. FPS CONTROL
+    let lastFrameTime = 0;
+    const frameInterval = 1000 / settings.fps;
+    
+    const originalRAF = window.requestAnimationFrame;
+    window.requestAnimationFrame = function(callback) {
+        return originalRAF(function(timestamp) {
+            if (!lastFrameTime) lastFrameTime = timestamp;
+            const delta = timestamp - lastFrameTime;
+            
+            if (delta >= frameInterval) {
+                lastFrameTime = timestamp - (delta % frameInterval);
+                callback(timestamp);
+            } else {
+                window.requestAnimationFrame(callback);
+            }
+        });
+    };
+    
+    // 5. MEMORY OPTIMIZATION
+    let frameCount = 0;
+    
+    function scheduleGarbageCollection() {
+        frameCount++;
+        if (frameCount % 300 === 0) {
+            if (window.gc) {
+                window.gc();
+            } else if (console && console.memory) {
+                const temp = new Array(1000).fill(null);
+                setTimeout(() => { temp.length = 0; }, 0);
+            }
+        }
+    }
+    
+    // 6. TOUCH OPTIMIZATION
+    function optimizeInput() {
+        const touchHandler = (e) => {
+            if (e.target === canvas || e.target.closest('#c')) {
+                e.preventDefault();
+            }
         };
         
-        // 3. CANVAS OPTIMIZATION (SIMPLE)
-        function optimizeCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            
-            canvas.width = Math.floor(rect.width * dpr * settings.scale);
-            canvas.height = Math.floor(rect.height * dpr * settings.scale);
-            
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            
-            if (isLowEnd) {
-                canvas.style.imageRendering = 'pixelated';
-            }
-            
-            console.log(`📱 Canvas: ${canvas.width}x${canvas.height} (${isMobile ? 'Mobile' : 'Desktop'})`);
-        }
+        ['touchstart', 'touchmove', 'touchend'].forEach(event => {
+            document.addEventListener(event, touchHandler, { passive: false });
+        });
         
-        // 4. TOUCH OPTIMIZATION (SIMPLE)
-        function optimizeTouch() {
-            canvas.style.touchAction = 'none';
-            
-            const touchHandler = function(e) {
-                if (e.target === canvas) {
-                    e.preventDefault();
-                }
-            };
-            
-            ['touchstart', 'touchmove'].forEach(event => {
-                canvas.addEventListener(event, touchHandler, { passive: false });
-            });
-            
-            console.log('👆 Touch optimized');
-        }
-        
-        // 5. FPS CONTROL (SIMPLE)
-        function optimizeFPS() {
-            let lastTime = 0;
-            const frameTime = 1000 / settings.fps;
-            
-            const originalRAF = window.requestAnimationFrame;
-            window.requestAnimationFrame = function(callback) {
-                return originalRAF(function(timestamp) {
-                    if (!lastTime) lastTime = timestamp;
-                    const delta = timestamp - lastTime;
-                    
-                    if (delta >= frameTime) {
-                        lastTime = timestamp;
-                        callback(timestamp);
-                    }
-                });
-            };
-            
-            console.log(`⏱️ FPS capped at: ${settings.fps}`);
-        }
-        
-        // 6. MEMORY OPTIMIZATION (SIMPLE)
-        function optimizeMemory() {
-            // Simple memory cleanup every 30 seconds
-            setInterval(() => {
-                if (window.performance && performance.memory) {
-                    const used = performance.memory.usedJSHeapSize;
-                    const limit = performance.memory.jsHeapSizeLimit;
-                    if (used / limit > 0.8) {
-                        console.log('🧹 Memory cleanup triggered');
-                    }
-                }
-            }, 30000);
-        }
-        
-        // 7. APPLY ALL OPTIMIZATIONS
-        optimizeCanvas();
-        optimizeTouch();
-        optimizeFPS();
-        optimizeMemory();
-        
-        // Handle window resize
-        window.addEventListener('resize', optimizeCanvas);
-        
-        // Expose settings for game (optional)
-        window.gameSettings = settings;
-        
-        console.log('🎉 Clean Performance Optimizer Ready!');
+        canvas.style.touchAction = 'none';
+        canvas.style.webkitTapHighlightColor = 'transparent';
     }
+    
+    // 7. PERFORMANCE MONITORING
+    let performanceSamples = [];
+    const MAX_SAMPLES = 60;
+    
+    function monitorPerformance() {
+        const now = performance.now();
+        performanceSamples.push(now);
+        
+        if (performanceSamples.length > MAX_SAMPLES) {
+            performanceSamples.shift();
+            
+            const fps = (performanceSamples.length - 1) / 
+                       ((performanceSamples[performanceSamples.length - 1] - performanceSamples[0]) / 1000);
+            
+            if (fps < settings.fps * 0.7 && settings.scale > 0.3) {
+                settings.scale = Math.max(0.3, settings.scale - 0.1);
+                console.warn(`⚠️ Performance drop! Reducing quality to scale: ${settings.scale}`);
+                optimizeCanvas();
+            }
+        }
+        
+        scheduleGarbageCollection();
+    }
+    
+    // 8. INITIALIZE
+    optimizeCanvas();
+    optimizeInput();
+    
+    setInterval(monitorPerformance, 1000);
+    
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(optimizeCanvas, 250);
+    });
+    
+    window.GAME_SETTINGS = settings;
+    console.log('✅ Ultra Performance Optimizer Activated!');
 })();
-	</script>      
+	</script>
 
 
 	
