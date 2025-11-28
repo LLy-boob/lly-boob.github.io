@@ -2469,3 +2469,14 @@ setTimeout(() => {
 }, 5000);
 
 console.log("🎯 Reliable Ad System Loaded - Ready for Game Over!");
+
+// At the end of your module script (after WebGL init)
+export function loadAds() {
+  const adContainer = document.getElementById('ad-container');
+  if (!adContainer) return;
+  adContainer.innerHTML = '<iframe src="your-ad.html" width="320" height="50" style="border:0;overflow:hidden;"></iframe>';
+}
+
+// Call it after the game is fully ready
+initGame(); // your game init
+loadAds();  // ads load after game
