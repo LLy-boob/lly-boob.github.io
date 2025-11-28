@@ -253,6 +253,42 @@ setTimeout(hideBlockBlasterLoader, 95000);
 window.startBlockBlasterGame = hideBlockBlasterLoader;
 		</script>
 
+<!-- ===== Block Blaster Background Music (Safe, Optimized) ===== -->
+<audio id="bg-music" preload="auto" style="display:none">
+  <source src="music1.ogg" type="audio/ogg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+  (function() {
+    const music = document.getElementById('bg-music');
+
+    // Function to safely play music
+    function playMusic() {
+      if (!music) return;
+      music.play().catch(() => {
+        // Autoplay blocked? Wait for user interaction
+        document.addEventListener('click', () => music.play(), {once: true});
+      });
+    }
+
+    // 1️⃣ Try playing when page fully loads
+    window.addEventListener('load', () => {
+      playMusic();
+    });
+
+    // 2️⃣ Optional: also try once the game canvas is ready (if you have a function like initGame)
+    if (typeof initGame === 'function') {
+      const originalInit = initGame;
+      initGame = function(...args) {
+        originalInit.apply(this, args);
+        playMusic(); // ensure music plays after game is initialized
+      }
+    }
+  })();
+	</script>
+	
+
 
 <!-- Game canvas -->
 <canvas id="c"></canvas>
