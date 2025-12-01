@@ -101,8 +101,7 @@
 
 	
 																			 </div>
-  
-<!-- ================================================== -->
+  <!-- ================================================== -->
 <!--   BLOCK BLASTER – FINAL PROFESSIONAL PRELOADER    -->
 <!-- ================================================== -->
 <div id="blockBlasterLoader" style="
@@ -114,22 +113,20 @@
         rgba(0,0,0,0.94) 100%
     );
     backdrop-filter: blur(2px);
-    z-index:99999; display:flex; flex-direction:column;
-    justify-content:center; align-items:center; overflow:hidden;
+    z-index: 99999;
+    display:flex; flex-direction:column;
+    justify-content:center; align-items:center;
+    overflow:hidden;
     font-family: 'Arial Black', Arial, sans-serif;
 ">
 
-  <!-- Glowing block animation canvas -->
   <canvas id="loaderCanvas" width="420" height="420" style="
-      border-radius:0;
-      box-shadow:none;
       background: transparent;
       filter: drop-shadow(0 0 35px #60d4fa)
               drop-shadow(0 0 60px #a78bfa)
               drop-shadow(0 0 90px #f472b6);
   "></canvas>
 
-  <!-- Neon Game Title -->
   <h1 style="
     color:#60d4fa; font-size:52px; margin:32px 0 10px; letter-spacing:10px;
     text-shadow:
@@ -142,69 +139,45 @@
     BLOCK BLASTER
   </h1>
 
-  <!-- Subtitle -->
   <p style="color:#a78bfa; font-size:20px; margin:0; opacity:0.9; letter-spacing:4px;">
     Addictive Block Action
   </p>
 
-  <!-- Loading Text -->
   <div style="
       color:#d1d5db; margin-top:30px;
       font-size:16px; letter-spacing:2px;
       text-shadow:0 0 10px #60d4fa;
   ">
-    Loading<span class="dots"></span>
+    Loading <span class="dots"></span>
   </div>
 </div>
 
-<!-- FULL MERGED CSS -->
 <style>
-/* Title neon pulse */
 @keyframes neonPulse {
-  0% {
-    text-shadow:
-      0 0 10px #60d4fa,
-      0 0 20px #60d4fa,
-      0 0 35px #a78bfa;
-  }
-  100% {
-    text-shadow:
-      0 0 20px #60d4fa,
-      0 0 40px #a78bfa,
-      0 0 70px #f472b6;
-  }
+  0% { text-shadow:0 0 10px #60d4fa, 0 0 20px #60d4fa, 0 0 35px #a78bfa; }
+  100% { text-shadow:0 0 20px #60d4fa, 0 0 40px #a78bfa, 0 0 70px #f472b6; }
 }
 
-/* Optional: extra glow pulse referenced in your message */
-@keyframes glowPulse {
-  from { text-shadow: 0 0 20px #00ff9d, 0 0 40px #00ff9d; }
-  to   { text-shadow: 0 0 30px #00ff9d, 0 0 60px #00ff9d, 0 0 80px #00ff9d; }
-}
-
-/* FIXED animated dots */
 .dots::after {
   content: '';
   animation: dots 1.4s infinite steps(1);
 }
 
 @keyframes dots {
-  0%   { content: ''; }
-  25%  { content: '.'; }
-  50%  { content: '..'; }
-  75%  { content: '...'; }
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
   100% { content: ''; }
 }
-	#loadingScreen, 
-.loader-wrapper, 
-#screenLoader {
-  pointer-events: none !important;
-  z-index: 9998 !important;
-	}
-	#blockBlasterLoader {
+
+/* -------------- FIX #1 ------------------ */
+/* Loader cannot block or blur buttons */
+#blockBlasterLoader {
   pointer-events: none !important;
   z-index: 9999 !important;
-	}
-	</style>
+}
+		</style>
 
 <script>
 // Ultra-smooth falling + rotating neon blocks
@@ -406,16 +379,16 @@ window.startBlockBlasterGame = hideBlockBlasterLoader;
   };
 </script>
 
-<!-- ===== Simple Fixed Share Button (Matches Mute Style) ===== -->
+<!-- ===== Simple Fixed Share Button ===== -->
 <style>
 #shareBtn {
   position: fixed;
-  bottom: 14px;       /* Same as your mute */
-  left: 20px;         /* So it sits beside mute, you can adjust */
+  bottom: 14px;
+  left: 20px;
   width: 42px;
   height: 42px;
   cursor: pointer;
-  z-index: 9999999;
+  z-index: 9999999 !important;
   background: rgba(255,255,255,0.25);
   backdrop-filter: blur(6px);
   border-radius: 50%;
@@ -430,13 +403,9 @@ window.startBlockBlasterGame = hideBlockBlasterLoader;
   height: 55%;
   fill: #fff;
 }
-	#shareBtn {
-  z-index: 9999999 !important;
-	}
 </style>
 
 <div id="shareBtn">
-  <!-- Universal Share Icon -->
   <svg viewBox="0 0 24 24">
     <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.02-4.11A2.99 
     2.99 0 0018 7.91a3 3 0 10-3-3c0 .24.04.47.09.7L8.07 9.72A3.007 3.007 
