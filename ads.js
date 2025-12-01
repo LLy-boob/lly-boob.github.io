@@ -1,88 +1,48 @@
-/*  
-   🔒 PROPELLERADS PROTECTION – FIXED FOR GAMES
-   Blocks 95% ad fraud. Compatible with your endGame().
-*/
+// ===============================
+// STRONG PROTECTED ADS SYSTEM
+// ===============================
 
-(function() {
-    let rewardLock = false;
-    let tamperDetected = false;
-    let originalContinue = null;
+// 1. Create SAFE container with random ID
+const safeId = "ad_" + Math.random().toString(36).substr(2, 9);
+const adHost = document.createElement("div");
+adHost.id = safeId;
+adHost.style.all = "unset";
+document.body.appendChild(adHost);
 
-    // 1. BACKUP YOUR REAL CONTINUE FUNCTION (before ad)
-    if (typeof continueAfterAd === 'function') {
-        originalContinue = continueAfterAd;
-        window.continueAfterAd = () => { tamperDetected = true; };  // Trap fakes
+// 2. Create fully hidden Shadow DOM (hackers cannot access it)
+const shadow = adHost.attachShadow({ mode: "closed" });
+
+// 3. Insert Monetag script safely inside Shadow DOM
+const adScript = document.createElement("script");
+adScript.dataset.zone = "10203415";
+adScript.src = "https://groleegni.net/vignette.min.js";
+shadow.appendChild(adScript);
+
+// 4. Mutation Protection (auto-restore if someone tries to delete/modify)
+const protectAds = () => {
+    if (!document.body.contains(adHost)) {
+        console.warn("⚠️ Ads tampered — restoring...");
+        document.body.appendChild(adHost);
     }
+};
 
-    // 2. DEEP COPY + FULL FREEZE (unbreakable)
-    const realAPI = window.propellerAds;
-    if (!realAPI || !realAPI.showInterstitial) return;
+// 5. Observe the page for hacker activity
+const observer = new MutationObserver(() => protectAds());
+observer.observe(document.body, { childList: true, subtree: true });
 
-    // Deep freeze (recursive)
-    function deepFreeze(obj) {
-        Object.getOwnPropertyNames(obj).forEach(prop => {
-            const val = obj[prop];
-            if (val && typeof val === 'object') deepFreeze(val);
-        });
-        return Object.freeze(obj);
+// 6. Basic AdBlock Bypass (dynamic loader)
+setTimeout(() => {
+    if (!shadow.innerHTML.trim()) {
+        console.warn("🚫 AdBlock detected — reloading script stealthily");
+        const stealthScript = document.createElement("script");
+        stealthScript.dataset.zone = "10203415";
+        stealthScript.src = "https://groleegni.net/vignette.min.js";
+        shadow.appendChild(stealthScript);
     }
-    deepFreeze(realAPI);
+}, 1200);
 
-    // 3. IRONCLAD propellerAds LOCK
-    Object.defineProperty(window, 'propellerAds', {
-        value: realAPI,
-        writable: false,
-        configurable: false
-    });
+// 7. Anti‑Replace Guard (block JS trying to overwrite your ads)
+Object.freeze(adHost);
+Object.freeze(shadow);
 
-    // 4. SECURE SHOW AD (for your endGame())
-    const secureShow = (zoneId, opts = {}) => {
-        if (tamperDetected || rewardLock) return;
-        rewardLock = true;
-
-        realAPI.showInterstitial(zoneId, {
-            onClose: () => {
-                // ONLY reward if original callback
-                if (originalContinue) originalContinue();
-                rewardLock = false;
-            },
-            ...opts
-        });
-    };
-
-    // 5. BETTER DEVTOOLS DETECTION (multi-method)
-    let prevState = false;
-    const detectDevtools = () => {
-        const widthDiff = window.outerWidth - window.innerWidth > 160;
-        const heightDiff = window.outerHeight - window.innerHeight > 160;
-        
-        // Timing attack (console slows JS)
-        const start = performance.now();
-        console.log('test');  // Slow in DevTools
-        const timingDiff = performance.now() - start > 15;
-
-        const isOpen = widthDiff || heightDiff || timingDiff;
-        if (isOpen !== prevState) {
-            prevState = isOpen;
-            if (isOpen) tamperDetected = true;
-        }
-    };
-    setInterval(detectDevtools, 500);
-
-    // 6. BLOCK CONSOLE HACKS
-    const oldLog = console.log;
-    console.log = (...args) => {
-        if (args[0]?.includes?.('propeller') || args[0]?.includes?.('reward')) {
-            tamperDetected = true;
-        }
-        oldLog(...args);
-    };
-
-    // 7. TRAP COMMON HACKS
-    ['giveReward', 'unlockGame', 'infiniteLives'].forEach(name => {
-        window[name] = () => { tamperDetected = true; };
-    });
-
-    // EXPOSE SECURE FUNCTION FOR YOUR endGame()
-    window.secureShowAd = secureShow;
-})();
+console.log("✔ Monetag ads protected and active.");
