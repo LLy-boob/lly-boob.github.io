@@ -261,7 +261,7 @@ window.startSwipeFury = hideLoader;
 <!-- Menu System -->
 <div class="menus">
 	<div class="menu menu--main">
-		<h1>Block Blaster</h1>
+		<h1>Swipe Fury</h1>
 		<button type="button" class="play-normal-btn">PLAY GAME</button>
 		<button type="button" class="play-casual-btn">CASUAL MODE</button>
 		<div class="credits">3D game by <a href="https://lly-boob.github.io/Ultimate-pong/">Game lovers</a></div>
@@ -340,76 +340,100 @@ window.startSwipeFury = hideLoader;
   };
 </script>
 
-<!-- ===== Simple Fixed Share Button ===== -->
+<!-- SWIPEFURY – FIXED & BEAUTIFUL SHARE BUTTON (appears only after loader) -->
 <style>
-#shareBtn {
+#swipeFuryShare {
   position: fixed;
-  bottom: 14px;
+  bottom: 18px;
   left: 20px;
-  width: 42px;
-  height: 42px;
-  cursor: pointer;
-  z-index: 9999999 !important;
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(6px);
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #00ffff33, #ff006633);
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(0,255,255,0.4);
   border-radius: 50%;
+  cursor: pointer;
+  z-index: 9999;               /* lower than loader (99999) → safe! */
+  opacity: 0;                  /* start hidden */
+  transform: scale(0.8);
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 30px #00ffff44;
+  pointer-events: none;        /* disabled until visible */
 }
 
-#shareBtn svg {
-  width: 55%;
-  height: 55%;
-  fill: #fff;
+#swipeFuryShare.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: all;
+}
+
+#swipeFuryShare:hover {
+  transform: scale(1.15);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 50px #00ffff88;
+}
+
+#swipeFuryShare svg {
+  width: 60%;
+  height: 60%;
+  fill: #ffffff;
+  filter: drop-shadow(0 0 10px #00ffff);
 }
 </style>
 
-<div id="shareBtn">
+<div id="swipeFuryShare">
   <svg viewBox="0 0 24 24">
-    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.02-4.11A2.99 
-    2.99 0 0018 7.91a3 3 0 10-3-3c0 .24.04.47.09.7L8.07 9.72A3.007 3.007 
-    0 006 9a3 3 0 103 3c0-.24-.04-.47-.09-.7l7.12 4.17c.5-.44 
-    1.15-.71 1.87-.71a3 3 0 100-6z"/>
+    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.02-4.11A2.99 2.99 0 0018 7.91a3 3 0 10-3-3c0 .24.04.47.09.7L8.07 9.72A3.007 3.007 0 006 9a3 3 0 103 3c0-.24-.04-.47-.09-.7l7.12 4.17c.5-.44 1.15-.71 1.87-.71a3 3 0 100-6z"/>
   </svg>
 </div>
 
 <script>
-(function(){
-  const shareBtn = document.getElementById("shareBtn");
-  const shareURL = window.location.href;
+// Show share button ONLY after loader is gone
+function showShareButton() {
+  const btn = document.getElementById("swipeFuryShare");
+  if (btn) btn.classList.add("visible");
+}
 
-  shareBtn.addEventListener("click", async () => {
+// Hook into your existing loader hide functions
+const originalHide = window.startSwipeFury || window.startSwipeFuryGame || hideSwipeFuryLoader;
+if (typeof originalHide === "function") {
+  const newHide = function() {
+    originalHide();
+    setTimeout(showShareButton, 300);  // small delay for smooth feel
+  };
+  window.startSwipeFury = window.startSwipeFuryGame = newHide;
+} else {
+  // If no loader function found, show after 5 seconds (safety)
+  setTimeout(showShareButton, 5000);
+}
 
-    // 1️⃣ If Web Share API works (mobile browser)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Play Block Blaster!",
-          text: "Try this game! It's addictive 🔥",
-          url: shareURL
-        });
-        return;
-      } catch (e) {
-        console.log("Share cancelled.", e);
-      }
-    }
+// Share logic (fixed & improved)
+document.getElementById("swipeFuryShare").addEventListener("click", async () => {
+  const url = window.location.href;
 
-    // 2️⃣ Fallback for itch.io (copy link)
+  if (navigator.share) {
     try {
-      await navigator.clipboard.writeText(shareURL);
-      alert("Link copied! Share it with your friends 🎮");
-    } catch (e) {
-      console.log("Clipboard blocked, using prompt.");
+      await navigator.share({
+        title: "SwipeFury",
+        text: "I’m addicted to SwipeFury! Try to beat my score!",
+        url: url
+      });
+      return;
+    } catch (e) { /* user cancelled */ }
+  }
 
-      // 3️⃣ FINAL fallback (always works)
-      prompt("Copy this link:", shareURL);
-    }
-
-  });
-})();
+  // Fallback: copy to clipboard
+  try {
+    await navigator.clipboard.writeText(url);
+    alert("Link copied! Share it anywhere");
+  } catch {
+    prompt("Copy this link and share:", url);
+  }
+});
 	</script>
+      
 
 <script>
 // =====================================================
