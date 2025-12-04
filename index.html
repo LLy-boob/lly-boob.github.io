@@ -5,33 +5,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#2c3f51">
-
-    <!-- PRIMARY SEO -->
 <title>SwipeFury — Free 3D Swipe & Burst Arcade Game | Online Reflex Challenge</title>
 <meta name="description" content="Play SwipeFury — a fast-paced 3D swipe-and-burst arcade game. Swipe, smash, and survive rising blocks in this free online reflex game. Play instantly on any device — browser or mobile, no download required or you download if required.">
-  <!-- Canonical URL -->
+  
   <link rel="canonical" href="https://lly-boob.github.io/">
-
-  <!-- Icons -->
   <link rel="icon" href="https://lly-boob.github.io/favicon.png?v=2" sizes="32x32">
   <link rel="icon" href="https://lly-boob.github.io/favicon.png?v=2" sizes="192x192">
   <link rel="apple-touch-icon" href="https://lly-boob.github.io/favicon.png?v=2">
-
-  <!-- Manifest -->
   <link rel="manifest" href="./manifest.json">
 
 	  <link rel="apple-touch-icon" sizes="180x180" href="./favicon.png">
 <link rel="apple-touch-icon" sizes="167x167" href="./favicon.png">
 <link rel="apple-touch-icon" sizes="152x152" href="./favicon.png">
 <link rel="apple-touch-icon" sizes="120x120" href="./favicon.png">
-
-  <!-- Google Search Console -->
   <meta name="google-site-verification" content="gZ3LD9X67kObs3lh5Ix7KD9vnSki8VLa6ZONdvCPIxE">
 
-  <!-- Monetag -->
   <meta name="monetag" content="ef7c500bcbab5c68feaab4175d9cfc13">
-
-  <!-- OPEN GRAPH (Facebook, Discord, WhatsApp) -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Block Blaster — Free 3D Swipe & Burst Arcade Game">
   <meta property="og:description" content="Fast-paced 3D WebGL block blasting game. Swipe to burst blocks, survive the speed, and avoid instant game over. Play free — no download needed.">
@@ -39,14 +28,12 @@
   <meta property="og:image" content="https://lly-boob.github.io/favicon.png">
   <meta property="og:image:alt" content="Block Blaster 3D gameplay screenshot">
 
-  <!-- TWITTER CARD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Block Blaster — Free 3D Swipe & Burst Arcade Game">
   <meta name="twitter:description" content="Swipe, blast, survive. Block Blaster is a fast 3D WebGL arcade challenge where one mistake means instant game over. Play free online.">
   <meta name="twitter:image" content="https://lly-boob.github.io/favicon.png">
 
 
-<!-- JSON-LD STRUCTURED DATA (Google Rich Results) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -180,7 +167,7 @@ const loader = document.getElementById('swipeFuryLoader');
 const ring = document.querySelector('#progressRing circle:nth-child(2)');
 let progress = 0;
 
-// Smooth fter logo lands
+// Smo logolands
 setTimeout(() => {
   const interval = setInterval(() => {
     progress += Math.random() * 9 + 6;
@@ -194,13 +181,13 @@ setTimeout(() => {
   }, 100);
 }, 4200);
 
-// Fadut
+// Fa
 function hideLoader() {
   loader.style.opacity = '0';
   setTimeout(() => loader.remove(), 1700);
 }
 
-// Safeual trigger
+// Safeuer
 setTimeout(() => progress = 100, 8000);
 window.startSwipeFury = hideLoader;
 	</script>
@@ -214,7 +201,7 @@ window.startSwipeFury = hideLoader;
   (function() {
     const music = document.getElementById('bg-music');
 
-    // F play music
+    // F plsic
     function playMusic() {
       if (!music) return;
       music.play().catch(() => {
@@ -342,7 +329,6 @@ window.startSwipeFury = hideLoader;
 
 
   
-<!-- ===== SwipeFury Share Button ===== -->
 <div id="shareBtn">
   <svg viewBox="0 0 24 24" width="42" height="42" fill="#fff">
     <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.02-4.11A2.99 2.99 0 0018 7.91a3 3 0 10-3-3c0 .24.04.47.09.7L8.07 9.72A3.007 3.007 0 006 9a3 3 0 103 3c0-.24-.04-.47-.09-.7l7.12 4.17c.5-.44 1.15-.71 1.87-.71a3 3 0 100-6z"/>
@@ -412,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas");
     if (!canvas) return;
 
-    // 1️⃣ Stop browser from blocking swipes ONLY on canvas
+
     const blockOpts = { passive: false };
     ["touchstart", "touchmove", "touchend"].forEach(ev => {
         canvas.addEventListener(ev, e => {
@@ -420,7 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, blockOpts);
     });
 
-    // 2️⃣ High-speed touch reader (no lag)
+    
     let lastX = 0, lastY = 0;
 
     canvas.addEventListener("touchmove", e => {
@@ -449,9 +435,9 @@ let smoothY = 0;
 
 const EASE = 0.18;
 
-// Animation loop
+// Animatop
 function smoothLoop() {
-    // Interpolation (lerp)
+    // Interpolat)
     smoothX += (targetX - smoothX) * EASE;
     smoothY += (targetY - smoothY) * EASE;
 
@@ -543,7 +529,7 @@ function showPopup() {
         const box = document.getElementById("autoInstallBox");
         box.style.display = "block";
 
-        // Stanimation
+        // Staion
         setTimeout(() => {
             box.classList.add("show");
         }, 20);
@@ -645,9 +631,9 @@ function hidePopup() {
 
   
   const inAppBrowserPatterns = [
-    /CriOS/i,               // Chrome on iOS
-    /FxiOS/i,               // Firefox on iOS
-    /GSA/i                  // Google Search app
+    /CriOS/i,               // 
+    /FxiOS/i,               // 
+    /GSA/i                  //
   ];
 
 
@@ -655,7 +641,7 @@ function hidePopup() {
   const isInAppBrowser = /FBAN|FBAV|Instagram|Twitter|Snapchat|LinkedIn|Reddit|TikTok|Messenger|WhatsApp|Pinterest/i.test(ua)
                         && !/Chrome|Safari|Firefox|Edge/i.test(ua);
 
-  if (!isSocialApp && !isInAppBrowser) return; // E browser
+  if (!isSocialApp && !isInAppBrowser) return; 
 
   const box = document.getElementById("openBrowserBox");
   const btn = document.getElementById("openBrowserBtn");
@@ -666,7 +652,7 @@ function hidePopup() {
     requestAnimationFrame(() => box.classList.add("show"));
   }, 2000);
 
-  // Openult browser
+  // Opewser
   btn.addEventListener("click", () => {
     window.open(window.location.href, "_blank");
 
@@ -829,7 +815,7 @@ function animateTile(tile, targetX, targetY, duration = 300, callback) {
     requestAnimationFrame(step);
 }
 
-// pensive game u checks)
+// pensive game u ks)
 function throttle(fn, limit = 50) {
     let lastCall = 0;
     return function(...args) {
@@ -889,13 +875,13 @@ accelerateTiles(".tile"); //
           if (avg < 40) state.lowDevice = true;
           else if (avg > 48) state.lowDevice = false;
 
-          // optional memory read (non-fatal if unavailable)
+        
           if (performance && performance.memory) {
             const mem = performance.memory;
-            // usedJSHeapSize / (1024*1024) gives MB
+            // ues MB
             state.mem.usedMB = Math.round(mem.usedJSHeapSize / 1048576);
             state.mem.totalMB = Math.round(mem.jsHeapSizeLimit / 1048576);
-            // if used exceeds 85% -> emergency
+            y
             if (state.mem.usedMB && state.mem.totalMB &&
                 state.mem.usedMB / state.mem.totalMB > 0.85) {
               state.emergencyMode = true;
@@ -921,9 +907,9 @@ accelerateTiles(".tile"); //
           }
         });
       } catch (e) {
-        // never throw
+        // nrow
       } finally {
-        // contoring
+        // cong
         setTimeout(monitorLoop, 1); 
       }
     }
@@ -968,18 +954,18 @@ accelerateTiles(".tile"); //
         if (!canvases.length) return;
         const scale = computeScaleSuggestion();
         canvases.forEach(c => {
-          // sform only (non-destructive)
+          // sforctive)
           c.stylehange = "transform";
           c.style.transformOrigin = "0 0";
-          // preservem scale
+          // prese
           c.style.transform = `scale(${scale})`;
-          // optionally reduce CSS layout jitter by setting image-rendering
+          //SS layout jitter by setting image-rendering
           c.style.imageRendering = "pixelated";
           
           c.setAttribute("data-perfboost-applied-scale", String(scale));
         });
       } catch (e) {
-        // fail silently
+        // fail sil
       }
     }
 
@@ -1022,7 +1008,7 @@ accelerateTiles(".tile"); //
         shadow.appendChild(rootDiv);
         document.documentElement.appendChild(host);
 
-        // update loop
+        // upda
         setInterval(() => {
           try {
             rootDiv.textContent = `PerfBoost v3 — fps: ${state.fps} tier:${state.tier}${state.emergencyMode ? " ⚠" : ""}`;
@@ -1095,9 +1081,9 @@ accelerateTiles(".tile"); //
  */
     function start() {
       detectTier();
-      monitorLoop();     // passive FPS/memory monitor
-      periodicTasks();   // periodic gentle tasks
-      maybeCreateStatusOverlay(); // only if developer opted in
+      monitorLoop();     // pa
+      periodicTasks();   // p
+      maybeCreateStatusOverlay(); 
       safeLog("PerfBoostV3 started", publicAPI.getInfo());
     }
 
