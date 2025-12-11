@@ -12,12 +12,12 @@
 // Timing multiplier for entire game engine.
 let gameSpeed = 1;
 
-// Colors
-const BLUE =   { r: 0x67, g: 0xd7, b: 0xf0 };
-const GREEN =  { r: 0xa6, g: 0xe0, b: 0x2c };
-const PINK =   { r: 0xfa, g: 0x24, b: 0x73 };
-const ORANGE = { r: 0xfe, g: 0x95, b: 0x22 };
-const allColors = [BLUE, GREEN, PINK, ORANGE];
+// Colors (neon theme for differentiation)
+const CYAN = { r: 0x00, g: 0xff, b: 0xff };
+const PURPLE = { r: 0x99, g: 0x00, b: 0xff };
+const RED = { r: 0xff, g: 0x00, b: 0x00 };
+const YELLOW = { r: 0xff, g: 0xff, b: 0x00 };
+const allColors = [CYAN, PURPLE, RED, YELLOW];
 
 // ============================================================================
 // SOUND + MUSIC SYSTEM (ADD AFTER LINE ~100)
