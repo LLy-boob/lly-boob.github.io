@@ -1687,26 +1687,26 @@
             
             if (!banner || !installBtn || !cancelBtn) return;
             
-            // Check if user already dismissed or installed
+            
             const dismissed = localStorage.getItem('pwa_dismissed');
             const installed = localStorage.getItem('pwa_installed');
             
             if (dismissed === 'true' || installed === 'true') {
-                return; // Don't show banner
+                return; 
             }
             
-            // Capture the install prompt
+          
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
                 
-                // Show banner after 3 seconds
+              
                 setTimeout(() => {
                     banner.classList.add('show');
                 }, 3000);
             });
             
-            // Install button click
+           
             installBtn.addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 
@@ -1724,7 +1724,7 @@
                 deferredPrompt = null;
             });
             
-            // Cancel button click - DISMISS PERMANENTLY
+            
             cancelBtn.addEventListener('click', () => {
                 banner.classList.remove('show');
                 localStorage.setItem('pwa_dismissed', 'true');
@@ -1741,7 +1741,7 @@
                 });
             }
             
-            // Detect when PWA is installed
+           
             window.addEventListener('appinstalled', () => {
                 console.log('✅ PWA installed successfully');
                 localStorage.setItem('pwa_installed', 'true');
@@ -1752,4 +1752,5 @@
     <script src="./script.js"></script>
 </body>
 </html>
+
 ```
