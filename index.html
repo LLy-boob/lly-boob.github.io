@@ -1061,6 +1061,27 @@ body {
     draw();
     requestAnimationFrame(gameLoop);
   }
+
+  
+function unlockAudio() {
+  beep.load();
+  scoreSnd.load();
+  powerSnd.load();
+  
+  
+  beep.volume = 0;
+  beep.play().then(() => {
+    beep.pause();
+    beep.currentTime = 0;
+    beep.volume = 1;
+  }).catch(() => {});
+  
+  document.removeEventListener('touchstart', unlockAudio);
+  document.removeEventListener('click', unlockAudio);
+}
+
+document.addEventListener('touchstart', unlockAudio);
+document.addEventListener('click', unlockAudio);
   
   gameLoop();
 </script>
