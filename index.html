@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <title>Endless Pong · Neon Phases, Powerups & 2-Player</title>
+  <title>Endless Pong</title>
   <meta name="description" content="Endless Pong: classic arcade with neon phases, powerups, 2-player mode, and mobile touch. Survive 120 phases, collect powerups, beat the computer.">
   <meta name="keywords" content="pong, endless pong, neon pong, pong game, 2 player pong, powerups, retro arcade, browser game, free pong, github pong">
   <meta name="author" content="Endless Pong">
@@ -77,6 +77,8 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
     html, body {
       width: 100%;
@@ -98,6 +100,8 @@
       justify-content: center;
       transition: background 0.7s;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     body.light {
       background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 30%, #d4dfff 70%, #c8d5ff 100%);
@@ -156,8 +160,10 @@
       transition: border 0.3s, box-shadow 0.3s;
       z-index: 1;
       position: relative;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      -ms-interpolation-mode: nearest-neighbor;
       transform: translateZ(0);
-      backface-visibility: hidden;
       will-change: transform;
     }
     .touch-controls {
@@ -276,23 +282,6 @@
     .endless-search-reminder {
       animation: glowPulse 1.8s ease-in-out infinite alternate;
     }
-
-/
-#pong {
-  image-rendering: crisp-edges; 
-  image-rendering: pixelated;
-  -ms-interpolation-mode: nearest-neighbor;
-}
-
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-    }
   </style>
 </head>
 <body>
@@ -323,10 +312,6 @@ body {
   <button id="upArrow" class="arrow-btn">↑</button>
   <button id="downArrow" class="arrow-btn">↓</button>
 </div>
-
-<audio id="beep" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12c6fae8b1.mp3" preload="auto"></audio>
-<audio id="score" src="https://cdn.pixabay.com/audio/2022/10/16/audio_1453b3b3e6.mp3" preload="auto"></audio>
-<audio id="powerup" src="https://cdn.pixabay.com/audio/2023/03/31/audio_12e1bd1b50.mp3" preload="auto"></audio>
 
 <script>
   window.addEventListener('load', function() {
@@ -362,11 +347,255 @@ body {
   const winnerEl = document.getElementById('winner');
   const powerupEl = document.getElementById('powerup-indicator');
   
-  const beep = document.getElementById('beep');
-  const scoreSnd = document.getElementById('score');
-  const powerSnd = document.getElementById('powerup');
+  // ========== PROFESSIONAL BACKGROUND MUSIC FROM OLD SCRIPT ==========
+  class GameMusic {
+    constructor() {
+      this.ctx = null;
+      this.masterGain = null;
+      this.compressor = null;
+      this.isPlaying = false;
+      this.phase = 1;
+      this.timer = null;
+      this.isUserActivated = false;
+    }
+
+    initOnUserGesture() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.15;
+        
+        this.compressor = this.ctx.createDynamicsCompressor();
+        this.compressor.threshold.value = -24;
+        this.compressor.knee.value = 30;
+        this.compressor.ratio.value = 12;
+        this.compressor.attack.value = 0.003;
+        this.compressor.release.value = 0.25;
+        
+        this.masterGain.connect(this.compressor);
+        this.compressor.connect(this.ctx.destination);
+      }
+      
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+      this.isUserActivated = true;
+    }
+
+    start() {
+      if (!soundOn || this.isPlaying) return;
+      
+      if (!this.ctx) {
+        this.initOnUserGesture();
+      }
+      
+      this.isPlaying = true;
+      
+      if (this.ctx.state !== 'running') {
+        return;
+      }
+      
+      this.playArpeggio();
+    }
+
+    stop() {
+      this.isPlaying = false;
+      if (this.timer) clearTimeout(this.timer);
+    }
+
+    playArpeggio() {
+      if (!this.isPlaying || !this.ctx || this.ctx.state !== 'running') return;
+      
+      const baseFreq = 220 + (this.phase * 3);
+      
+      const notes = [
+        baseFreq,
+        baseFreq * 1.122,
+        baseFreq * 1.3348,
+        baseFreq * 1.4983,
+        baseFreq * 2.0
+      ];
+      
+      let noteIndex = 0;
+      
+      const playNote = () => {
+        if (!this.isPlaying || !this.ctx || this.ctx.state !== 'running') return;
+        
+        const now = this.ctx.currentTime;
+        
+        const osc = this.ctx.createOscillator();
+        const noteGain = this.ctx.createGain();
+        
+        if (this.phase < 3) osc.type = 'sine';
+        else if (this.phase < 6) osc.type = 'triangle';
+        else if (this.phase < 9) osc.type = 'square';
+        else osc.type = 'sawtooth';
+        
+        osc.frequency.value = notes[noteIndex];
+        
+        noteGain.gain.setValueAtTime(0.0001, now);
+        noteGain.gain.exponentialRampToValueAtTime(0.08, now + 0.015);
+        
+        osc.connect(noteGain);
+        noteGain.connect(this.masterGain);
+        
+        const stopTime = now + 0.18;
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+        
+        osc.start(now);
+        osc.stop(stopTime + 0.01);
+        
+        noteIndex = (noteIndex + 1) % notes.length;
+        
+        const speed = Math.max(140, 300 - this.phase * 5);
+        this.timer = setTimeout(playNote, speed);
+        
+        setTimeout(() => {
+          try {
+            osc.disconnect();
+            noteGain.disconnect();
+          } catch(e) {}
+        }, 250);
+      };
+      
+      playNote();
+    }
+    
+    setPhase(phase) {
+      this.phase = phase;
+    }
+    
+    duckForEffect() {
+      if (this.masterGain && this.ctx) {
+        const now = this.ctx.currentTime;
+        this.masterGain.gain.setValueAtTime(0.15, now);
+        this.masterGain.gain.exponentialRampToValueAtTime(0.06, now + 0.02);
+        this.masterGain.gain.exponentialRampToValueAtTime(0.15, now + 0.15);
+      }
+    }
+  }
+
+  const gameMusic = new GameMusic();
+  let soundOn = true;
+
+  function unlockAudioOnUserGesture() {
+    gameMusic.initOnUserGesture();
+    if (soundOn && !gameover && !paused) gameMusic.start();
+    
+    document.removeEventListener('click', unlockAudioOnUserGesture);
+    document.removeEventListener('keydown', unlockAudioOnUserGesture);
+    document.removeEventListener('touchstart', unlockAudioOnUserGesture);
+  }
+
+  document.addEventListener('click', unlockAudioOnUserGesture);
+  document.addEventListener('keydown', unlockAudioOnUserGesture);
+  document.addEventListener('touchstart', unlockAudioOnUserGesture);
   
-  const PW = 20;
+  // ========== SOUND EFFECTS ==========
+  function playBeep() {
+    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
+    gameMusic.duckForEffect();
+    const now = gameMusic.ctx.currentTime;
+    const osc = gameMusic.ctx.createOscillator();
+    const gain = gameMusic.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 600;
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    osc.connect(gain);
+    gain.connect(gameMusic.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.08);
+  }
+  
+  function playScore() {
+    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
+    gameMusic.duckForEffect();
+    const now = gameMusic.ctx.currentTime;
+    const freqs = [523, 659, 784];
+    for (let i = 0; i < freqs.length; i++) {
+      const osc = gameMusic.ctx.createOscillator();
+      const gain = gameMusic.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freqs[i];
+      const start = now + (i * 0.04);
+      gain.gain.setValueAtTime(0.1, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.1);
+      osc.connect(gain);
+      gain.connect(gameMusic.masterGain);
+      osc.start(start);
+      osc.stop(start + 0.1);
+    }
+  }
+  
+  function playPowerup() {
+    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
+    gameMusic.duckForEffect();
+    const now = gameMusic.ctx.currentTime;
+    for (let i = 0; i < 8; i++) {
+      const osc = gameMusic.ctx.createOscillator();
+      const gain = gameMusic.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 800 + (i * 100);
+      const start = now + (i * 0.02);
+      gain.gain.setValueAtTime(0.08, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.06);
+      osc.connect(gain);
+      gain.connect(gameMusic.masterGain);
+      osc.start(start);
+      osc.stop(start + 0.06);
+    }
+  }
+  
+  function playGameOver() {
+    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
+    gameMusic.duckForEffect();
+    const now = gameMusic.ctx.currentTime;
+    const osc = gameMusic.ctx.createOscillator();
+    const gain = gameMusic.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(330, now);
+    osc.frequency.exponentialRampToValueAtTime(165, now + 0.4);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    osc.connect(gain);
+    gain.connect(gameMusic.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  }
+  
+  function playPhaseUp() {
+    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
+    gameMusic.duckForEffect();
+    const now = gameMusic.ctx.currentTime;
+    const freqs = [392, 494, 587, 784];
+    for (let i = 0; i < freqs.length; i++) {
+      const osc = gameMusic.ctx.createOscillator();
+      const gain = gameMusic.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freqs[i];
+      const start = now + (i * 0.06);
+      gain.gain.setValueAtTime(0.12, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+      osc.connect(gain);
+      gain.connect(gameMusic.masterGain);
+      osc.start(start);
+      osc.stop(start + 0.15);
+    }
+    const bass = gameMusic.ctx.createOscillator();
+    const bassGain = gameMusic.ctx.createGain();
+    bass.type = 'sine';
+    bass.frequency.value = 80;
+    bassGain.gain.setValueAtTime(0.2, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    bass.connect(bassGain);
+    bassGain.connect(gameMusic.masterGain);
+    bass.start(now);
+    bass.stop(now + 0.1);
+  }
+  
+const PW = 20;
   const PH = 120;
   const BALL_RADIUS = 15;
   const TRAIL_MAX = 7;
@@ -386,7 +615,6 @@ body {
   let sPressed = false;
   let paused = false;
   let twoPlayer = false;
-  let sound = true;
   let light = false;
   let gameover = false;
   
@@ -439,24 +667,21 @@ body {
     last: 0,
     minInterval: 180000,
     
-    canShow() {
+    canShow: function() {
       const now = Date.now();
       if (this.shown >= this.maxPerSession) return false;
       if (now - this.last < this.minInterval) return false;
       return true;
     },
     
-    show(reason) {
+    show: function(reason) {
       if (!this.canShow()) return;
-      
       let delay = 3000;
       if (reason === 'gameover') delay = 4000;
-      
-      setTimeout(() => {
+      setTimeout(function() {
         if (!paused && !gameover) {
           let wasPaused = paused;
           if (!wasPaused) paused = true;
-          
           if (window.monetagInterstitial && window.monetagInterstitial.show) {
             try {
               window.monetagInterstitial.show();
@@ -464,15 +689,14 @@ body {
               this.last = Date.now();
             } catch (e) {}
           }
-          
-          setTimeout(() => {
+          setTimeout(function() {
             if (!wasPaused && !gameover) paused = false;
           }, 500);
         }
       }, delay);
     },
     
-    reset() {
+    reset: function() {
       this.shown = 0;
       this.last = 0;
     }
@@ -486,7 +710,7 @@ body {
     const b = Math.min(Math.floor((phase - 1) / 12), 9);
     const col = phaseColors[b];
     
-    requestAnimationFrame(() => {
+    requestAnimationFrame(function() {
       document.body.style.background = phaseBgs[b];
       canvas.style.borderColor = col;
       canvas.style.boxShadow = `0 0 30px ${col}`;
@@ -541,10 +765,11 @@ body {
     fx.appendChild(sub);
     
     document.body.appendChild(fx);
-    setTimeout(() => fx.remove(), 2500);
+    setTimeout(function() { fx.remove(); }, 2500);
   }
   
-  function newBall(serveLeft = true) {
+  function newBall(serveLeft) {
+    if (serveLeft === undefined) serveLeft = true;
     let ang = (Math.random() * 0.4 - 0.2) * Math.PI;
     let sp = 11.5 + (phase - 1) * 0.15;
     let dir = serveLeft ? 1 : -1;
@@ -567,11 +792,16 @@ body {
     if (activePower || powerItem) return;
     const px = Math.random() * (canvas.width * 0.6) + canvas.width * 0.2;
     const py = Math.random() * (canvas.height * 0.7) + canvas.height * 0.15;
-    const available = powerTypes.filter(p => !activePower || p.type !== activePower.type);
+    const available = [];
+    for (let i = 0; i < powerTypes.length; i++) {
+      if (!activePower || powerTypes[i].type !== activePower.type) {
+        available.push(powerTypes[i]);
+      }
+    }
     const p = available[Math.floor(Math.random() * available.length)];
     powerItem = { ...p, x: px, y: py, r: 22 };
     if (powerTimeout) clearTimeout(powerTimeout);
-    powerTimeout = setTimeout(() => { powerItem = null; }, 9000);
+    powerTimeout = setTimeout(function() { powerItem = null; }, 9000);
   }
   
   function collectPower() {
@@ -579,16 +809,26 @@ body {
     const dx = ball.x - powerItem.x;
     const dy = ball.y - powerItem.y;
     if (Math.hypot(dx, dy) < ball.radius + powerItem.r) {
-      activePower = powerTypes.find(t => t.type === powerItem.type);
+      for (let i = 0; i < powerTypes.length; i++) {
+        if (powerTypes[i].type === powerItem.type) {
+          activePower = powerTypes[i];
+          break;
+        }
+      }
       powerTimer = activePower.dur * 60;
       powerupEl.innerText = activePower.label;
       powerupEl.style.display = 'block';
-      if (sound) { powerSnd.currentTime = 0; powerSnd.play(); }
-      switch (powerItem.type) {
-        case 'big-ball': ball.radius = BALL_RADIUS * 1.7; break;
-        case 'fast-ball': ball.vx *= 1.45; ball.vy *= 1.45; ball.turbo = true; break;
-        case 'small-paddle': shortMod = 0.55; break;
-        case 'wide-paddle': wideMod = 1.7; break;
+      if (soundOn) { playPowerup(); }
+      if (powerItem.type === 'big-ball') {
+        ball.radius = BALL_RADIUS * 1.7;
+      } else if (powerItem.type === 'fast-ball') {
+        ball.vx *= 1.45;
+        ball.vy *= 1.45;
+        ball.turbo = true;
+      } else if (powerItem.type === 'small-paddle') {
+        shortMod = 0.55;
+      } else if (powerItem.type === 'wide-paddle') {
+        wideMod = 1.7;
       }
       powerItem = null;
       clearTimeout(powerTimeout);
@@ -611,7 +851,8 @@ body {
     paddleSpeed += 0.2;
     updatePhaseTheme();
     Ads.show('phase');
-    if (sound) { scoreSnd.currentTime = 0; scoreSnd.play(); }
+    gameMusic.setPhase(phase);
+    if (soundOn) { playPhaseUp(); }
   }
   
   function drawNet() {
@@ -755,13 +996,13 @@ body {
     if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
       ball.vy = -ball.vy;
       ball.spin = -ball.spin * 0.7;
-      if (sound) { beep.currentTime = 0; beep.play(); }
+      if (soundOn) { playBeep(); }
       ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
     }
     
     if (ball.x - ball.radius < 18 + PW * wideMod &&
         ball.y > playerY && ball.y < playerY + PH * shortMod) {
-      if (sound) { beep.currentTime = 0; beep.play(); }
+      if (soundOn) { playBeep(); }
       const rel = (ball.y - (playerY + (PH * shortMod)/2)) / ((PH * shortMod)/2);
       const move = (up ? -1 : 0) + (down ? 1 : 0);
       ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
@@ -775,7 +1016,7 @@ body {
     const rightY = twoPlayer ? player2Y : aiY;
     if (ball.x + ball.radius > canvas.width - 18 - PW * wideMod &&
         ball.y > rightY && ball.y < rightY + PH * shortMod) {
-      if (sound) { beep.currentTime = 0; beep.play(); }
+      if (soundOn) { playBeep(); }
       const rel = (ball.y - (rightY + (PH * shortMod)/2)) / ((PH * shortMod)/2);
       const move = twoPlayer ? ((wPressed ? -1 : 0)+(sPressed ? 1 : 0)) : ((aiY - rightY)/8);
       ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
@@ -791,7 +1032,7 @@ body {
     if (ball.x - ball.radius < 0) {
       p2++;
       p2El.innerText = p2;
-      if (sound) { scoreSnd.currentTime = 0; scoreSnd.play(); }
+      if (soundOn) { playScore(); }
       ball = newBall(false);
       trail = [];
       deactivatePower();
@@ -805,7 +1046,7 @@ body {
     if (ball.x + ball.radius > canvas.width) {
       p1++;
       p1El.innerText = p1;
-      if (sound) { scoreSnd.currentTime = 0; scoreSnd.play(); }
+      if (soundOn) { playScore(); }
       ball = newBall(true);
       trail = [];
       deactivatePower();
@@ -817,13 +1058,20 @@ body {
     }
     
     if (!activePower && !powerItem && Math.random() < 0.0025) spawnPower();
-    if (activePower) { powerTimer--; if (powerTimer <= 0) deactivatePower(); }
+    if (activePower) { 
+      powerTimer--; 
+      if (powerTimer <= 0) deactivatePower(); 
+    }
   }
   
   function endGame(winner) {
     gameover = true;
     paused = true;
     winnerEl.innerText = twoPlayer ? winner + ' Wins!' : 'You Lose...';
+    
+    gameMusic.stop();
+    
+    if (soundOn) { playGameOver(); }
     
     const existing = document.querySelector('.endless-search-reminder');
     if (existing) existing.remove();
@@ -852,7 +1100,6 @@ body {
       width: fit-content;
       max-width: 90%;
     `;
-    
     searchPanel.innerHTML = `
       <span style="font-size:1.3em; margin-right:10px;">🔍</span>
       <span style="border-right:1px solid ${phaseCol}; padding-right:15px; margin-right:15px;">ENDLESS PONG</span>
@@ -891,9 +1138,15 @@ body {
     gameoverDiv.style.display = 'none';
     updatePhaseTheme();
     Ads.reset();
+    
+    gameMusic.setPhase(1);
+    gameMusic.stop();
+    if (soundOn && gameMusic.ctx) {
+      setTimeout(function() { gameMusic.start(); }, 100);
+    }
   }
   
-  window.addEventListener('keydown', (e) => {
+  window.addEventListener('keydown', function(e) {
     if (e.repeat) return;
     if (e.key === 'ArrowUp') { up = true; e.preventDefault(); }
     if (e.key === 'ArrowDown') { down = true; e.preventDefault(); }
@@ -906,15 +1159,17 @@ body {
         paused = false;
         pauseBtn.style.display = '';
         resumeBtn.style.display = 'none';
+        if (soundOn && gameMusic.ctx) gameMusic.start();
       } else {
         paused = true;
         pauseBtn.style.display = 'none';
         resumeBtn.style.display = '';
+        gameMusic.stop();
       }
     }
   });
   
-  window.addEventListener('keyup', (e) => {
+  window.addEventListener('keyup', function(e) {
     if (e.key === 'ArrowUp') { up = false; e.preventDefault(); }
     if (e.key === 'ArrowDown') { down = false; e.preventDefault(); }
     if (e.key === 'w' || e.key === 'W') { wPressed = false; e.preventDefault(); }
@@ -924,7 +1179,7 @@ body {
   let touchActive = false;
   let touchThrottle = false;
   
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     if (touchThrottle) return;
     touchThrottle = true;
@@ -937,10 +1192,10 @@ body {
       playerY = Math.max(0, Math.min(canvas.height - PH * shortMod, y - (PH * shortMod)/2));
     }
     
-    setTimeout(() => { touchThrottle = false; }, 50);
+    setTimeout(function() { touchThrottle = false; }, 50);
   });
   
-  canvas.addEventListener('touchmove', (e) => {
+  canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
     if (touchActive) {
       const rect = canvas.getBoundingClientRect();
@@ -949,41 +1204,48 @@ body {
     }
   });
   
-  canvas.addEventListener('touchend', () => { touchActive = false; });
-  canvas.addEventListener('touchcancel', () => { touchActive = false; });
+  canvas.addEventListener('touchend', function() { touchActive = false; });
+  canvas.addEventListener('touchcancel', function() { touchActive = false; });
   
-  pauseBtn.onclick = () => {
+  pauseBtn.onclick = function() {
     paused = true;
     pauseBtn.style.display = 'none';
     resumeBtn.style.display = '';
+    gameMusic.stop();
   };
   
-  resumeBtn.onclick = () => {
+  resumeBtn.onclick = function() {
     if (!gameover) {
       paused = false;
       pauseBtn.style.display = '';
       resumeBtn.style.display = 'none';
+      if (soundOn && gameMusic.ctx) gameMusic.start();
     }
   };
   
   resetBtn.onclick = resetGame;
   
-  document.querySelector('#gameover button').addEventListener('click', () => {
+  document.querySelector('#gameover button').addEventListener('click', function() {
     Ads.show('playagain');
     resetGame();
   });
   
-  modeBtn.onclick = () => {
+  modeBtn.onclick = function() {
     twoPlayer = !twoPlayer;
     modeBtn.innerText = `2P: ${twoPlayer ? 'On' : 'Off'}`;
   };
   
-  soundBtn.onclick = () => {
-    sound = !sound;
-    soundBtn.innerText = `Sound: ${sound ? 'On' : 'Off'}`;
+  soundBtn.onclick = function() {
+    soundOn = !soundOn;
+    soundBtn.innerText = `Sound: ${soundOn ? 'On' : 'Off'}`;
+    if (!soundOn) {
+      gameMusic.stop();
+    } else if (!gameover && !paused && gameMusic.ctx) {
+      gameMusic.start();
+    }
   };
   
-  themeBtn.onclick = () => {
+  themeBtn.onclick = function() {
     light = !light;
     document.body.classList.toggle('light', light);
     themeBtn.innerText = `Theme: ${light ? 'Light' : 'Dark'}`;
@@ -1003,7 +1265,7 @@ body {
     upArrow.classList.add('active');
     if (navigator.vibrate) navigator.vibrate(6);
     clearInterval(upInt);
-    upInt = setInterval(() => { playerY = Math.max(0, playerY - paddleSpeed * 1.2); }, 16);
+    upInt = setInterval(function() { playerY = Math.max(0, playerY - paddleSpeed * 1.2); }, 16);
   }
   
   function releaseUp() {
@@ -1017,7 +1279,7 @@ body {
     downArrow.classList.add('active');
     if (navigator.vibrate) navigator.vibrate(6);
     clearInterval(downInt);
-    downInt = setInterval(() => { playerY = Math.min(canvas.height - PH * shortMod, playerY + paddleSpeed * 1.2); }, 16);
+    downInt = setInterval(function() { playerY = Math.min(canvas.height - PH * shortMod, playerY + paddleSpeed * 1.2); }, 16);
   }
   
   function releaseDown() {
@@ -1026,30 +1288,26 @@ body {
     clearInterval(downInt);
   }
   
-  ['pointerdown','touchstart','mousedown'].forEach(ev => {
-    upArrow.addEventListener(ev, (e) => { e.preventDefault(); pressUp(); });
-  });
+  var events = ['pointerdown','touchstart','mousedown'];
+  for (var i = 0; i < events.length; i++) {
+    upArrow.addEventListener(events[i], function(e) { e.preventDefault(); pressUp(); });
+    downArrow.addEventListener(events[i], function(e) { e.preventDefault(); pressDown(); });
+  }
   
-  ['pointerup','pointercancel','pointerleave','touchend','touchcancel','mouseup','mouseleave'].forEach(ev => {
-    upArrow.addEventListener(ev, (e) => { e.preventDefault(); releaseUp(); });
-  });
+  var eventsEnd = ['pointerup','pointercancel','pointerleave','touchend','touchcancel','mouseup','mouseleave'];
+  for (var i = 0; i < eventsEnd.length; i++) {
+    upArrow.addEventListener(eventsEnd[i], function(e) { e.preventDefault(); releaseUp(); });
+    downArrow.addEventListener(eventsEnd[i], function(e) { e.preventDefault(); releaseDown(); });
+  }
   
-  ['pointerdown','touchstart','mousedown'].forEach(ev => {
-    downArrow.addEventListener(ev, (e) => { e.preventDefault(); pressDown(); });
-  });
-  
-  ['pointerup','pointercancel','pointerleave','touchend','touchcancel','mouseup','mouseleave'].forEach(ev => {
-    downArrow.addEventListener(ev, (e) => { e.preventDefault(); releaseDown(); });
-  });
-  
-  upArrow.addEventListener('contextmenu', e => e.preventDefault());
-  downArrow.addEventListener('contextmenu', e => e.preventDefault());
+  upArrow.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  downArrow.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   
   updatePhaseTheme();
   ball = newBall(true);
   
   let frameSkip = 0;
-  const FRAME_SKIP_MAX = 2;
+  const FRAME_SKIP_MAX = 1;
   
   function gameLoop() {
     if (!paused && !gameover) {
@@ -1061,27 +1319,6 @@ body {
     draw();
     requestAnimationFrame(gameLoop);
   }
-
-  
-function unlockAudio() {
-  beep.load();
-  scoreSnd.load();
-  powerSnd.load();
-  
-  
-  beep.volume = 0;
-  beep.play().then(() => {
-    beep.pause();
-    beep.currentTime = 0;
-    beep.volume = 1;
-  }).catch(() => {});
-  
-  document.removeEventListener('touchstart', unlockAudio);
-  document.removeEventListener('click', unlockAudio);
-}
-
-document.addEventListener('touchstart', unlockAudio);
-document.addEventListener('click', unlockAudio);
   
   gameLoop();
 </script>
