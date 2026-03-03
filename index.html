@@ -1638,7 +1638,7 @@
       function newBall(serveLeft) {
         if (serveLeft === undefined) serveLeft = true;
         let ang = (Math.random() * 0.4 - 0.2) * Math.PI;
-        let sp = 7.0 + Math.pow((phase - 1) / 10, 1.25);
+        let sp = 10.5 + Math.pow((phase - 1) / 9, 1.2);
         sp = Math.min(38, sp); 
         let dir = serveLeft ? 1 : -1;
         if (!serveLeft && p1 - p2 > 5) {
@@ -2192,7 +2192,7 @@
       let touchThrottle = false;
       canvas.addEventListener("touchstart", function (e) {
         e.preventDefault();
-        if (touchThrottle) return;
+        if (paused || touchThrottle) return;
         touchThrottle = true;
         const rect = canvas.getBoundingClientRect();
         const x =
@@ -2212,6 +2212,7 @@
       });
       canvas.addEventListener("touchmove", function (e) {
         e.preventDefault();
+        if (paused) return;
         if (touchActive) {
           const rect = canvas.getBoundingClientRect();
           const y =
@@ -2282,7 +2283,9 @@
         if (navigator.vibrate) navigator.vibrate(6);
         clearInterval(upInt);
         upInt = setInterval(function () {
-          playerY = Math.max(0, playerY - paddleSpeed * 1.2);
+          if (!paused) {
+            playerY = Math.max(0, playerY - paddleSpeed * 1.2);
+          }
         }, 16);
       }
       function releaseUp() {
@@ -2296,10 +2299,12 @@
         if (navigator.vibrate) navigator.vibrate(6);
         clearInterval(downInt);
         downInt = setInterval(function () {
-          playerY = Math.min(
-            canvas.height - PH * shortMod,
-            playerY + paddleSpeed * 1.2,
-          );
+          if (!paused) {
+            playerY = Math.min(
+              canvas.height - PH * shortMod,
+              playerY + paddleSpeed * 1.2,
+            );
+          }
         }, 16);
       }
       function releaseDown() {
