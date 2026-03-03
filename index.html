@@ -1,733 +1,1561 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  
-  <title>Endless Pong</title>
-  <meta name="description" content="Endless Pong: classic arcade with neon phases, powerups, 2-player mode, and mobile touch. Survive 120 phases, collect powerups, beat the computer.">
-  <meta name="keywords" content="pong, endless pong, neon pong, pong game, 2 player pong, powerups, retro arcade, browser game, free pong, github pong">
-  <meta name="author" content="Endless Pong">
-  <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#0a0a1a">
-  
-  <meta name="google-site-verification" content="gZ3LD9X67kObs3lh5Ix7KD9vnSki8VLa6ZONdvCPIxE">
-  
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5H8LNM4MP1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-5H8LNM4MP1');
-  </script>
-  
-  <meta name="monetag" content="ef7c500bcbab5c68feaab4175d9cfc13">
-  
-  <link rel="canonical" href="https://lly-boob.github.io/">
-  
-  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/DPxW1rY/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/Z2F7z0k/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://i.ibb.co/4pBv6nY/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/BwS8B8x/icon-192.png">
-  <link rel="manifest" href="https://lly-boob.github.io/manifest.json">
-  
-  <meta property="og:title" content="Endless Pong · Neon Phases & Powerups">
-  <meta property="og:description" content="Play Endless Pong – 120 phases, neon visuals, powerups, 2-player. Free browser game.">
-  <meta property="og:url" content="https://lly-boob.github.io/">
-  <meta property="og:image" content="https://lly-boob.github.io/endless-pong-og.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Endless Pong">
-  
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Endless Pong · Neon Phases & Powerups">
-  <meta name="twitter:description" content="Free browser Pong with 120 phases, powerups, 2-player, mobile touch.">
-  <meta name="twitter:image" content="https://lly-boob.github.io/endless-pong-og.png">
-  
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "VideoGame",
-    "name": "Endless Pong",
-    "description": "Neon Pong with 120 phases, powerups, 2-player mode, and mobile touch controls.",
-    "url": "https://lly-boob.github.io/",
-    "image": "https://lly-boob.github.io/endless-pong-og.png",
-    "author": {
-      "@type": "Organization",
-      "name": "Endless Pong"
-    },
-    "operatingSystem": "Any",
-    "applicationCategory": "Game",
-    "gamePlatform": "Web Browser",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock"
-    }
-  }
-  </script>
-  
-  <meta name="msapplication-TileColor" content="#0a0a1a">
-  <meta name="msapplication-TileImage" content="https://i.ibb.co/BwS8B8x/icon-192.png">
-  <meta name="msapplication-config" content="none">
-  
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      overscroll-behavior: none;
-      touch-action: none;
-      position: fixed;
-    }
-    body {
-      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
-      color: white;
-      font-family: 'Orbitron', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.7s;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    body.light {
-      background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 30%, #d4dfff 70%, #c8d5ff 100%);
-      color: #1a1a2e;
-    }
-    #scoreboard {
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(2.2em, 7vw, 3.8em);
-      letter-spacing: 0.05em;
-      text-shadow: 0 0 10px cyan, 0 0 20px cyan;
-      user-select: none;
-      margin: 0 0 5px 0;
-      line-height: 1.2;
-    }
-    #controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: clamp(6px, 2vw, 12px);
-      padding: 5px 0;
-    }
-    #controls button {
-      background: rgba(0,0,0,0.3);
-      color: cyan;
-      border: 2px solid cyan;
-      padding: clamp(6px, 2vw, 10px) clamp(14px, 4vw, 22px);
-      border-radius: 8px;
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(0.7em, 2.5vw, 0.9em);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 0 20px rgba(0,255,255,0.3);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all 0.12s;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    #controls button:active {
-      transform: scale(0.96);
-      background: cyan;
-      color: black;
-      box-shadow: 0 0 40px cyan;
-    }
-    #pong {
-      border: 3px solid cyan;
-      border-radius: 16px;
-      display: block;
-      width: min(1024px, 98%);
-      max-width: 100%;
-      aspect-ratio: 1024 / 600;
-      touch-action: none;
-      -webkit-touch-callout: none;
-      box-shadow: 0 0 30px rgba(0,255,255,0.3);
-      transition: border 0.3s, box-shadow 0.3s;
-      z-index: 1;
-      position: relative;
-      image-rendering: crisp-edges;
-      image-rendering: pixelated;
-      -ms-interpolation-mode: nearest-neighbor;
-      transform: translateZ(0);
-      will-change: transform;
-    }
-    .touch-controls {
-      display: none;
-      justify-content: center;
-      gap: min(60px, 18vw);
-      margin-top: 5px;
-      width: 100%;
-      padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    }
-    @media (hover: none) and (pointer: coarse) {
-      .touch-controls { display: flex; }
-    }
-    @media (max-width: 768px) {
-      .touch-controls { display: flex; }
-    }
-    .arrow-btn {
-      width: clamp(75px, 19vw, 90px);
-      height: clamp(75px, 19vw, 90px);
-      background: rgba(0,255,255,0.15);
-      border: 3px solid cyan;
-      border-radius: 50%;
-      color: cyan;
-      font-size: clamp(2.8rem, 9vw, 3.5rem);
-      font-weight: bold;
-      box-shadow: 0 0 25px rgba(0,255,255,0.3);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-      transition: all 0.06s linear;
-    }
-    .arrow-btn.active {
-      background: rgba(0,255,255,0.9);
-      box-shadow: 0 0 70px cyan, inset 0 0 40px white;
-      border-color: white;
-      transform: scale(1.08);
-    }
-    #gameover {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(8,8,20,0.96);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 3px solid cyan;
-      box-shadow: 0 0 60px cyan;
-      padding: clamp(28px, 7vw, 45px) clamp(35px, 9vw, 70px);
-      border-radius: 24px;
-      text-align: center;
-      z-index: 100;
-      width: min(90%, 560px);
-    }
-    #gameover h2 {
-      color: cyan;
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1.6em, 6vw, 2.8em);
-      margin-bottom: 25px;
-      text-shadow: 0 0 10px cyan, 0 0 20px cyan;
-    }
-    #gameover button {
-      background: transparent;
-      border: 2px solid #ff0;
-      color: #ff0;
-      padding: 12px 32px;
-      font-family: 'Orbitron', monospace;
-      font-size: 1.2em;
-      font-weight: 900;
-      text-transform: uppercase;
-      border-radius: 12px;
-      box-shadow: 0 0 20px #ff0;
-      cursor: pointer;
-      transition: 0.1s;
-    }
-    #gameover button:active {
-      transform: scale(0.94);
-      background: #ff0;
-      color: black;
-    }
-    #powerup-indicator {
-      position: fixed;
-      top: env(safe-area-inset-top, 70px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: gold;
-      color: black;
-      padding: 8px 24px;
-      border-radius: 40px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      box-shadow: 0 0 30px gold;
-      display: none;
-      z-index: 80;
-      font-size: 0.95em;
-      white-space: nowrap;
-    }
-    @media (max-width: 500px) {
-      #powerup-indicator { white-space: normal; width: 90%; text-align: center; }
-    }
-    @keyframes fadeOut {
-      0% { opacity: 0.6; }
-      100% { opacity: 0; }
-    }
-    @keyframes namePulse {
-      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); }
-      30% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(1.3); }
-    }
-    @keyframes glowPulse {
-      0% { box-shadow: 0 0 15px cyan, 0 0 30px cyan; }
-      100% { box-shadow: 0 0 25px cyan, 0 0 50px cyan; }
-    }
-    .endless-search-reminder {
-      animation: glowPulse 1.8s ease-in-out infinite alternate;
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>PingZero — 200 Neon AI Phases</title>
+    <meta
+      name="description"
+      content="PingZero: A simple, fun neon game to test your reflexes. Can you beat the AI and reach Phase 200?"
+    />
+    <meta
+      name="keywords"
+      content="pingzero, ping zero, free arcade game, neon game, AI pong, browser game, retro game"
+    />
+    <meta name="author" content="PingZero" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#00ffff" />
+    <meta
+      name="google-site-verification"
+      content="gZ3LD9X67kObs3lh5Ix7KD9vnSki8VLa6ZONdvCPIxE"
+    />
+    <meta name="monetag" content="ef7c500bcbab5c68feaab4175d9cfc13" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PingZero" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5H8LNM4MP1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5H8LNM4MP1');
+    </script>
+    <link rel="canonical" href="https://lly-boob.github.io/" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" href="favicon.png" />
+    <link rel="manifest" href="manifest.json" />
 
-<div id="scoreboard">
-  <span id="player-score">0</span> : <span id="ai-score">0</span>
-</div>
+    <!-- Social Share Card -->
+    <meta property="og:title" content="PingZero · Can you beat 200 Phases?" />
+    <meta
+      property="og:description"
+      content="PingZero: A simple, fun neon game to test your reflexes. Can you beat the AI and reach Phase 200?"
+    />
+    <meta property="og:url" content="https://lly-boob.github.io/" />
+    <meta property="og:image" content="https://lly-boob.github.io/favicon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PingZero" />
 
-<div id="controls">
-  <button id="pauseBtn">Pause</button>
-  <button id="resumeBtn" style="display:none;">Resume</button>
-  <button id="resetBtn">Reset</button>
-  <button id="modeBtn">2P: Off</button>
-  <button id="soundBtn">Sound: On</button>
-  <button id="themeBtn">Theme: Dark</button>
-</div>
-
-<canvas id="pong" width="1024" height="600"></canvas>
-
-<div id="gameover" style="display:none;">
-  <h2 id="winner"></h2>
-  <button>Play Again</button>
-</div>
-
-<div id="powerup-indicator"></div>
-
-<div class="touch-controls">
-  <button id="upArrow" class="arrow-btn">↑</button>
-  <button id="downArrow" class="arrow-btn">↓</button>
-</div>
-
-<script>
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      var s1 = document.createElement('script');
-      s1.dataset.zone = '10203402';
-      s1.src = 'https://nap5k.com/tag.min.js';
-      s1.async = true;
-      document.body.appendChild(s1);
-      
-      setTimeout(function() {
-        var s2 = document.createElement('script');
-        s2.dataset.zone = '10238228';
-        s2.src = 'https://groleegni.net/vignette.min.js';
-        s2.async = true;
-        document.body.appendChild(s2);
-      }, 2000);
-    }, 1000);
-  });
-
-  const canvas = document.getElementById('pong');
-  const ctx = canvas.getContext('2d');
-  
-  const p1El = document.getElementById('player-score');
-  const p2El = document.getElementById('ai-score');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const resumeBtn = document.getElementById('resumeBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const modeBtn = document.getElementById('modeBtn');
-  const soundBtn = document.getElementById('soundBtn');
-  const themeBtn = document.getElementById('themeBtn');
-  const gameoverDiv = document.getElementById('gameover');
-  const winnerEl = document.getElementById('winner');
-  const powerupEl = document.getElementById('powerup-indicator');
-  
-  // ========== PROFESSIONAL BACKGROUND MUSIC FROM OLD SCRIPT ==========
-  class GameMusic {
-    constructor() {
-      this.ctx = null;
-      this.masterGain = null;
-      this.compressor = null;
-      this.isPlaying = false;
-      this.phase = 1;
-      this.timer = null;
-      this.isUserActivated = false;
-    }
-
-    initOnUserGesture() {
-      if (!this.ctx) {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.15;
-        
-        this.compressor = this.ctx.createDynamicsCompressor();
-        this.compressor.threshold.value = -24;
-        this.compressor.knee.value = 30;
-        this.compressor.ratio.value = 12;
-        this.compressor.attack.value = 0.003;
-        this.compressor.release.value = 0.25;
-        
-        this.masterGain.connect(this.compressor);
-        this.compressor.connect(this.ctx.destination);
-      }
-      
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
-      }
-      this.isUserActivated = true;
-    }
-
-    start() {
-      if (!soundOn || this.isPlaying) return;
-      
-      if (!this.ctx) {
-        this.initOnUserGesture();
-      }
-      
-      this.isPlaying = true;
-      
-      if (this.ctx.state !== 'running') {
-        return;
-      }
-      
-      this.playArpeggio();
-    }
-
-    stop() {
-      this.isPlaying = false;
-      if (this.timer) clearTimeout(this.timer);
-    }
-
-    playArpeggio() {
-      if (!this.isPlaying || !this.ctx || this.ctx.state !== 'running') return;
-      
-      const baseFreq = 220 + (this.phase * 3);
-      
-      const notes = [
-        baseFreq,
-        baseFreq * 1.122,
-        baseFreq * 1.3348,
-        baseFreq * 1.4983,
-        baseFreq * 2.0
-      ];
-      
-      let noteIndex = 0;
-      
-      const playNote = () => {
-        if (!this.isPlaying || !this.ctx || this.ctx.state !== 'running') return;
-        
-        const now = this.ctx.currentTime;
-        
-        const osc = this.ctx.createOscillator();
-        const noteGain = this.ctx.createGain();
-        
-        if (this.phase < 3) osc.type = 'sine';
-        else if (this.phase < 6) osc.type = 'triangle';
-        else if (this.phase < 9) osc.type = 'square';
-        else osc.type = 'sawtooth';
-        
-        osc.frequency.value = notes[noteIndex];
-        
-        noteGain.gain.setValueAtTime(0.0001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.08, now + 0.015);
-        
-        osc.connect(noteGain);
-        noteGain.connect(this.masterGain);
-        
-        const stopTime = now + 0.18;
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
-        
-        osc.start(now);
-        osc.stop(stopTime + 0.01);
-        
-        noteIndex = (noteIndex + 1) % notes.length;
-        
-        const speed = Math.max(140, 300 - this.phase * 5);
-        this.timer = setTimeout(playNote, speed);
-        
-        setTimeout(() => {
-          try {
-            osc.disconnect();
-            noteGain.disconnect();
-          } catch(e) {}
-        }, 250);
-      };
-      
-      playNote();
-    }
-    
-    setPhase(phase) {
-      this.phase = phase;
-    }
-    
-    duckForEffect() {
-      if (this.masterGain && this.ctx) {
-        const now = this.ctx.currentTime;
-        this.masterGain.gain.setValueAtTime(0.15, now);
-        this.masterGain.gain.exponentialRampToValueAtTime(0.06, now + 0.02);
-        this.masterGain.gain.exponentialRampToValueAtTime(0.15, now + 0.15);
-      }
-    }
-  }
-
-  const gameMusic = new GameMusic();
-  let soundOn = true;
-
-  function unlockAudioOnUserGesture() {
-    gameMusic.initOnUserGesture();
-    if (soundOn && !gameover && !paused) gameMusic.start();
-    
-    document.removeEventListener('click', unlockAudioOnUserGesture);
-    document.removeEventListener('keydown', unlockAudioOnUserGesture);
-    document.removeEventListener('touchstart', unlockAudioOnUserGesture);
-  }
-
-  document.addEventListener('click', unlockAudioOnUserGesture);
-  document.addEventListener('keydown', unlockAudioOnUserGesture);
-  document.addEventListener('touchstart', unlockAudioOnUserGesture);
-  
-  // ========== SOUND EFFECTS ==========
-  function playBeep() {
-    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
-    gameMusic.duckForEffect();
-    const now = gameMusic.ctx.currentTime;
-    const osc = gameMusic.ctx.createOscillator();
-    const gain = gameMusic.ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = 600;
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-    osc.connect(gain);
-    gain.connect(gameMusic.masterGain);
-    osc.start(now);
-    osc.stop(now + 0.08);
-  }
-  
-  function playScore() {
-    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
-    gameMusic.duckForEffect();
-    const now = gameMusic.ctx.currentTime;
-    const freqs = [523, 659, 784];
-    for (let i = 0; i < freqs.length; i++) {
-      const osc = gameMusic.ctx.createOscillator();
-      const gain = gameMusic.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freqs[i];
-      const start = now + (i * 0.04);
-      gain.gain.setValueAtTime(0.1, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.1);
-      osc.connect(gain);
-      gain.connect(gameMusic.masterGain);
-      osc.start(start);
-      osc.stop(start + 0.1);
-    }
-  }
-  
-  function playPowerup() {
-    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
-    gameMusic.duckForEffect();
-    const now = gameMusic.ctx.currentTime;
-    for (let i = 0; i < 8; i++) {
-      const osc = gameMusic.ctx.createOscillator();
-      const gain = gameMusic.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = 800 + (i * 100);
-      const start = now + (i * 0.02);
-      gain.gain.setValueAtTime(0.08, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.06);
-      osc.connect(gain);
-      gain.connect(gameMusic.masterGain);
-      osc.start(start);
-      osc.stop(start + 0.06);
-    }
-  }
-  
-  function playGameOver() {
-    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
-    gameMusic.duckForEffect();
-    const now = gameMusic.ctx.currentTime;
-    const osc = gameMusic.ctx.createOscillator();
-    const gain = gameMusic.ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(330, now);
-    osc.frequency.exponentialRampToValueAtTime(165, now + 0.4);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-    osc.connect(gain);
-    gain.connect(gameMusic.masterGain);
-    osc.start(now);
-    osc.stop(now + 0.5);
-  }
-  
-  function playPhaseUp() {
-    if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== 'running') return;
-    gameMusic.duckForEffect();
-    const now = gameMusic.ctx.currentTime;
-    const freqs = [392, 494, 587, 784];
-    for (let i = 0; i < freqs.length; i++) {
-      const osc = gameMusic.ctx.createOscillator();
-      const gain = gameMusic.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = freqs[i];
-      const start = now + (i * 0.06);
-      gain.gain.setValueAtTime(0.12, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
-      osc.connect(gain);
-      gain.connect(gameMusic.masterGain);
-      osc.start(start);
-      osc.stop(start + 0.15);
-    }
-    const bass = gameMusic.ctx.createOscillator();
-    const bassGain = gameMusic.ctx.createGain();
-    bass.type = 'sine';
-    bass.frequency.value = 80;
-    bassGain.gain.setValueAtTime(0.2, now);
-    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-    bass.connect(bassGain);
-    bassGain.connect(gameMusic.masterGain);
-    bass.start(now);
-    bass.stop(now + 0.1);
-  }
-  
-const PW = 20;
-  const PH = 120;
-  const BALL_RADIUS = 15;
-  const TRAIL_MAX = 7;
-  const MILESTONE = 12;
-  const MAX_PHASE = 120;
-  
-  let playerY = canvas.height/2 - PH/2;
-  let aiY = canvas.height/2 - PH/2;
-  let player2Y = canvas.height/2 - PH/2;
-  let p1 = 0;
-  let p2 = 0;
-  let paddleSpeed = 11;
-  let aiBase = 0.12;
-  let up = false;
-  let down = false;
-  let wPressed = false;
-  let sPressed = false;
-  let paused = false;
-  let twoPlayer = false;
-  let light = false;
-  let gameover = false;
-  
-  let ball = {
-    x: canvas.width/2,
-    y: canvas.height/2,
-    vx: 6,
-    vy: 4,
-    radius: BALL_RADIUS,
-    spin: 0,
-    turbo: false
-  };
-  let trail = [];
-  
-  let phase = 1;
-  let nextTarget = MILESTONE;
-  let highScore = parseInt(localStorage.getItem('pongHighScore')) || 0;
-  
-  const powerTypes = [
-    { type: 'big-ball', color: '#ffd700', label: 'BIG', dur: 6 },
-    { type: 'fast-ball', color: '#00eaff', label: 'TURBO', dur: 7 },
-    { type: 'small-paddle', color: '#f76ee6', label: 'SMALL', dur: 8 },
-    { type: 'wide-paddle', color: '#00ff9c', label: 'WIDE', dur: 8 }
-  ];
-  let activePower = null;
-  let powerItem = null;
-  let powerTimer = 0;
-  let powerTimeout = null;
-  let wideMod = 1;
-  let shortMod = 1;
-  
-  const phaseColors = ['#00ffff','#ff00ff','#00ff9c','#ff5500','#ffffff','#00eaff','#ff00aa','#aa00ff','#000000','#ffd700'];
-  const phaseNames = ['DEEP SPACE','NEON CITY','TOXIC','LAVA','CYBER','FOG','PLASMA','QUANTUM','VOID','SUPERNOVA'];
-  const phaseBgs = [
-    'linear-gradient(135deg, #0a0a1a 0%, #1a2b4e 50%, #0f0f23 100%)',
-    'linear-gradient(135deg, #1a0a1a 0%, #3a2a5e 50%, #2a1a4e 100%)',
-    'linear-gradient(135deg, #0a1a0a 0%, #2a5e3a 50%, #1a4e2a 100%)',
-    'linear-gradient(135deg, #2a1a0a 0%, #5e3a2a 50%, #4e2a1a 100%)',
-    'linear-gradient(135deg, #1a1a2a 0%, #4a4a6a 50%, #2a2a4a 100%)',
-    'linear-gradient(135deg, #0a1a2a 0%, #2a5e7e 50%, #1a4a6a 100%)',
-    'linear-gradient(135deg, #2a0a1a 0%, #5e2a4a 50%, #4e1a3a 100%)',
-    'linear-gradient(135deg, #1a0a2a 0%, #3a2a6a 50%, #2a1a5a 100%)',
-    'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
-    'linear-gradient(135deg, #2a1a0a 0%, #7e5e2a 50%, #d7a03a 100%)'
-  ];
-  
-  const Ads = {
-    shown: 0,
-    maxPerSession: 1,
-    last: 0,
-    minInterval: 180000,
-    
-    canShow: function() {
-      const now = Date.now();
-      if (this.shown >= this.maxPerSession) return false;
-      if (now - this.last < this.minInterval) return false;
-      return true;
-    },
-    
-    show: function(reason) {
-      if (!this.canShow()) return;
-      let delay = 3000;
-      if (reason === 'gameover') delay = 4000;
-      setTimeout(function() {
-        if (!paused && !gameover) {
-          let wasPaused = paused;
-          if (!wasPaused) paused = true;
-          if (window.monetagInterstitial && window.monetagInterstitial.show) {
-            try {
-              window.monetagInterstitial.show();
-              this.shown++;
-              this.last = Date.now();
-            } catch (e) {}
-          }
-          setTimeout(function() {
-            if (!wasPaused && !gameover) paused = false;
-          }, 500);
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="PingZero · 200 Neon Phases" />
+    <meta
+      name="twitter:description"
+      content="PingZero: A simple, fun neon game to test your reflexes. Can you beat the AI and reach Phase 200?"
+    />
+    <meta
+      name="twitter:image"
+      content="https://lly-boob.github.io/favicon.png"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "PingZero",
+        "description": "PingZero: A simple, fun neon game to test your reflexes. Can you beat the AI and reach Phase 200?",
+        "url": "https://lly-boob.github.io/",
+        "image": "https://lly-boob.github.io/favicon.png",
+        "author": {
+          "@type": "Organization",
+          "name": "PingZero"
+        },
+        "operatingSystem": "Any",
+        "applicationCategory": "Game",
+        "gamePlatform": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
         }
-      }, delay);
-    },
-    
-    reset: function() {
-      this.shown = 0;
-      this.last = 0;
-    }
-  };
-  
-  function deathLead() {
-    return 2 * (Math.floor((phase - 1) / 12) + 1);
-  }
-  
-  function updatePhaseTheme() {
-    const b = Math.min(Math.floor((phase - 1) / 12), 9);
-    const col = phaseColors[b];
-    
-    requestAnimationFrame(function() {
-      document.body.style.background = phaseBgs[b];
-      canvas.style.borderColor = col;
-      canvas.style.boxShadow = `0 0 30px ${col}`;
-      document.getElementById('scoreboard').style.textShadow = `0 0 10px ${col}, 0 0 20px ${col}`;
-    });
-    
-    const fx = document.createElement('div');
-    fx.style.cssText = `position:fixed; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at center, ${col}20 0%, transparent 70%); pointer-events:none; z-index:9999; opacity:0; animation:fadeOut 1.6s ease-out forwards;`;
-    
-    const lbl = document.createElement('div');
-    lbl.innerText = phaseNames[b];
-    lbl.style.cssText = `
+      }
+    </script>
+    <meta name="msapplication-TileColor" content="#0a0a1a" />
+    <meta name="msapplication-TileImage" content="favicon.png" />
+    <meta name="msapplication-config" content="none" />
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        overscroll-behavior: none;
+        touch-action: none;
+      }
+      :root {
+        --ad-banner-height: 200px;
+        --phase-color: #00ffff;
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --glow-intensity: 20px;
+        --pulse-speed: 2s;
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          #0a0a1a 0%,
+          #1a1a2e 30%,
+          #16213e 70%,
+          #0f0f23 100%
+        );
+        color: white;
+        font-family: "Orbitron", monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        transition: background 0.7s;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        padding-top: var(--ad-banner-height);
+      }
+      @keyframes boardPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 var(--glow-intensity) var(--phase-color);
+        }
+        50% {
+          box-shadow: 0 0 calc(var(--glow-intensity) * 1.8) var(--phase-color);
+        }
+      }
+      @keyframes orbitLight {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+      @keyframes quantumGlitch {
+        0%,
+        100% {
+          filter: hue-rotate(0deg) brightness(1);
+        }
+        50% {
+          filter: hue-rotate(90deg) brightness(1.5) contrast(1.2);
+        }
+      }
+      @keyframes dangerPulse {
+        0%,
+        100% {
+          border-color: var(--phase-color);
+          box-shadow: 0 0 var(--glow-intensity) var(--phase-color);
+        }
+        50% {
+          border-color: #ff0000;
+          box-shadow:
+            0 0 40px #ff0000,
+            0 0 80px #ff0000;
+          transform: scale(1.005);
+        }
+      }
+      body.light {
+        background: linear-gradient(
+          135deg,
+          #f8f9ff 0%,
+          #e8ecff 30%,
+          #d4dfff 70%,
+          #c8d5ff 100%
+        );
+        color: #1a1a2e;
+      }
+      #scoreboard {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        font-size: clamp(1.4em, 5vw, 2.2em);
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        padding: 10px 30px;
+        border-radius: 50px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        box-shadow:
+          0 5px 15px rgba(0, 0, 0, 0.3),
+          0 0 20px var(--phase-color);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 10;
+        border-color: var(--phase-color);
+      }
+      #score-pill {
+        display: contents;
+      }
+      #pauseBtn,
+      #resumeBtn,
+      #shelf-trigger {
+        position: fixed;
+        top: calc(var(--ad-banner-height) + 15px);
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--phase-color);
+        color: var(--phase-color);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        z-index: 200;
+        box-shadow: 0 0 15px var(--phase-color);
+        transition:
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          background 0.2s,
+          box-shadow 0.2s;
+      }
+      #shelf-trigger {
+        left: 20px;
+      }
+      #pauseBtn,
+      #resumeBtn {
+        right: 20px;
+        font-family: inherit;
+        padding: 0;
+      }
+      #shelf-trigger.active {
+        transform: translateX(230px) rotate(90deg);
+      }
+      #pauseBtn:hover,
+      #resumeBtn:hover,
+      #shelf-trigger:hover {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 25px var(--phase-color);
+      }
+      #pauseBtn:active,
+      #resumeBtn:active,
+      #shelf-trigger:active {
+        transform: scale(0.9);
+      }
+      #settings-shelf {
+        position: fixed;
+        left: -320px;
+        top: 0;
+        width: 300px;
+        height: 100%;
+        background: rgba(10, 10, 20, 0.92);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-right: 1px solid var(--phase-color);
+        z-index: 199;
+        padding: 100px 25px 40px 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+      }
+      #settings-shelf.open {
+        left: 0;
+      }
+      #settings-shelf h3 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.2em;
+        color: var(--phase-color);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      #controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+      }
+      #controls button {
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 3px solid var(--btn-accent, var(--phase-color));
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-family: "Orbitron", monospace;
+        font-size: 0.8em;
+        font-weight: 700;
+        text-align: left;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition:
+          background 0.18s,
+          box-shadow 0.18s,
+          transform 0.1s,
+          border-color 0.18s;
+        position: relative;
+        overflow: hidden;
+      }
+      #controls button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          var(--btn-accent, var(--phase-color)) 0%,
+          transparent 100%
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      #controls button:hover::before {
+        opacity: 0.12;
+      }
+      #controls button:hover {
+        border-color: var(--btn-accent, var(--phase-color));
+        box-shadow: 0 0 12px
+          color-mix(
+            in srgb,
+            var(--btn-accent, var(--phase-color)) 50%,
+            transparent
+          );
+        color: #fff;
+      }
+      #controls button:active {
+        transform: scale(0.96);
+        background: rgba(255, 255, 255, 0.12);
+      }
+      #resetBtn {
+        --btn-accent: #00ff77;
+      }
+      #modeBtn {
+        --btn-accent: #ffd700;
+      }
+      #soundBtn {
+        --btn-accent: #ff88ff;
+      }
+      #themeBtn {
+        --btn-accent: #ff8844;
+      }
+      #pong {
+        background: rgba(10, 15, 25, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        display: block;
+        width: 98%;
+        max-width: 1024px;
+        height: auto;
+        aspect-ratio: 1024 / 600;
+        margin: 10px auto;
+        box-shadow: 0 0 var(--glow-intensity) var(--phase-color);
+        animation: boardPulse var(--pulse-speed) infinite ease-in-out;
+        transition: all 0.5s ease;
+        z-index: 1;
+        position: relative;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+        transform: translateZ(0);
+        will-change: transform;
+      }
+      #pong.tier-neon {
+        border-width: 2px;
+      }
+      #pong.tier-reinforced {
+        border-width: 5px;
+        border-image: linear-gradient(
+            to bottom right,
+            var(--phase-color),
+            #fff,
+            var(--phase-color)
+          )
+          1;
+      }
+      #pong.tier-powered::after {
+        content: "";
+        position: absolute;
+        inset: -5px;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--phase-color),
+            transparent
+          )
+          0% 50% / 200% 100%;
+        animation: orbitLight 3s linear infinite;
+        pointer-events: none;
+      }
+      #pong.tier-overdrive {
+        animation: boardPulse 0.5s infinite ease-in-out;
+        filter: contrast(1.2) saturate(1.5);
+      }
+      #pong.tier-quantum {
+        animation: quantumGlitch 2s infinite steps(5);
+      }
+      #pong.tier-singularity {
+        box-shadow:
+          0 0 100px var(--phase-color),
+          inset 0 0 40px var(--phase-color);
+        background: rgba(0, 0, 0, 0.4);
+      }
+      #pong.danger {
+        animation: dangerPulse 0.4s infinite !important;
+      }
+      #survival-hud {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid var(--phase-color);
+        font-size: 0.8em;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1001;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      }
+      #lives-container {
+        display: flex;
+        gap: 5px;
+      }
+      .life-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--phase-color);
+        box-shadow: 0 0 5px var(--phase-color);
+      }
+      .life-dot.lost {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: none;
+      }
+      @media (min-width: 1025px) {
+        #pong {
+          width: auto;
+          max-height: calc(100vh - var(--ad-banner-height) - 220px);
+        }
+      }
+      .touch-controls {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 160px;
+        pointer-events: none;
+        z-index: 100;
+        padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+      }
+      @media (hover: none) and (pointer: coarse) {
+        .touch-controls {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .touch-controls {
+          display: block;
+        }
+      }
+      .hud-pip {
+        width: clamp(10px, 2.5vw, 15px);
+        height: clamp(10px, 2.5vw, 15px);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .hud-pip.active {
+        background: var(--phase-color);
+        border-color: #fff;
+        box-shadow:
+          0 0 10px var(--phase-color),
+          0 0 20px var(--phase-color);
+      }
+      @keyframes lifeUnlock {
+        0% {
+          transform: scale(0.1);
+          opacity: 0;
+          filter: brightness(2);
+        }
+        40% {
+          transform: scale(1.6);
+          opacity: 1;
+          filter: brightness(2);
+          box-shadow: 0 0 30px #fff;
+        }
+        100% {
+          transform: scale(1);
+          filter: brightness(1);
+        }
+      }
+      .hud-pip.life-unlock {
+        animation: lifeUnlock 0.7s cubic-bezier(0.25, 1, 0.25, 1) forwards;
+      }
+      .hud-danger {
+        background: rgba(255, 0, 0, 0.1);
+        border-color: red;
+        box-shadow: 0 0 15px red;
+      }
+      .danger-state #pong {
+        animation: dangerPulse 0.4s infinite !important;
+      }
+      .arrow-btn {
+        position: absolute;
+        width: clamp(80px, 20vw, 100px);
+        height: clamp(80px, 20vw, 100px);
+        background: rgba(0, 255, 255, 0.12);
+        border: 3px solid cyan;
+        border-radius: 50%;
+        color: cyan;
+        font-size: clamp(2.8rem, 9vw, 3.5rem);
+        font-weight: bold;
+        box-shadow:
+          0 0 20px rgba(0, 255, 255, 0.2),
+          inset 0 0 10px rgba(0, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+        transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: auto;
+      }
+      #upArrow {
+        left: clamp(20px, 6vw, 60px);
+        bottom: clamp(20px, 6vh, 60px);
+      }
+      #downArrow {
+        right: clamp(20px, 6vw, 60px);
+        bottom: clamp(20px, 6vh, 60px);
+      }
+      .arrow-btn.active {
+        background: rgba(0, 255, 255, 0.8);
+        box-shadow:
+          0 0 60px cyan,
+          0 0 100px cyan,
+          inset 0 0 30px white;
+        border-color: white;
+        color: white;
+        transform: scale(1.15) translateY(-5px);
+      }
+      #powerup-indicator {
+        position: fixed;
+        top: env(safe-area-inset-top, 70px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: gold;
+        color: black;
+        padding: 8px 24px;
+        border-radius: 40px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        box-shadow: 0 0 30px gold;
+        display: none;
+        z-index: 80;
+        font-size: 0.95em;
+        white-space: nowrap;
+      }
+      @media (max-width: 500px) {
+        #powerup-indicator {
+          white-space: normal;
+          width: 90%;
+          text-align: center;
+        }
+      }
+      @keyframes fadeOut {
+        0% {
+          opacity: 0.6;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      @keyframes namePulse {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+        30% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.3);
+        }
+      }
+      @keyframes glowPulse {
+        0% {
+          box-shadow:
+            0 0 15px var(--phase-color),
+            0 0 30px var(--phase-color);
+        }
+        100% {
+          box-shadow:
+            0 0 25px var(--phase-color),
+            0 0 50px var(--phase-color);
+        }
+      }
+      #gameover {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(4, 4, 12, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 3000;
+        overflow-y: auto;
+        padding: 60px 20px 40px 20px;
+        box-sizing: border-box;
+        text-align: center;
+        color: #fff;
+        font-family: "Orbitron", sans-serif;
+      }
+      @keyframes goSlideUp {
+        from {
+          transform: translateY(40px) scale(0.96);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+      .go-card {
+        display: inline-block;
+        background: rgba(10, 15, 25, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 50px 30px 40px 30px;
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+        text-align: center;
+        box-shadow:
+          0 0 50px rgba(0, 0, 0, 0.95),
+          0 0 0 1px var(--phase-color),
+          inset 0 0 30px rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        position: relative;
+        animation: goSlideUp 0.5s cubic-bezier(0.25, 1, 0.35, 1) forwards;
+        margin: 4vh auto;
+      }
+      .go-search {
+        margin-top: 25px;
+        padding: 12px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.7em;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(0, 0, 0, 0.5);
+        animation: glowPulse 2s infinite alternate;
+        cursor: default;
+      }
+      .go-glitch {
+        font-size: 2.8em;
+        font-weight: 900;
+        margin: 0 0 10px;
+        color: var(--phase-color);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        text-shadow: 0 0 20px var(--phase-color);
+      }
+      .go-verdict {
+        font-size: 0.9em;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+      }
+      .go-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 35px;
+      }
+      .stat-box {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 12px;
+      }
+      .stat-label {
+        font-size: 0.6em;
+        color: rgba(255, 255, 255, 0.4);
+        display: block;
+        margin-bottom: 5px;
+      }
+      .stat-val {
+        font-size: 1.4em;
+        font-weight: 700;
+        color: #fff;
+      }
+      .go-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      #retryBtn {
+        background: var(--phase-color);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        padding: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        font-size: 1.1em;
+        transition: 0.2s;
+        box-shadow: 0 0 15px var(--phase-color);
+      }
+      #retryBtn:hover {
+        filter: brightness(1.2);
+        transform: scale(1.02);
+      }
+      .go-brand {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #000;
+        border: 1px solid var(--phase-color);
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.6em;
+        color: var(--phase-color);
+        white-space: nowrap;
+      }
+      .endless-search-reminder {
+        animation: glowPulse 1.8s ease-in-out infinite alternate;
+      }
+      #scoreboard {
+        flex-direction: column;
+        padding: 10px 30px 8px;
+        gap: 4px;
+      }
+      #score-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      #phase-info-pill {
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.5em;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.65);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+      }
+      #phase-progress-track {
+        width: 100%;
+        max-width: 260px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      #phase-progress-fill {
+        height: 100%;
+        background: var(--phase-color);
+        border-radius: 2px;
+        transition:
+          width 0.4s ease,
+          background 0.4s;
+        box-shadow: 0 0 8px var(--phase-color);
+        width: 0%;
+      }
+      @keyframes installSlideUp {
+        from {
+          transform: translate(-50%, 120%);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, 0);
+          opacity: 1;
+        }
+      }
+      #install-banner {
+        display: none;
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(8, 8, 24, 0.92);
+        border: 1.5px solid var(--phase-color);
+        box-shadow:
+          0 0 25px var(--phase-color),
+          0 8px 32px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 18px;
+        padding: 14px 22px;
+        display: none;
+        align-items: center;
+        gap: 16px;
+        z-index: 2000;
+        animation: installSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)
+          forwards;
+        min-width: 280px;
+        max-width: 90vw;
+      }
+      #install-banner .install-icon {
+        font-size: 1.8em;
+      }
+      #install-banner .install-text {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      #install-banner .install-title {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 0.85em;
+        color: var(--phase-color);
+        letter-spacing: 0.1em;
+      }
+      #install-banner .install-sub {
+        font-size: 0.68em;
+        color: rgba(255, 255, 255, 0.55);
+        margin-top: 2px;
+      }
+      #install-btn {
+        background: var(--phase-color);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 0.8em;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+        box-shadow: 0 0 12px var(--phase-color);
+      }
+      #install-btn:hover {
+        filter: brightness(1.2);
+        transform: scale(1.05);
+      }
+      #install-btn:active {
+        transform: scale(0.95);
+      }
+      #install-dismiss {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 4px;
+        line-height: 1;
+        transition: color 0.2s;
+      }
+      #install-dismiss:hover {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      body.low-end #scoreboard,
+      body.low-end #settings-shelf,
+      body.low-end .go-card,
+      body.low-end .arrow-btn,
+      body.low-end #pauseBtn,
+      body.low-end #resumeBtn,
+      body.low-end #shelf-trigger,
+      body.low-end #survival-hud,
+      body.low-end #install-banner {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(10, 12, 20, 0.92) !important;
+      }
+      body.low-end #pong.tier-quantum {
+        animation: boardPulse var(--pulse-speed) infinite ease-in-out !important;
+        filter: none !important;
+      }
+      body.low-end #pong.tier-overdrive {
+        filter: none !important;
+      }
+      body.low-end #pong.tier-powered::after {
+        display: none !important;
+      }
+      body.low-end .go-card {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
+      }
+      body.low-end * {
+        transition-duration: 0.05s !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="shelf-trigger" title="Settings">⚙️</div>
+    <button id="pauseBtn" title="Pause Game">⏸</button>
+    <button id="resumeBtn" style="display: none" title="Resume Game">▶</button>
+    <div id="settings-shelf">
+      <h3>Settings</h3>
+      <div id="controls">
+        <button id="resetBtn">🔄 Reset Round</button>
+        <button id="modeBtn">👤 2P: Off</button>
+        <button id="soundBtn">🔊 Sound: On</button>
+        <button id="themeBtn">🌓 Theme: Dark</button>
+      </div>
+    </div>
+    <div id="scoreboard">
+      <div id="score-row">
+        <span id="player-score">0</span>
+        <span
+          style="
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.6em;
+            margin: 0 5px;
+          "
+          >VS</span
+        >
+        <span id="ai-score">0</span>
+      </div>
+      <div id="phase-info-pill">
+        <span id="phase-label">Phase 1 &middot; DEEP SPACE</span>
+        <div id="phase-progress-track">
+          <div id="phase-progress-fill"></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="pong" width="1024" height="600"></canvas>
+    <div id="gameover">
+      <div class="go-card">
+        <div class="go-brand">⏣ PINGZERO RESULT</div>
+        <h2 class="go-glitch">ELIMINATED</h2>
+        <div id="go-verdict" class="go-verdict">NEON NOVICE</div>
+        <div class="go-stats">
+          <div class="stat-box">
+            <span class="stat-label">PHASE REACHED</span>
+            <span id="go-phase" class="stat-val">1</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">SCORE</span>
+            <span id="go-score" class="stat-val">0</span>
+          </div>
+          <div class="stat-box" style="grid-column: span 2">
+            <span class="stat-label">ALL-TIME BEST</span>
+            <span id="go-high" class="stat-val">0</span>
+          </div>
+        </div>
+        <div class="go-footer">
+          <button id="retryBtn">PLAY AGAIN</button>
+          <div
+            style="
+              font-size: 0.55em;
+              color: rgba(255, 255, 255, 0.3);
+              margin-top: 10px;
+            "
+          >
+            PRO TIP: REACH HIGH PHASES TO EARN UP TO 6 LIVES
+          </div>
+          <div class="go-search">
+            <span style="font-size: 1.3em">🔍</span>
+            <span
+              style="
+                color: var(--phase-color);
+                font-weight: 700;
+                letter-spacing: 1px;
+                border-right: 1px solid rgba(255, 255, 255, 0.2);
+                padding-right: 10px;
+              "
+              >PINGZERO</span
+            >
+            <span style="font-weight: 300">on Google</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="powerup-indicator"></div>
+    <div id="install-banner">
+      <span class="install-icon">📲</span>
+      <div class="install-text">
+        <div class="install-title">Install PingZero</div>
+        <div class="install-sub">Play anytime — no browser needed</div>
+      </div>
+      <button id="install-btn">Install</button>
+      <button id="install-dismiss" title="Dismiss">✕</button>
+    </div>
+    <div id="survival-hud">
+      <span>LIVES</span>
+      <div id="lives-container"></div>
+    </div>
+    <div class="touch-controls">
+      <button id="upArrow" class="arrow-btn">↑</button>
+      <button id="downArrow" class="arrow-btn">↓</button>
+    </div>
+    <script>
+      (function () {
+        var isLowEnd = false;
+        var cores = navigator.hardwareConcurrency || 4;
+        var mem = navigator.deviceMemory || 4;
+        if (cores <= 4 || mem <= 2) {
+          isLowEnd = true;
+          document.body.classList.add('low-end');
+        }
+        if (!isLowEnd) {
+          var fpsSamples = [];
+          var lastFpsTime = performance.now();
+          var fpsFrameCount = 0;
+          var fpsCheckDone = false;
+          function fpsChecker() {
+            if (fpsCheckDone) return;
+            fpsFrameCount++;
+            var now = performance.now();
+            if (now - lastFpsTime >= 1000) {
+              fpsSamples.push(fpsFrameCount);
+              fpsFrameCount = 0;
+              lastFpsTime = now;
+              if (fpsSamples.length >= 3) {
+                fpsCheckDone = true;
+                var avg = fpsSamples.reduce(function (a, b) { return a + b; }, 0) / fpsSamples.length;
+                if (avg < 40) {
+                  document.body.classList.add('low-end');
+                }
+                return;
+              }
+            }
+            requestAnimationFrame(fpsChecker);
+          }
+          requestAnimationFrame(fpsChecker);
+        }
+      })();
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var s1 = document.createElement("script");
+          s1.dataset.zone = "10203402";
+          s1.src = "https://nap5k.com/tag.min.js";
+          s1.async = true;
+          document.body.appendChild(s1);
+          setTimeout(function () {
+            var s2 = document.createElement("script");
+            s2.dataset.zone = "10238228";
+            s2.src = "https://groleegni.net/vignette.min.js";
+            s2.async = true;
+            document.body.appendChild(s2);
+          }, 2000);
+        }, 1000);
+      });
+      const canvas = document.getElementById("pong");
+      const ctx = canvas.getContext("2d");
+      const lowEnd = document.body.classList.contains('low-end');
+      if (lowEnd) ctx.imageSmoothingEnabled = false;
+      const p1El = document.getElementById("player-score");
+      const p2El = document.getElementById("ai-score");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resumeBtn = document.getElementById("resumeBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const modeBtn = document.getElementById("modeBtn");
+      const soundBtn = document.getElementById("soundBtn");
+      const themeBtn = document.getElementById("themeBtn");
+      const shelfTrigger = document.getElementById("shelf-trigger");
+      const settingsShelf = document.getElementById("settings-shelf");
+      const gameoverDiv = document.getElementById("gameover");
+      const winnerEl = document.getElementById("winner");
+      const powerupEl = document.getElementById("powerup-indicator");
+      class GameMusic {
+        constructor() {
+          this.ctx = null;
+          this.masterGain = null;
+          this.isPlaying = false;
+          this.phase = 1;
+          this.beat = 0;
+          this.timer = null;
+          this.scale = [261.63, 311.13, 349.23, 392.0, 466.16, 523.25, 622.25];
+          this.melodyPatterns = [
+            [0, 2, 4, 3, 0, 2, 4, 1],
+            [4, 5, 4, 3, 2, 4, 3, 2],
+            [7, 6, 5, 4, 5, 6, 7, 5],
+          ];
+        }
+        initOnUserGesture() {
+          if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.value = 0.14;
+            const compressor = this.ctx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-20, this.ctx.currentTime);
+            compressor.knee.setValueAtTime(40, this.ctx.currentTime);
+            compressor.ratio.setValueAtTime(15, this.ctx.currentTime);
+            this.masterGain.connect(compressor);
+            compressor.connect(this.ctx.destination);
+          }
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        }
+        start() {
+          if (!soundOn || this.isPlaying) return;
+          this.initOnUserGesture();
+          this.isPlaying = true;
+          this.playLoop();
+        }
+        stop() {
+          this.isPlaying = false;
+          if (this.timer) clearTimeout(this.timer);
+        }
+        playLoop() {
+          if (!this.isPlaying || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const stepTime = 0.14;
+          if (this.beat % 8 === 0 || this.beat % 8 === 4) {
+            this.trigger808(55, now);
+          }
+          if (this.beat % 8 === 2 && this.phase > 8) {
+            this.trigger808(65, now, true);
+          }
+          if (this.beat % 8 === 3 || this.beat % 8 === 7) {
+            this.triggerSnare(now);
+          }
+          let hatVol = 0.08;
+          if (this.phase > 5) {
+            this.triggerHat(now, hatVol);
+            if (this.phase > 12 && Math.random() < 0.3) {
+              this.triggerHat(now + stepTime * 0.33, hatVol * 0.7);
+              this.triggerHat(now + stepTime * 0.66, hatVol * 0.5);
+            }
+          }
+          const patternIdx = Math.min(
+            Math.floor((this.phase - 1) / 20),
+            this.melodyPatterns.length - 1,
+          );
+          const noteIdx = this.melodyPatterns[patternIdx][this.beat % 8];
+          const freq = this.scale[noteIdx] * (this.phase > 40 ? 2 : 1);
+          this.triggerSynth(freq, now, stepTime * 0.9);
+          this.beat++;
+          this.timer = setTimeout(() => this.playLoop(), stepTime * 1000);
+        }
+        triggerSynth(freq, time, dur) {
+          const osc = this.ctx.createOscillator();
+          const sub = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, time);
+          sub.type = "sine";
+          sub.frequency.setValueAtTime(freq / 2, time);
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(1500, time);
+          filter.frequency.exponentialRampToValueAtTime(400, time + dur);
+          gain.gain.setValueAtTime(0, time);
+          gain.gain.linearRampToValueAtTime(0.18, time + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+          osc.connect(filter);
+          sub.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(time);
+          sub.start(time);
+          osc.stop(time + dur);
+          sub.stop(time + dur);
+        }
+        trigger808(freq, time, slide = false) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq * 1.5, time);
+          if (slide) {
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.8, time + 0.3);
+          } else {
+            osc.frequency.exponentialRampToValueAtTime(freq, time + 0.1);
+          }
+          gain.gain.setValueAtTime(0.6, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(time);
+          osc.stop(time + 0.4);
+        }
+        triggerSnare(time) {
+          const noise = this.ctx.createBufferSource();
+          const buffer = this.ctx.createBuffer(
+            1,
+            this.ctx.sampleRate * 0.1,
+            this.ctx.sampleRate,
+          );
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.value = 1200;
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.3, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          noise.start(time);
+        }
+        triggerHat(time, vol) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          osc.type = "square";
+          osc.frequency.value = 8000;
+          filter.type = "highpass";
+          filter.frequency.value = 7000;
+          gain.gain.setValueAtTime(vol, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(time);
+          osc.stop(time + 0.03);
+        }
+        setPhase(phase) {
+          this.phase = phase;
+        }
+        duckForEffect() {
+          if (!this.masterGain) return;
+          const now = this.ctx.currentTime;
+          this.masterGain.gain.setTargetAtTime(0.03, now, 0.01);
+          this.masterGain.gain.setTargetAtTime(0.14, now + 0.08, 0.04);
+        }
+      }
+      const gameMusic = new GameMusic();
+      let soundOn = true;
+      function unlockAudioOnUserGesture() {
+        gameMusic.initOnUserGesture();
+        if (soundOn && !gameover && !paused) gameMusic.start();
+        document.removeEventListener("click", unlockAudioOnUserGesture);
+        document.removeEventListener("keydown", unlockAudioOnUserGesture);
+        document.removeEventListener("touchstart", unlockAudioOnUserGesture);
+      }
+      document.addEventListener("click", unlockAudioOnUserGesture);
+      document.addEventListener("keydown", unlockAudioOnUserGesture);
+      document.addEventListener("touchstart", unlockAudioOnUserGesture);
+      function playBeep() {
+        if (!soundOn || !gameMusic.ctx) return;
+        const now = gameMusic.ctx.currentTime;
+        const osc = gameMusic.ctx.createOscillator();
+        const g = gameMusic.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(523.25, now);
+        g.gain.setValueAtTime(0.12, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(g);
+        g.connect(gameMusic.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+      function playScore() {
+        if (!soundOn || !gameMusic.ctx) return;
+        const now = gameMusic.ctx.currentTime;
+        const notes = [440, 554.37, 659.25];
+        notes.forEach((f, i) => {
+          const osc = gameMusic.ctx.createOscillator();
+          const g = gameMusic.ctx.createGain();
+          osc.frequency.setValueAtTime(f, now + i * 0.05);
+          g.gain.setValueAtTime(0.1, now + i * 0.05);
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.2);
+          osc.connect(g);
+          g.connect(gameMusic.masterGain);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.2);
+        });
+      }
+      function playPowerup() {
+        if (!soundOn || !gameMusic.ctx) return;
+        const now = gameMusic.ctx.currentTime;
+        for (let i = 0; i < 6; i++) {
+          const osc = gameMusic.ctx.createOscillator();
+          const g = gameMusic.ctx.createGain();
+          osc.frequency.setValueAtTime(880 + i * 220, now + i * 0.03);
+          g.gain.setValueAtTime(0.05, now + i * 0.03);
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.1);
+          osc.connect(g);
+          g.connect(gameMusic.masterGain);
+          osc.start(now + i * 0.03);
+          osc.stop(now + i * 0.03 + 0.1);
+        }
+      }
+      function playGameOver() {
+        if (!soundOn || !gameMusic.ctx) return;
+        gameMusic.stop();
+        const now = gameMusic.ctx.currentTime;
+        const osc = gameMusic.ctx.createOscillator();
+        const g = gameMusic.ctx.createGain();
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 1.5);
+        g.gain.setValueAtTime(0.6, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+        osc.connect(g);
+        g.connect(gameMusic.masterGain);
+        osc.start(now);
+        osc.stop(now + 1.5);
+        const notes = [261.63, 233.08, 196.0];
+        notes.forEach((f, i) => {
+          const o = gameMusic.ctx.createOscillator();
+          const og = gameMusic.ctx.createGain();
+          o.type = "triangle";
+          o.frequency.setValueAtTime(f, now + i * 0.3);
+          og.gain.setValueAtTime(0.1, now + i * 0.3);
+          og.gain.exponentialRampToValueAtTime(0.001, now + i * 0.3 + 0.6);
+          o.connect(og);
+          og.connect(gameMusic.masterGain);
+          o.start(now + i * 0.3);
+          o.stop(now + i * 0.3 + 0.6);
+        });
+      }
+      function playPhaseUp() {
+        if (!soundOn || !gameMusic.ctx || gameMusic.ctx.state !== "running")
+          return;
+        gameMusic.duckForEffect();
+        const now = gameMusic.ctx.currentTime;
+        const freqs = [392, 494, 587, 784];
+        for (let i = 0; i < freqs.length; i++) {
+          const osc = gameMusic.ctx.createOscillator();
+          const gain = gameMusic.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.value = freqs[i];
+          const start = now + i * 0.06;
+          gain.gain.setValueAtTime(0.12, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+          osc.connect(gain);
+          gain.connect(gameMusic.masterGain);
+          osc.start(start);
+          osc.stop(start + 0.15);
+        }
+        const bass = gameMusic.ctx.createOscillator();
+        const bassGain = gameMusic.ctx.createGain();
+        bass.type = "sine";
+        bass.frequency.value = 80;
+        bassGain.gain.setValueAtTime(0.2, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        bass.connect(bassGain);
+        bassGain.connect(gameMusic.masterGain);
+        bass.start(now);
+        bass.stop(now + 0.1);
+      }
+      const PW = 20;
+      const PH = 120;
+      const BALL_RADIUS = 15;
+      const TRAIL_MAX = 7;
+      const MILESTONE = 20;
+      const MAX_PHASE = 200;
+      let shakeTime = 0;
+      let flashColor = null;
+      let flashTime = 0;
+      let playerY = canvas.height / 2 - PH / 2;
+      let aiY = canvas.height / 2 - PH / 2;
+      let player2Y = canvas.height / 2 - PH / 2;
+      let p1 = 0;
+      let p2 = 0;
+      let paddleSpeed = 11;
+      let aiBase = 0.12;
+      let aiErrorBase = 45; 
+      let aiReactionDelay = 0; 
+      let up = false;
+      let down = false;
+      let wPressed = false;
+      let sPressed = false;
+      let paused = false;
+      let twoPlayer = false;
+      let light = false;
+      let gameover = false;
+      let ball = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: 6,
+        vy: 4,
+        radius: BALL_RADIUS,
+        spin: 0,
+        turbo: false,
+      };
+      let trail = [];
+      let phase = 1;
+      let nextTarget = MILESTONE;
+      let highScore = parseInt(localStorage.getItem("pongHighScore")) || 0;
+      const powerTypes = [
+        { type: "fireball", color: "#ff6600", label: "FIRE", dur: 6 },
+        { type: "ghost", color: "#aa00ff", label: "GHOST", dur: 8 },
+        { type: "shield", color: "#00ff77", label: "SHIELD", dur: 12 },
+        { type: "aura", color: "#00ccff", label: "AURA", dur: 10 },
+      ];
+      let activePower = null;
+      let powerItem = null;
+      let powerTimer = 0;
+      let powerTimeout = null;
+      let wideMod = 1;
+      let shortMod = 1;
+      let shieldActive = false;
+      let auraOpacity = 0;
+      const phaseColors = [
+        "#00ffff",
+        "#ff00ff",
+        "#00ff9c",
+        "#ff5500",
+        "#ffffff",
+        "#00eaff",
+        "#ff00aa",
+        "#aa00ff",
+        "#000000",
+        "#ffd700",
+      ];
+      const phaseNames = [
+        "DEEP SPACE",
+        "NEON CITY",
+        "TOXIC",
+        "LAVA",
+        "CYBER",
+        "FOG",
+        "PLASMA",
+        "QUANTUM",
+        "VOID",
+        "SUPERNOVA",
+      ];
+      const phaseBgs = [
+        "linear-gradient(135deg, #0a0a1a 0%, #1a2b4e 50%, #0f0f23 100%)",
+        "linear-gradient(135deg, #1a0a1a 0%, #3a2a5e 50%, #2a1a4e 100%)",
+        "linear-gradient(135deg, #0a1a0a 0%, #2a5e3a 50%, #1a4e2a 100%)",
+        "linear-gradient(135deg, #2a1a0a 0%, #5e3a2a 50%, #4e2a1a 100%)",
+        "linear-gradient(135deg, #1a1a2a 0%, #4a4a6a 50%, #2a2a4a 100%)",
+        "linear-gradient(135deg, #0a1a2a 0%, #2a5e7e 50%, #1a4a6a 100%)",
+        "linear-gradient(135deg, #2a0a1a 0%, #5e2a4a 50%, #4e1a3a 100%)",
+        "linear-gradient(135deg, #1a0a2a 0%, #3a2a6a 50%, #2a1a5a 100%)",
+        "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)",
+        "linear-gradient(135deg, #2a1a0a 0%, #7e5e2a 50%, #d7a03a 100%)",
+      ];
+      const Ads = {
+        shown: 0,
+        last: 0,
+        sessionStart: Date.now(),
+        minInterval: 120000,
+        show: function (reason, retries = 3) {
+          const now = Date.now();
+          if (now - this.last < this.minInterval) return;
+          if (now - this.sessionStart < 20000) return;
+          const delay = reason === "gameover" ? 2200 : 300;
+          setTimeout(() => {
+            if (window.monetagInterstitial && window.monetagInterstitial.show) {
+              try {
+                window.monetagInterstitial.show();
+                this.last = Date.now();
+                this.shown++;
+              } catch (e) {}
+            } else if (retries > 0) {
+              setTimeout(() => this.show(reason, retries - 1), 2000);
+            }
+          }, delay);
+        },
+        reset: function () {
+          this.shown = 0;
+          this.sessionStart = Date.now();
+        },
+      };
+      function getLeadLimit(p) {
+        if (p <= 10) return 2;
+        if (p <= 30) return 3;
+        if (p <= 70) return 4;
+        if (p <= 120) return 5;
+        return 6;
+      }
+      function updateBoardTier(p) {
+        const board = document.getElementById("pong");
+        board.classList.remove(
+          "tier-neon",
+          "tier-reinforced",
+          "tier-powered",
+          "tier-overdrive",
+          "tier-quantum",
+          "tier-singularity",
+        );
+        if (p <= 10) board.classList.add("tier-neon");
+        else if (p <= 30) board.classList.add("tier-reinforced");
+        else if (p <= 60) board.classList.add("tier-powered");
+        else if (p <= 100) board.classList.add("tier-overdrive");
+        else if (p <= 150) board.classList.add("tier-quantum");
+        else board.classList.add("tier-singularity");
+      }
+      function updateSurvivalHUD() {
+        const limit = getLeadLimit(phase);
+        const gap = Math.max(0, p2 - p1);
+        const livesLeft = Math.max(0, limit - gap);
+        const container = document.getElementById("lives-container");
+        const hud = document.getElementById("survival-hud");
+        const currentPips = container.children.length;
+        const limitIncreased = limit > currentPips && currentPips > 0;
+        container.innerHTML = "";
+        for (let i = 0; i < limit; i++) {
+          const pip = document.createElement("div");
+          pip.className = "hud-pip";
+          if (i < livesLeft) pip.classList.add("active");
+          if (limitIncreased && i === limit - 1) {
+            pip.classList.add("life-unlock");
+          }
+          container.appendChild(pip);
+        }
+        if (livesLeft === 1) hud.classList.add("hud-danger");
+        else hud.classList.remove("hud-danger");
+        if (livesLeft === 1 && !gameover)
+          document.body.classList.add("danger-state");
+        else document.body.classList.remove("danger-state");
+      }
+      function updatePhaseTheme() {
+        const b = (phase - 1) % 10;
+        const col = phaseColors[b];
+        const intensity = Math.min(100, 20 + phase * 0.8) + "px";
+        const pulseSpeed = Math.max(0.3, 2 - phase * 0.04) + "s";
+        requestAnimationFrame(function () {
+          const root = document.documentElement;
+          root.style.setProperty("--phase-color", col);
+          root.style.setProperty("--glow-intensity", intensity);
+          root.style.setProperty("--pulse-speed", pulseSpeed);
+          document.body.style.background = phaseBgs[b];
+          document.getElementById("scoreboard").style.textShadow =
+            `0 0 10px ${col}, 0 0 20px ${col}`;
+          updateBoardTier(phase);
+          updateSurvivalHUD();
+        });
+        updateScoreboardHUD();
+        const fx = document.createElement("div");
+        fx.style.cssText = `position:fixed; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at center, ${col}20 0%, transparent 70%); pointer-events:none; z-index:9998; opacity:0; animation:fadeOut 1.6s ease-out forwards;`;
+        const lbl = document.createElement("div");
+        lbl.innerText = phaseNames[b];
+        lbl.style.cssText = `
       position: absolute;
       top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: ${window.innerWidth < 600 ? '2.2em' : '4em'};
+      font-size: ${window.innerWidth < 600 ? "2.2em" : "4em"};
       font-weight: 900;
       color: ${col};
       text-shadow: 0 0 20px ${col}, 0 0 40px ${col}, 0 0 80px ${col};
@@ -738,16 +1566,15 @@ const PW = 20;
       white-space: nowrap;
       font-family: 'Orbitron', sans-serif;
     `;
-    fx.appendChild(lbl);
-    
-    const sub = document.createElement('div');
-    sub.innerText = '⚡ ENDLESS PONG ⚡';
-    sub.style.cssText = `
+        fx.appendChild(lbl);
+        const sub = document.createElement("div");
+        sub.innerText = "⚡ PINGZERO ⚡";
+        sub.style.cssText = `
       position: absolute;
       top: 58%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: ${window.innerWidth < 600 ? '1em' : '1.6em'};
+      font-size: ${window.innerWidth < 600 ? "1em" : "1.6em"};
       font-weight: 600;
       color: #ffffff;
       text-shadow: 0 0 15px ${col}, 0 0 30px ${col};
@@ -762,565 +1589,800 @@ const PW = 20;
       border-bottom: 1px solid rgba(255,255,255,0.3);
       padding: 8px 0;
     `;
-    fx.appendChild(sub);
-    
-    document.body.appendChild(fx);
-    setTimeout(function() { fx.remove(); }, 2500);
-  }
-  
-  function newBall(serveLeft) {
-    if (serveLeft === undefined) serveLeft = true;
-    let ang = (Math.random() * 0.4 - 0.2) * Math.PI;
-    let sp = 11.5 + (phase - 1) * 0.15;
-    let dir = serveLeft ? 1 : -1;
-    if (!serveLeft && (p1 - p2 > 5)) {
-      ang = (Math.random() * 0.6 - 0.3) * Math.PI;
-      sp *= 1.15;
-    }
-    return {
-      x: canvas.width/2,
-      y: canvas.height/2,
-      vx: dir * (sp * Math.cos(ang)),
-      vy: sp * Math.sin(ang),
-      spin: 0,
-      radius: BALL_RADIUS,
-      turbo: false
-    };
-  }
-  
-  function spawnPower() {
-    if (activePower || powerItem) return;
-    const px = Math.random() * (canvas.width * 0.6) + canvas.width * 0.2;
-    const py = Math.random() * (canvas.height * 0.7) + canvas.height * 0.15;
-    const available = [];
-    for (let i = 0; i < powerTypes.length; i++) {
-      if (!activePower || powerTypes[i].type !== activePower.type) {
-        available.push(powerTypes[i]);
+        fx.appendChild(sub);
+        document.body.appendChild(fx);
+        setTimeout(function () {
+          fx.remove();
+        }, 2500);
       }
-    }
-    const p = available[Math.floor(Math.random() * available.length)];
-    powerItem = { ...p, x: px, y: py, r: 22 };
-    if (powerTimeout) clearTimeout(powerTimeout);
-    powerTimeout = setTimeout(function() { powerItem = null; }, 9000);
-  }
-  
-  function collectPower() {
-    if (!powerItem) return;
-    const dx = ball.x - powerItem.x;
-    const dy = ball.y - powerItem.y;
-    if (Math.hypot(dx, dy) < ball.radius + powerItem.r) {
-      for (let i = 0; i < powerTypes.length; i++) {
-        if (powerTypes[i].type === powerItem.type) {
-          activePower = powerTypes[i];
-          break;
+      function updateScoreboardHUD() {
+        const b = Math.min(Math.floor((phase - 1) / 12), 9);
+        const labelEl = document.getElementById("phase-label");
+        const fillEl = document.getElementById("phase-progress-fill");
+        if (labelEl)
+          labelEl.innerHTML = `Phase ${phase} &middot; ${phaseNames[b]}`;
+        if (fillEl) {
+          const phaseStart = nextTarget - MILESTONE;
+          const progress = Math.max(
+            0,
+            Math.min(1, (p1 - phaseStart) / MILESTONE),
+          );
+          fillEl.style.width = (progress * 100).toFixed(1) + "%";
         }
       }
-      powerTimer = activePower.dur * 60;
-      powerupEl.innerText = activePower.label;
-      powerupEl.style.display = 'block';
-      if (soundOn) { playPowerup(); }
-      if (powerItem.type === 'big-ball') {
-        ball.radius = BALL_RADIUS * 1.7;
-      } else if (powerItem.type === 'fast-ball') {
-        ball.vx *= 1.45;
-        ball.vy *= 1.45;
-        ball.turbo = true;
-      } else if (powerItem.type === 'small-paddle') {
-        shortMod = 0.55;
-      } else if (powerItem.type === 'wide-paddle') {
-        wideMod = 1.7;
+      function newBall(serveLeft) {
+        if (serveLeft === undefined) serveLeft = true;
+        let ang = (Math.random() * 0.4 - 0.2) * Math.PI;
+        let sp = 8.5 + Math.pow((phase - 1) / 8, 1.25);
+        sp = Math.min(38, sp); 
+        let dir = serveLeft ? 1 : -1;
+        if (!serveLeft && p1 - p2 > 5) {
+          ang = (Math.random() * 0.6 - 0.3) * Math.PI;
+          sp *= 1.15;
+        }
+        return {
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: dir * (sp * Math.cos(ang)),
+          vy: sp * Math.sin(ang),
+          spin: 0,
+          radius: BALL_RADIUS,
+          turbo: false,
+        };
       }
-      powerItem = null;
-      clearTimeout(powerTimeout);
-    }
-  }
-  
-  function deactivatePower() {
-    ball.radius = BALL_RADIUS;
-    ball.turbo = false;
-    wideMod = 1;
-    shortMod = 1;
-    activePower = null;
-    powerupEl.style.display = 'none';
-  }
-  
-  function phaseUp() {
-    if (phase < MAX_PHASE) phase++;
-    nextTarget += MILESTONE;
-    aiBase = Math.min(0.5, aiBase + 0.01);
-    paddleSpeed += 0.2;
-    updatePhaseTheme();
-    Ads.show('phase');
-    gameMusic.setPhase(phase);
-    if (soundOn) { playPhaseUp(); }
-  }
-  
-  function drawNet() {
-    ctx.beginPath();
-    ctx.strokeStyle = '#fff7';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([20, 20]);
-    ctx.moveTo(canvas.width/2, 0);
-    ctx.lineTo(canvas.width/2, canvas.height);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-  
-  function drawTrail() {
-    for (let i = trail.length - 1; i >= 0; i--) {
-      const t = trail[i];
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, ball.radius * (i+1) / (TRAIL_MAX+4), 0, Math.PI*2);
-      ctx.fillStyle = `rgba(150,255,255,${(i+1)/(TRAIL_MAX+7)})`;
-      ctx.fill();
-    }
-  }
-  
-  function drawPowerup() {
-    if (!powerItem) return;
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = powerItem.color;
-    ctx.beginPath();
-    ctx.arc(powerItem.x, powerItem.y, powerItem.r, 0, Math.PI*2);
-    ctx.fillStyle = powerItem.color;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.font = 'bold 1.2em Orbitron';
-    ctx.fillStyle = '#222';
-    ctx.textAlign = 'center';
-    ctx.fillText(powerItem.label, powerItem.x, powerItem.y + 6);
-  }
-  
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = light ? '#e1ecf4' : '#1e2a36';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    drawNet();
-    
-    if (!light) drawTrail();
-    
-    drawPowerup();
-    
-    const block = Math.min(Math.floor((phase-1)/12), 9);
-    const phaseCol = phaseColors[block];
-    
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = phaseCol;
-    
-    ctx.fillStyle = light ? '#333' : phaseCol;
-    ctx.fillRect(18, playerY, PW * wideMod, PH * shortMod);
-    
-    const rightY = twoPlayer ? player2Y : aiY;
-    ctx.shadowColor = '#ff0';
-    ctx.fillStyle = light ? '#666' : '#ff0';
-    ctx.fillRect(canvas.width - 18 - PW * wideMod, rightY, PW * wideMod, PH * shortMod);
-    
-    ctx.shadowBlur = ball.turbo ? 24 : 10;
-    ctx.shadowColor = ball.turbo ? phaseCol : '#0ff';
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    
-    ctx.font = 'bold 56px Arial';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText(p1, canvas.width/2 - 90, 80);
-    ctx.fillText(p2, canvas.width/2 + 90, 80);
-    
-    ctx.font = 'bold 28px Arial';
-    ctx.strokeStyle = '#fff6';
-    ctx.lineWidth = 3;
-    ctx.strokeText(`Phase ${phase}`, canvas.width/2, 110);
-    ctx.fillStyle = phase >= MAX_PHASE ? '#ff8a8a' : '#8aff8a';
-    ctx.fillText(`Phase ${phase}`, canvas.width/2, 110);
-    
-    ctx.font = 'bold 18px Arial';
-    ctx.fillStyle = phaseCol;
-    ctx.fillText(phaseNames[block], canvas.width/2, 142);
-    
-    if (!twoPlayer) {
-      ctx.font = 'bold 16px Arial';
-      ctx.fillStyle = '#ffb3b3';
-      ctx.fillText(`Computer +${deathLead()} lose`, canvas.width/2, 172);
-    }
-    
-    if (activePower) {
-      ctx.font = 'bold 1.8em Arial';
-      ctx.fillStyle = '#ffe15e';
-      ctx.fillText(`${activePower.label} ${Math.ceil(powerTimer/60)}s`, canvas.width/2, 45);
-    }
-    
-    ctx.save();
-    ctx.font = '600 16px Orbitron';
-    ctx.fillStyle = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.85)';
-    ctx.textAlign = 'right';
-    ctx.fillText('⏣ ENDLESS PONG ⏣', canvas.width - 25, canvas.height - 25);
-    ctx.restore();
-    ctx.textAlign = 'left';
-  }
-  
-  function update() {
-    if (paused || gameover) return;
-    
-    if (up) playerY -= paddleSpeed * 1.25;
-    if (down) playerY += paddleSpeed * 1.25;
-    playerY = Math.max(0, Math.min(canvas.height - PH * shortMod, playerY));
-    
-    if (twoPlayer) {
-      if (wPressed) player2Y -= paddleSpeed;
-      if (sPressed) player2Y += paddleSpeed;
-      player2Y = Math.max(0, Math.min(canvas.height - PH * shortMod, player2Y));
-    } else {
-      const aiCenter = aiY + (PH * shortMod)/2;
-      const diff = p1 - p2;
-      let aggro = aiBase;
-      if (diff > 8) aggro *= 1.6;
-      else if (diff > 5) aggro *= 1.4;
-      else if (diff > 2) aggro *= 1.2;
-      else if (diff < -8) aggro *= 0.8;
-      let target = ball.y + (Math.random() - 0.5) * 20;
-      aiY += (target - aiCenter) * aggro;
-      aiY = Math.max(0, Math.min(canvas.height - PH * shortMod, aiY));
-    }
-    
-    ball.x += ball.vx;
-    ball.y += ball.vy + ball.spin;
-    
-    trail.push({x: ball.x, y: ball.y});
-    if (trail.length > TRAIL_MAX) trail.shift();
-    
-    if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
-      ball.vy = -ball.vy;
-      ball.spin = -ball.spin * 0.7;
-      if (soundOn) { playBeep(); }
-      ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
-    }
-    
-    if (ball.x - ball.radius < 18 + PW * wideMod &&
-        ball.y > playerY && ball.y < playerY + PH * shortMod) {
-      if (soundOn) { playBeep(); }
-      const rel = (ball.y - (playerY + (PH * shortMod)/2)) / ((PH * shortMod)/2);
-      const move = (up ? -1 : 0) + (down ? 1 : 0);
-      ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
-      const angle = rel * (Math.PI / 2.5);
-      let speed = Math.min(18 + phase * 0.6, Math.hypot(ball.vx, ball.vy) * 1.08 + 0.4);
-      ball.vx = Math.abs(speed * Math.cos(angle));
-      ball.vy = speed * Math.sin(angle);
-      ball.x = 18 + PW * wideMod + ball.radius;
-    }
-    
-    const rightY = twoPlayer ? player2Y : aiY;
-    if (ball.x + ball.radius > canvas.width - 18 - PW * wideMod &&
-        ball.y > rightY && ball.y < rightY + PH * shortMod) {
-      if (soundOn) { playBeep(); }
-      const rel = (ball.y - (rightY + (PH * shortMod)/2)) / ((PH * shortMod)/2);
-      const move = twoPlayer ? ((wPressed ? -1 : 0)+(sPressed ? 1 : 0)) : ((aiY - rightY)/8);
-      ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
-      const angle = rel * (Math.PI / 2.5);
-      let speed = Math.min(18 + phase * 0.6, Math.hypot(ball.vx, ball.vy) * 1.08 + 0.4);
-      ball.vx = -Math.abs(speed * Math.cos(angle));
-      ball.vy = speed * Math.sin(angle);
-      ball.x = canvas.width - 18 - PW * wideMod - ball.radius;
-    }
-    
-    collectPower();
-    
-    if (ball.x - ball.radius < 0) {
-      p2++;
-      p2El.innerText = p2;
-      if (soundOn) { playScore(); }
-      ball = newBall(false);
-      trail = [];
-      deactivatePower();
-      if (twoPlayer) {
-        if (p2 - p1 >= MILESTONE) endGame('Player 2');
-      } else {
-        if (p2 - p1 >= deathLead()) endGame('Computer');
+      function spawnPower() {
+        if (activePower || powerItem) return;
+        const px = Math.random() * (canvas.width * 0.6) + canvas.width * 0.2;
+        const py = Math.random() * (canvas.height * 0.7) + canvas.height * 0.15;
+        const available = [];
+        for (let i = 0; i < powerTypes.length; i++) {
+          if (!activePower || powerTypes[i].type !== activePower.type) {
+            available.push(powerTypes[i]);
+          }
+        }
+        const p = available[Math.floor(Math.random() * available.length)];
+        powerItem = { ...p, x: px, y: py, r: 22 };
+        if (powerTimeout) clearTimeout(powerTimeout);
+        powerTimeout = setTimeout(function () {
+          powerItem = null;
+        }, 9000);
       }
-    }
-    
-    if (ball.x + ball.radius > canvas.width) {
-      p1++;
-      p1El.innerText = p1;
-      if (soundOn) { playScore(); }
-      ball = newBall(true);
-      trail = [];
-      deactivatePower();
-      if (twoPlayer) {
-        if (p1 - p2 >= MILESTONE) endGame('Player 1');
-      } else {
-        if (p1 >= nextTarget) phaseUp();
+      function collectPower() {
+        if (!powerItem) return;
+        const dx = ball.x - powerItem.x;
+        const dy = ball.y - powerItem.y;
+        if (Math.hypot(dx, dy) < ball.radius + powerItem.r) {
+          for (let i = 0; i < powerTypes.length; i++) {
+            if (powerTypes[i].type === powerItem.type) {
+              activePower = powerTypes[i];
+              break;
+            }
+          }
+          powerTimer = activePower.dur * 60;
+          powerupEl.innerText = activePower.label;
+          powerupEl.style.display = "block";
+          shakeTime = 15;
+          flashColor = activePower.color;
+          flashTime = 20;
+          if (soundOn) {
+            playPowerup();
+          }
+          if (activePower.type === "fireball") {
+            ball.vx *= 1.8;
+            ball.vy *= 1.8;
+            ball.turbo = true;
+          } else if (activePower.type === "shield") {
+            shieldActive = true;
+          } else if (activePower.type === "aura") {
+            wideMod = 1.4;
+            auraOpacity = 1;
+          }
+          powerItem = null;
+          clearTimeout(powerTimeout);
+        }
       }
-    }
-    
-    if (!activePower && !powerItem && Math.random() < 0.0025) spawnPower();
-    if (activePower) { 
-      powerTimer--; 
-      if (powerTimer <= 0) deactivatePower(); 
-    }
-  }
-  
-  function endGame(winner) {
-    gameover = true;
-    paused = true;
-    winnerEl.innerText = twoPlayer ? winner + ' Wins!' : 'You Lose...';
-    
-    gameMusic.stop();
-    
-    if (soundOn) { playGameOver(); }
-    
-    const existing = document.querySelector('.endless-search-reminder');
-    if (existing) existing.remove();
-    
-    const block = Math.min(Math.floor((phase-1)/12), 9);
-    const phaseCol = phaseColors[block];
-    
-    const searchPanel = document.createElement('div');
-    searchPanel.className = 'endless-search-reminder';
-    searchPanel.style.cssText = `
-      background: ${light ? 'rgba(255,255,255,0.85)' : 'rgba(10,20,30,0.85)'};
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 2px solid ${phaseCol};
-      border-radius: 50px;
-      padding: 14px 24px;
-      margin: 25px auto 20px auto;
-      display: inline-block;
-      box-shadow: 0 0 25px ${phaseCol};
-      color: ${light ? '#000' : '#fff'};
-      font-family: 'Orbitron', monospace;
-      font-size: ${window.innerWidth < 600 ? '14px' : '18px'};
-      font-weight: 600;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      width: fit-content;
-      max-width: 90%;
-    `;
-    searchPanel.innerHTML = `
-      <span style="font-size:1.3em; margin-right:10px;">🔍</span>
-      <span style="border-right:1px solid ${phaseCol}; padding-right:15px; margin-right:15px;">ENDLESS PONG</span>
-      <span style="font-weight:300;">on Google</span>
-    `;
-    
-    winnerEl.parentNode.insertBefore(searchPanel, winnerEl.nextSibling);
-    
-    gameoverDiv.style.display = 'block';
-    powerupEl.style.display = 'none';
-    Ads.show('gameover');
-    
-    if (p1 > highScore) {
-      highScore = p1;
-      localStorage.setItem('pongHighScore', highScore);
-    }
-  }
-  
-  function resetGame() {
-    p1 = 0;
-    p2 = 0;
-    p1El.innerText = 0;
-    p2El.innerText = 0;
-    phase = 1;
-    nextTarget = MILESTONE;
-    paddleSpeed = 11;
-    aiBase = 0.12;
-    playerY = canvas.height/2 - PH/2;
-    aiY = canvas.height/2 - PH/2;
-    player2Y = canvas.height/2 - PH/2;
-    ball = newBall(true);
-    trail = [];
-    deactivatePower();
-    gameover = false;
-    paused = false;
-    gameoverDiv.style.display = 'none';
-    updatePhaseTheme();
-    Ads.reset();
-    
-    gameMusic.setPhase(1);
-    gameMusic.stop();
-    if (soundOn && gameMusic.ctx) {
-      setTimeout(function() { gameMusic.start(); }, 100);
-    }
-  }
-  
-  window.addEventListener('keydown', function(e) {
-    if (e.repeat) return;
-    if (e.key === 'ArrowUp') { up = true; e.preventDefault(); }
-    if (e.key === 'ArrowDown') { down = true; e.preventDefault(); }
-    if (e.key === 'w' || e.key === 'W') { wPressed = true; e.preventDefault(); }
-    if (e.key === 's' || e.key === 'S') { sPressed = true; e.preventDefault(); }
-    if (e.key === ' ') {
-      e.preventDefault();
-      if (gameover) return;
-      if (paused) {
-        paused = false;
-        pauseBtn.style.display = '';
-        resumeBtn.style.display = 'none';
-        if (soundOn && gameMusic.ctx) gameMusic.start();
-      } else {
+      function deactivatePower() {
+        ball.radius = BALL_RADIUS;
+        ball.turbo = false;
+        wideMod = 1;
+        shortMod = 1;
+        shieldActive = false;
+        auraOpacity = 0;
+        activePower = null;
+        powerupEl.style.display = "none";
+      }
+      function phaseUp() {
+        if (phase < MAX_PHASE) phase++;
+        nextTarget += MILESTONE;
+        aiBase = Math.min(0.75, 0.12 + Math.pow((phase - 1) / 150, 0.8) * 0.6);
+        aiErrorBase = Math.max(8, 45 - Math.pow((phase - 1) / 10, 1.15));
+        updatePhaseTheme();
+        gameMusic.setPhase(phase);
+        if (soundOn) {
+          playPhaseUp();
+        }
+      }
+      function drawNet() {
+        ctx.beginPath();
+        ctx.strokeStyle = "#fff7";
+        ctx.lineWidth = 4;
+        ctx.setLineDash([20, 20]);
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      function drawTrail() {
+        for (let i = trail.length - 1; i >= 0; i--) {
+          const t = trail[i];
+          ctx.beginPath();
+          ctx.arc(
+            t.x,
+            t.y,
+            (ball.radius * (i + 1)) / (TRAIL_MAX + 4),
+            0,
+            Math.PI * 2,
+          );
+          ctx.fillStyle = `rgba(150,255,255,${(i + 1) / (TRAIL_MAX + 7)})`;
+          ctx.fill();
+        }
+      }
+      function drawPowerup() {
+        if (!powerItem) return;
+        const now = Date.now() / 300;
+        const bounce = lowEnd ? 0 : Math.sin(now) * 5;
+        const rot = lowEnd ? 0 : now * 0.8;
+        ctx.save();
+        ctx.translate(powerItem.x, powerItem.y + bounce);
+        if (!lowEnd) ctx.rotate(rot);
+        if (!lowEnd) { ctx.shadowBlur = 25; ctx.shadowColor = powerItem.color; }
+        ctx.beginPath();
+        ctx.moveTo(0, -powerItem.r);
+        ctx.lineTo(powerItem.r * 0.8, 0);
+        ctx.lineTo(0, powerItem.r);
+        ctx.lineTo(-powerItem.r * 0.8, 0);
+        ctx.closePath();
+        ctx.fillStyle = powerItem.color;
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        ctx.font = "bold 1.1em Orbitron";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(powerItem.label, powerItem.x, powerItem.y + 40);
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = light ? "#e1ecf4" : "#1e2a36";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawNet();
+        if (!light && !lowEnd) drawTrail();
+        drawPowerup();
+        const block = Math.min(Math.floor((phase - 1) / 12), 9);
+        const phaseCol = phaseColors[block];
+        if (!lowEnd) { ctx.shadowBlur = 10; ctx.shadowColor = phaseCol; }
+        ctx.fillStyle = light ? "#333" : phaseCol;
+        ctx.fillRect(18, playerY, PW * wideMod, PH * shortMod);
+        if (activePower && activePower.type === "aura" && auraOpacity > 0) {
+          auraOpacity = powerTimer / (activePower.dur * 60);
+          ctx.beginPath();
+          ctx.rect(18 - 5, playerY - 5, PW * wideMod + 10, PH * shortMod + 10);
+          ctx.strokeStyle = `rgba(0, 204, 255, ${auraOpacity})`;
+          ctx.lineWidth = 4;
+          if (!lowEnd) { ctx.shadowBlur = 20; ctx.shadowColor = "#0cf"; }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+        if (shieldActive) {
+          ctx.beginPath();
+          ctx.moveTo(5, 0);
+          ctx.lineTo(5, canvas.height);
+          ctx.moveTo(canvas.width - 5, 0);
+          ctx.lineTo(canvas.width - 5, canvas.height);
+          ctx.strokeStyle = "#00ff77";
+          ctx.lineWidth = 8;
+          if (!lowEnd) { ctx.shadowBlur = 15; ctx.shadowColor = "#0f7"; }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+        const rightY = twoPlayer ? player2Y : aiY;
+        if (!lowEnd) ctx.shadowColor = "#ff0";
+        ctx.fillStyle = light ? "#666" : "#ff0";
+        ctx.fillRect(
+          canvas.width - 18 - PW * wideMod,
+          rightY,
+          PW * wideMod,
+          PH * shortMod,
+        );
+        if (!lowEnd) { ctx.shadowBlur = ball.turbo ? 24 : 10; ctx.shadowColor = ball.turbo ? phaseCol : "#0ff"; }
+        if (!lowEnd && activePower && activePower.type === "ghost") {
+          for (let i = 1; i < 4; i++) {
+            ctx.beginPath();
+            ctx.arc(
+              ball.x - ball.vx * i * 3,
+              ball.y - ball.vy * i * 3,
+              ball.radius,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fillStyle = `rgba(170, 0, 255, ${0.4 / i})`;
+            ctx.fill();
+          }
+        }
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.font = "bold 56px Arial";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(p1, canvas.width / 2 - 90, 80);
+        ctx.fillText(p2, canvas.width / 2 + 90, 80);
+        if (highScore > 0 && p1 < highScore) {
+          ctx.font = "bold 14px Orbitron";
+          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+          ctx.fillText(`BEST: ${highScore}`, canvas.width / 2 - 90, 105);
+        }
+        ctx.font = "bold 28px Arial";
+        ctx.strokeStyle = "#fff6";
+        ctx.lineWidth = 3;
+        ctx.strokeText(`Phase ${phase}`, canvas.width / 2, 110);
+        ctx.fillStyle = phase >= MAX_PHASE ? "#ff8a8a" : "#8aff8a";
+        ctx.fillText(`Phase ${phase}`, canvas.width / 2, 110);
+        if (highScore > 0) {
+          const barW = 120;
+          const progress = Math.min(1, p1 / highScore);
+          ctx.fillStyle = "rgba(255,255,255,0.1)";
+          ctx.fillRect(canvas.width / 2 - barW / 2, 125, barW, 4);
+          ctx.fillStyle = phaseCol;
+          ctx.fillRect(canvas.width / 2 - barW / 2, 125, barW * progress, 4);
+        }
+        ctx.font = "bold 18px Arial";
+        ctx.fillStyle = phaseCol;
+        ctx.fillText(phaseNames[block], canvas.width / 2, 142);
+        if (activePower) {
+          ctx.font = "bold 1.8em Arial";
+          ctx.fillStyle = "#ffe15e";
+          ctx.fillText(
+            `${activePower.label} ${Math.ceil(powerTimer / 60)}s`,
+            canvas.width / 2,
+            45,
+          );
+        }
+        ctx.save();
+        ctx.font = "600 16px Orbitron";
+        ctx.fillStyle = light ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)";
+        ctx.textAlign = "right";
+        ctx.fillText("⏣ PINGZERO ⏣", canvas.width - 25, canvas.height - 25);
+        ctx.restore();
+        ctx.textAlign = "left";
+      }
+      function moveAI(predictedY, aiCenter, diff, distToPhase) {
+        let aggro = aiBase;
+        let scoreDiff = p2 - p1;
+        if (scoreDiff > 2) {
+          aggro *= 0.85; 
+        } else if (scoreDiff < -2) {
+          aggro *= 1.15; 
+        }
+        aggro *= 1 + Math.max(-0.4, diff * 0.035);
+        let errorScale = aiErrorBase;
+        if (scoreDiff > 3) errorScale *= 1.5; 
+        if (distToPhase <= 3 && distToPhase > 0) {
+          aggro *= 1.45;
+          errorScale *= 0.2;
+        }
+        let jitter = diff < -2 ? (Math.random() - 0.5) * 15 : 0;
+        let error = (Math.random() - 0.5) * errorScale;
+        let target = predictedY + error + jitter;
+        aiY += (target - aiCenter) * aggro;
+        aiY = Math.max(0, Math.min(canvas.height - PH * shortMod, aiY));
+      }
+      function update() {
+        if (paused || gameover) return;
+        let currentBallSpeed = Math.hypot(ball.vx, ball.vy);
+        let dynamicPaddleSpeed = Math.max(11, currentBallSpeed * 0.75 + 2);
+        if (up) playerY -= dynamicPaddleSpeed * 1.25;
+        if (down) playerY += dynamicPaddleSpeed * 1.25;
+        playerY = Math.max(0, Math.min(canvas.height - PH * shortMod, playerY));
+        if (twoPlayer) {
+          if (wPressed) player2Y -= paddleSpeed;
+          if (sPressed) player2Y += paddleSpeed;
+          player2Y = Math.max(
+            0,
+            Math.min(canvas.height - PH * shortMod, player2Y),
+          );
+        } else {
+          const aiCenter = aiY + (PH * shortMod) / 2;
+          const diff = p1 - p2;
+          let predictedY = ball.y;
+          if (ball.vx > 0) {
+            let currentVx = ball.vx;
+            if (activePower && activePower.type === "ghost") {
+              currentVx *= 0.6;
+            }
+            const timeToReach =
+              (canvas.width - 18 - PW * wideMod - ball.x) / currentVx;
+            predictedY =
+              ball.y + ball.vy * timeToReach + ball.spin * timeToReach;
+            while (predictedY < 0 || predictedY > canvas.height) {
+              if (predictedY < 0) predictedY = -predictedY;
+              else predictedY = 2 * canvas.height - predictedY;
+            }
+          } else {
+            predictedY = canvas.height / 2;
+          }
+          moveAI(predictedY, aiCenter, diff, nextTarget - p1);
+        }
+        const steps = Math.ceil(Math.max(Math.abs(ball.vx), Math.abs(ball.vy)) / 8);
+        for (let s = 0; s < steps; s++) {
+          ball.x += ball.vx / steps;
+          ball.y += (ball.vy + ball.spin) / steps;
+
+          if (ball.vx < 0 && ball.x < canvas.width * 0.15 && flashTime <= 0) {
+            flashColor = "#ff0000";
+            flashTime = 12;
+          }
+
+          if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+            ball.vy = -ball.vy;
+            ball.spin = -ball.spin * 0.7;
+            if (soundOn) playBeep();
+            ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
+          }
+
+          let extraHitbox = auraOpacity > 0 ? 20 : 0;
+          if (ball.vx < 0 && ball.x - ball.radius < 18 + PW * wideMod + extraHitbox &&
+              ball.y > playerY - extraHitbox && ball.y < playerY + PH * shortMod + extraHitbox) {
+            if (soundOn) playBeep();
+            const rel = (ball.y - (playerY + (PH * shortMod) / 2)) / ((PH * shortMod) / 2);
+            const move = (up ? -1 : 0) + (down ? 1 : 0);
+            ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
+            const angle = rel * (Math.PI / 2.5);
+            let phaseMax = 18 + Math.pow(phase / 20, 1.2) * 5;
+            phaseMax = Math.min(42, phaseMax);
+            let speed = Math.hypot(ball.vx, ball.vy) * 1.08 + 0.4;
+            speed = Math.min(phaseMax, speed);
+            ball.vx = Math.abs(speed * Math.cos(angle));
+            ball.vy = speed * Math.sin(angle);
+            ball.x = 18 + PW * wideMod + ball.radius;
+            break;
+          }
+
+          const rightY = twoPlayer ? player2Y : aiY;
+          if (ball.vx > 0 && ball.x + ball.radius > canvas.width - 18 - PW * wideMod - extraHitbox &&
+              ball.y > rightY - extraHitbox && ball.y < rightY + PH * shortMod + extraHitbox) {
+            if (soundOn) playBeep();
+            const rel = (ball.y - (rightY + (PH * shortMod) / 2)) / ((PH * shortMod) / 2);
+            const move = twoPlayer ? (wPressed ? -1 : 0) + (sPressed ? 1 : 0) : (aiY - rightY) / 8;
+            ball.spin = Math.max(-3, Math.min(3, move + rel * 2));
+            const angle = rel * (Math.PI / 2.5);
+            let phaseMax = 18 + Math.pow(phase / 20, 1.2) * 5;
+            phaseMax = Math.min(42, phaseMax);
+            let speed = Math.hypot(ball.vx, ball.vy) * 1.08 + 0.4;
+            speed = Math.min(phaseMax, speed);
+            ball.vx = -Math.abs(speed * Math.cos(angle));
+            ball.vy = speed * Math.sin(angle);
+            ball.x = canvas.width - 18 - PW * wideMod - ball.radius;
+            break;
+          }
+        }
+        trail.push({ x: ball.x, y: ball.y });
+        if (trail.length > TRAIL_MAX) trail.shift();
+        collectPower();
+        if (ball.x - ball.radius < 0) {
+          if (shieldActive) {
+            shieldActive = false;
+            ball.vx = Math.abs(ball.vx);
+            ball.x = ball.radius + 10;
+            shakeTime = 10;
+            if (soundOn) {
+              playBeep();
+            }
+            return;
+          }
+          p2++;
+          p2El.innerText = p2;
+          updateScoreboardHUD();
+          if (!twoPlayer) updateSurvivalHUD(p1, p2, phase);
+          if (soundOn) {
+            playScore();
+          }
+          ball = newBall(false);
+          trail = [];
+          deactivatePower();
+          if (twoPlayer) {
+            if (p2 - p1 >= 10) endGame("Player 2 Wins!");
+          } else {
+            if (p2 - p1 >= getLeadLimit(phase)) endGame("ELIMINATED");
+          }
+        }
+        if (ball.x + ball.radius > canvas.width) {
+          if (shieldActive) {
+            shieldActive = false;
+            ball.vx = -Math.abs(ball.vx);
+            ball.x = canvas.width - ball.radius - 10;
+            shakeTime = 10;
+            if (soundOn) {
+              playBeep();
+            }
+            return;
+          }
+          p1++;
+          p1El.innerText = p1;
+          updateScoreboardHUD();
+          if (!twoPlayer) updateSurvivalHUD(p1, p2, phase);
+          if (soundOn) {
+            playScore();
+          }
+          ball = newBall(true);
+          trail = [];
+          deactivatePower();
+          if (twoPlayer) {
+            if (p1 - p2 >= 10) endGame("Player 1 Wins!");
+          } else {
+            if (p1 >= nextTarget) phaseUp();
+          }
+        }
+        if (!activePower && !powerItem && Math.random() < 0.0025) spawnPower();
+        if (activePower) {
+          powerTimer--;
+          if (powerTimer <= 0) deactivatePower();
+        }
+      }
+      function getVerdict(p) {
+        if (p <= 5) return "NEON NOVICE";
+        if (p <= 15) return "GRID RUNNER";
+        if (p <= 35) return "PULSE WARRIOR";
+        if (p <= 70) return "OVERDRIVE ELITE";
+        if (p <= 120) return "QUANTUM MASTER";
+        return "PINGZERO LEGEND";
+      }
+      function endGame(titleStr) {
+        gameover = true;
         paused = true;
-        pauseBtn.style.display = 'none';
-        resumeBtn.style.display = '';
+        document.querySelector(".go-glitch").innerText = titleStr;
+        if (twoPlayer) {
+          document.getElementById("go-phase").innerText = "N/A";
+          document.getElementById("go-score").innerText = p1 + " - " + p2;
+          document.getElementById("go-verdict").innerText = "MULTIPLAYER MATCH";
+        } else {
+          document.getElementById("go-phase").innerText = phase;
+          document.getElementById("go-score").innerText = p1;
+          document.getElementById("go-verdict").innerText = getVerdict(phase);
+        }
         gameMusic.stop();
+        if (soundOn) {
+          playGameOver();
+        }
+        const block = Math.min(Math.floor((phase - 1) / 12), 9);
+        const phaseCol = phaseColors[block];
+        gameoverDiv.style.display = "block";
+        powerupEl.style.display = "none";
+        Ads.show("gameover");
+        if (p1 > highScore) {
+          highScore = p1;
+          localStorage.setItem("pongHighScore", highScore);
+        }
+        document.getElementById("go-high").innerText = highScore;
       }
-    }
-  });
-  
-  window.addEventListener('keyup', function(e) {
-    if (e.key === 'ArrowUp') { up = false; e.preventDefault(); }
-    if (e.key === 'ArrowDown') { down = false; e.preventDefault(); }
-    if (e.key === 'w' || e.key === 'W') { wPressed = false; e.preventDefault(); }
-    if (e.key === 's' || e.key === 'S') { sPressed = false; e.preventDefault(); }
-  });
-  
-  let touchActive = false;
-  let touchThrottle = false;
-  
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    if (touchThrottle) return;
-    touchThrottle = true;
-    
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
-    if (x < canvas.width / 2.5) {
-      touchActive = true;
-      const y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
-      playerY = Math.max(0, Math.min(canvas.height - PH * shortMod, y - (PH * shortMod)/2));
-    }
-    
-    setTimeout(function() { touchThrottle = false; }, 50);
-  });
-  
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (touchActive) {
-      const rect = canvas.getBoundingClientRect();
-      const y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
-      playerY = Math.max(0, Math.min(canvas.height - PH * shortMod, y - (PH * shortMod)/2));
-    }
-  });
-  
-  canvas.addEventListener('touchend', function() { touchActive = false; });
-  canvas.addEventListener('touchcancel', function() { touchActive = false; });
-  
-  pauseBtn.onclick = function() {
-    paused = true;
-    pauseBtn.style.display = 'none';
-    resumeBtn.style.display = '';
-    gameMusic.stop();
-  };
-  
-  resumeBtn.onclick = function() {
-    if (!gameover) {
-      paused = false;
-      pauseBtn.style.display = '';
-      resumeBtn.style.display = 'none';
-      if (soundOn && gameMusic.ctx) gameMusic.start();
-    }
-  };
-  
-  resetBtn.onclick = resetGame;
-  
-  document.querySelector('#gameover button').addEventListener('click', function() {
-    Ads.show('playagain');
-    resetGame();
-  });
-  
-  modeBtn.onclick = function() {
-    twoPlayer = !twoPlayer;
-    modeBtn.innerText = `2P: ${twoPlayer ? 'On' : 'Off'}`;
-  };
-  
-  soundBtn.onclick = function() {
-    soundOn = !soundOn;
-    soundBtn.innerText = `Sound: ${soundOn ? 'On' : 'Off'}`;
-    if (!soundOn) {
-      gameMusic.stop();
-    } else if (!gameover && !paused && gameMusic.ctx) {
-      gameMusic.start();
-    }
-  };
-  
-  themeBtn.onclick = function() {
-    light = !light;
-    document.body.classList.toggle('light', light);
-    themeBtn.innerText = `Theme: ${light ? 'Light' : 'Dark'}`;
-    const reminder = document.querySelector('.endless-search-reminder');
-    if (reminder) {
-      reminder.style.background = light ? 'rgba(255,255,255,0.85)' : 'rgba(10,20,30,0.85)';
-      reminder.style.color = light ? '#000' : '#fff';
-    }
-  };
-  
-  const upArrow = document.getElementById('upArrow');
-  const downArrow = document.getElementById('downArrow');
-  let upInt, downInt;
-  
-  function pressUp() {
-    up = true;
-    upArrow.classList.add('active');
-    if (navigator.vibrate) navigator.vibrate(6);
-    clearInterval(upInt);
-    upInt = setInterval(function() { playerY = Math.max(0, playerY - paddleSpeed * 1.2); }, 16);
-  }
-  
-  function releaseUp() {
-    up = false;
-    upArrow.classList.remove('active');
-    clearInterval(upInt);
-  }
-  
-  function pressDown() {
-    down = true;
-    downArrow.classList.add('active');
-    if (navigator.vibrate) navigator.vibrate(6);
-    clearInterval(downInt);
-    downInt = setInterval(function() { playerY = Math.min(canvas.height - PH * shortMod, playerY + paddleSpeed * 1.2); }, 16);
-  }
-  
-  function releaseDown() {
-    down = false;
-    downArrow.classList.remove('active');
-    clearInterval(downInt);
-  }
-  
-  var events = ['pointerdown','touchstart','mousedown'];
-  for (var i = 0; i < events.length; i++) {
-    upArrow.addEventListener(events[i], function(e) { e.preventDefault(); pressUp(); });
-    downArrow.addEventListener(events[i], function(e) { e.preventDefault(); pressDown(); });
-  }
-  
-  var eventsEnd = ['pointerup','pointercancel','pointerleave','touchend','touchcancel','mouseup','mouseleave'];
-  for (var i = 0; i < eventsEnd.length; i++) {
-    upArrow.addEventListener(eventsEnd[i], function(e) { e.preventDefault(); releaseUp(); });
-    downArrow.addEventListener(eventsEnd[i], function(e) { e.preventDefault(); releaseDown(); });
-  }
-  
-  upArrow.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  downArrow.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  
-  updatePhaseTheme();
-  ball = newBall(true);
-  
-  let frameSkip = 0;
-  const FRAME_SKIP_MAX = 1;
-  
-  function gameLoop() {
-    if (!paused && !gameover) {
-      frameSkip = (frameSkip + 1) % FRAME_SKIP_MAX;
-      if (frameSkip === 0) {
-        update();
+      function resetGame() {
+        p1 = 0;
+        p2 = 0;
+        p1El.innerText = 0;
+        p2El.innerText = 0;
+        phase = 1;
+        nextTarget = MILESTONE;
+        paddleSpeed = 11;
+        aiBase = 0.12;
+        aiErrorBase = 45;
+        playerY = canvas.height / 2 - PH / 2;
+        aiY = canvas.height / 2 - PH / 2;
+        player2Y = canvas.height / 2 - PH / 2;
+        ball = newBall(true);
+        trail = [];
+        deactivatePower();
+        gameover = false;
+        paused = false;
+        gameoverDiv.style.display = "none";
+        updatePhaseTheme();
+        Ads.reset();
+        gameMusic.setPhase(1);
+        gameMusic.masterGain.gain.setValueAtTime(
+          0.14,
+          gameMusic.ctx.currentTime,
+        );
+        gameMusic.stop();
+        if (soundOn && gameMusic.ctx) {
+          setTimeout(function () {
+            gameMusic.start();
+          }, 100);
+        }
       }
-    }
-    draw();
-    requestAnimationFrame(gameLoop);
-  }
-  
-  gameLoop();
-</script>
-</body>
+      window.addEventListener("keydown", function (e) {
+        if (e.repeat) return;
+        if (e.key === "ArrowUp") {
+          up = true;
+          e.preventDefault();
+        }
+        if (e.key === "ArrowDown") {
+          down = true;
+          e.preventDefault();
+        }
+        if (e.key === "w" || e.key === "W") {
+          wPressed = true;
+          e.preventDefault();
+        }
+        if (e.key === "s" || e.key === "S") {
+          sPressed = true;
+          e.preventDefault();
+        }
+        if (e.key === " ") {
+          e.preventDefault();
+          if (gameover) return;
+          if (paused) {
+            paused = false;
+            pauseBtn.style.display = "";
+            resumeBtn.style.display = "none";
+            if (soundOn && gameMusic.ctx) gameMusic.start();
+          } else {
+            paused = true;
+            pauseBtn.style.display = "none";
+            resumeBtn.style.display = "";
+            gameMusic.stop();
+            Ads.show("pause");
+          }
+        }
+      });
+      document
+        .getElementById("retryBtn")
+        .addEventListener("click", function () {
+          Ads.show("playagain");
+          resetGame();
+        });
+      window.addEventListener("keyup", function (e) {
+        if (e.key === "ArrowUp") {
+          up = false;
+          e.preventDefault();
+        }
+        if (e.key === "ArrowDown") {
+          down = false;
+          e.preventDefault();
+        }
+        if (e.key === "w" || e.key === "W") {
+          wPressed = false;
+          e.preventDefault();
+        }
+        if (e.key === "s" || e.key === "S") {
+          sPressed = false;
+          e.preventDefault();
+        }
+      });
+      let touchActive = false;
+      let touchThrottle = false;
+      canvas.addEventListener("touchstart", function (e) {
+        e.preventDefault();
+        if (touchThrottle) return;
+        touchThrottle = true;
+        const rect = canvas.getBoundingClientRect();
+        const x =
+          (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+        if (x < canvas.width / 2.5) {
+          touchActive = true;
+          const y =
+            (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
+          playerY = Math.max(
+            0,
+            Math.min(canvas.height - PH * shortMod, y - (PH * shortMod) / 2),
+          );
+        }
+        setTimeout(function () {
+          touchThrottle = false;
+        }, 50);
+      });
+      canvas.addEventListener("touchmove", function (e) {
+        e.preventDefault();
+        if (touchActive) {
+          const rect = canvas.getBoundingClientRect();
+          const y =
+            (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
+          playerY = Math.max(
+            0,
+            Math.min(canvas.height - PH * shortMod, y - (PH * shortMod) / 2),
+          );
+        }
+      });
+      canvas.addEventListener("touchend", function () {
+        touchActive = false;
+      });
+      canvas.addEventListener("touchcancel", function () {
+        touchActive = false;
+      });
+      shelfTrigger.onclick = function () {
+        settingsShelf.classList.toggle("open");
+        shelfTrigger.classList.toggle("active");
+      };
+      pauseBtn.onclick = function () {
+        paused = true;
+        pauseBtn.style.display = "none";
+        resumeBtn.style.display = "";
+        gameMusic.stop();
+        Ads.show("pause");
+      };
+      resumeBtn.onclick = function () {
+        if (!gameover) {
+          paused = false;
+          pauseBtn.style.display = "";
+          resumeBtn.style.display = "none";
+          if (soundOn && gameMusic.ctx) gameMusic.start();
+        }
+      };
+      resetBtn.onclick = resetGame;
+      modeBtn.onclick = function () {
+        twoPlayer = !twoPlayer;
+        modeBtn.innerText = `👤 2P: ${twoPlayer ? "On" : "Off"}`;
+      };
+      soundBtn.onclick = function () {
+        soundOn = !soundOn;
+        soundBtn.innerText = `${soundOn ? "🔊" : "🔇"} Sound: ${soundOn ? "On" : "Off"}`;
+        if (!soundOn) {
+          gameMusic.stop();
+        } else if (!gameover && !paused && gameMusic.ctx) {
+          gameMusic.start();
+        }
+      };
+      themeBtn.onclick = function () {
+        light = !light;
+        document.body.classList.toggle("light", light);
+        themeBtn.innerText = `🌓 Theme: ${light ? "Light" : "Dark"}`;
+        const reminder = document.querySelector(".endless-search-reminder");
+        if (reminder) {
+          reminder.style.background = light
+            ? "rgba(255,255,255,0.85)"
+            : "rgba(10,20,30,0.85)";
+          reminder.style.color = light ? "#000" : "#fff";
+        }
+      };
+      const upArrow = document.getElementById("upArrow");
+      const downArrow = document.getElementById("downArrow");
+      let upInt, downInt;
+      function pressUp() {
+        up = true;
+        upArrow.classList.add("active");
+        if (navigator.vibrate) navigator.vibrate(6);
+        clearInterval(upInt);
+        upInt = setInterval(function () {
+          playerY = Math.max(0, playerY - paddleSpeed * 1.2);
+        }, 16);
+      }
+      function releaseUp() {
+        up = false;
+        upArrow.classList.remove("active");
+        clearInterval(upInt);
+      }
+      function pressDown() {
+        down = true;
+        downArrow.classList.add("active");
+        if (navigator.vibrate) navigator.vibrate(6);
+        clearInterval(downInt);
+        downInt = setInterval(function () {
+          playerY = Math.min(
+            canvas.height - PH * shortMod,
+            playerY + paddleSpeed * 1.2,
+          );
+        }, 16);
+      }
+      function releaseDown() {
+        down = false;
+        downArrow.classList.remove("active");
+        clearInterval(downInt);
+      }
+      var events = ["pointerdown", "touchstart", "mousedown"];
+      for (var i = 0; i < events.length; i++) {
+        upArrow.addEventListener(events[i], function (e) {
+          e.preventDefault();
+          pressUp();
+        });
+        downArrow.addEventListener(events[i], function (e) {
+          e.preventDefault();
+          pressDown();
+        });
+      }
+      var eventsEnd = [
+        "pointerup",
+        "pointercancel",
+        "pointerleave",
+        "touchend",
+        "touchcancel",
+        "mouseup",
+        "mouseleave",
+      ];
+      for (var i = 0; i < eventsEnd.length; i++) {
+        upArrow.addEventListener(eventsEnd[i], function (e) {
+          e.preventDefault();
+          releaseUp();
+        });
+        downArrow.addEventListener(eventsEnd[i], function (e) {
+          e.preventDefault();
+          releaseDown();
+        });
+      }
+      upArrow.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
+      downArrow.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
+      updatePhaseTheme();
+      ball = newBall(true);
+      let frameSkip = 0;
+      const FRAME_SKIP_MAX = 1;
+      const TARGET_INTERVAL = lowEnd ? 1000 / 30 : 0;
+      let lastFrameTime = 0;
+      function gameLoop(timestamp) {
+        if (lowEnd && timestamp - lastFrameTime < TARGET_INTERVAL) {
+          requestAnimationFrame(gameLoop);
+          return;
+        }
+        lastFrameTime = timestamp;
+        if (!paused && !gameover) {
+          frameSkip = (frameSkip + 1) % FRAME_SKIP_MAX;
+          if (frameSkip === 0) {
+            update();
+          }
+        }
+        let sx = 0,
+          sy = 0;
+        if (shakeTime > 0) {
+          if (!lowEnd) {
+            sx = (Math.random() - 0.5) * 12;
+            sy = (Math.random() - 0.5) * 12;
+          }
+          shakeTime--;
+        }
+        ctx.save();
+        ctx.translate(sx, sy);
+        draw();
+        if (flashTime > 0) {
+          ctx.fillStyle = flashColor + "22";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          flashTime--;
+        }
+        ctx.restore();
+        requestAnimationFrame(gameLoop);
+      }
+      gameLoop(0);
+      let deferredInstallPrompt = null;
+      const installBanner = document.getElementById("install-banner");
+      const installBtn = document.getElementById("install-btn");
+      const installDismiss = document.getElementById("install-dismiss");
+      window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        setTimeout(function () {
+          if (deferredInstallPrompt) {
+            installBanner.style.display = "flex";
+          }
+        }, 5000);
+      });
+      installBtn.addEventListener("click", async function () {
+        if (!deferredInstallPrompt) return;
+        installBanner.style.display = "none";
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      });
+      installDismiss.addEventListener("click", function () {
+        installBanner.style.display = "none";
+        deferredInstallPrompt = null;
+      });
+      window.addEventListener("appinstalled", function () {
+        installBanner.style.display = "none";
+        deferredInstallPrompt = null;
+      });
+    </script>
+  </body>
 </html>
